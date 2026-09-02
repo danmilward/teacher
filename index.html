@@ -18,7 +18,8 @@
     line-height:1.6;
   }
   .wrap{ max-width:720px; margin:0 auto; }
-  .byline{ margin:0 0 28px; padding-bottom:20px; border-bottom:2px solid var(--line); }
+  .byline{ display:flex; align-items:center; gap:18px; margin:0 0 28px; padding-bottom:20px; border-bottom:2px solid var(--line); }
+  .byline img{ width:88px; height:88px; border-radius:50%; object-fit:cover; border:3px solid var(--sun); flex-shrink:0; }
   .byline .name{ font-size:1.5rem; font-weight:bold; margin:0; }
   .byline .role{ margin:0; color:var(--soft); }
   h1{ font-size:2rem; margin:0 0 8px; }
@@ -38,11 +39,14 @@
 <body>
 <div class="wrap">
   <header class="byline">
+    <img src="dan.jpg" alt="Dan Milward">
+    <div>
     <p class="name">Dan Milward</p>
     <p class="role">Primary Teacher | Games &amp; Technology | Creative Learning</p>
+    </div>
   </header>
   <h1>Resources for Learning</h1>
-  <p class="lead">Pick a game to play.</p>
+  <p class="lead">Pick something to explore.</p>
   <ul class="games">
     <li>
       <a href="story-card-game.html">
