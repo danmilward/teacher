@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://danmilward.github.io/teacher/sitemap.xml
