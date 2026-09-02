@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Writing for Father's Day</title>
+<style>
+  :root{
+    --paper:#FDF6EC; --ink:#3A2E2A; --soft:#8A7A72;
+    --sun:#F6B93B; --leaf:#2E9E6B; --berry:#E05B4B; --sky:#4A90D9;
+    --card:#FFFFFF; --line:#E8DCCB;
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0; padding:24px 16px 64px;
+    background:var(--paper); color:var(--ink);
+    font-family:"Comic Sans MS","Chalkboard SE","Segoe UI Rounded",-apple-system,sans-serif;
+    line-height:1.6;
+  }
+  .wrap{ max-width:720px; margin:0 auto; }
+  .back{ display:inline-block; margin-bottom:16px; color:var(--sky); text-decoration:none; }
+  .back:hover{ text-decoration:underline; }
+  h1{ font-size:2rem; margin:0 0 8px; }
+  p.lead{ color:var(--soft); margin:0 0 16px; }
+  .objective{
+    margin:0 0 32px; padding:8px 12px;
+    background:var(--card); border-left:4px solid var(--leaf); border-radius:8px;
+    font-size:.95rem;
+  }
+  .objective strong{ color:var(--leaf); }
+  .steps{ list-style:none; padding:0; margin:0; display:grid; gap:24px; counter-reset:step; }
+  .step{
+    background:var(--card); border:2px solid var(--line); border-radius:16px;
+    padding:20px 24px;
+  }
+  .step h2{ margin:0 0 12px; font-size:1.25rem; display:flex; align-items:center; gap:12px; }
+  .step h2::before{
+    counter-increment:step; content:counter(step);
+    display:inline-flex; align-items:center; justify-content:center;
+    width:32px; height:32px; border-radius:50%;
+    background:var(--sun); color:var(--ink); font-size:1rem; flex-shrink:0;
+  }
+  .step img{
+    display:block; width:100%; max-width:420px; height:auto;
+    border:1px solid var(--line); border-radius:8px; margin:0 0 12px;
+  }
+  .btn{
+    display:inline-block; padding:10px 18px;
+    background:var(--sky); color:#fff; border-radius:999px;
+    text-decoration:none; font-weight:bold;
+  }
+  .btn:hover{ background:#3a7ec4; }
+  .step p{ margin:0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="index.html">&larr; Back to Resources for Learning</a>
+  <h1>Writing for Father's Day</h1>
+  <p class="lead">Downloadable templates.</p>
+  <p class="objective"><strong>Objective:</strong> Learning new words, developing knowledge of story elements</p>
+
+  <ol class="steps">
+    <li class="step">
+      <h2>Sentence builder</h2>
+      <a href="fathers-day/sentence-builder.png" target="_blank"><img src="fathers-day/sentence-builder.png" alt="Sentence builder worksheet: Dad / Male role model, with questions about the problem, solution, where and when, and how it made you feel"></a>
+      <a class="btn" href="fathers-day/sentence-builder.png" download="fathers-day-sentence-builder.png">Download sentence builder</a>
+    </li>
+    <li class="step">
+      <h2>Draft template</h2>
+      <a href="fathers-day/draft-template.png" target="_blank"><img src="fathers-day/draft-template.png" alt="Draft thank you card template: Dear, Thank you for, lined space, From"></a>
+      <a class="btn" href="fathers-day/draft-template.png" download="fathers-day-draft-template.png">Download draft template</a>
+    </li>
+    <li class="step">
+      <h2>Copy draft text over to card</h2>
+      <p>Once your draft has been checked, copy your text neatly onto your Father's Day card.</p>
+    </li>
+  </ol>
+</div>
+</body>
+</html>
