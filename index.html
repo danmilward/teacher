@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Story card game</title>
+<title>BSLA Sentence Games</title>
 <style>
   :root{
     --paper:#FDF6EC; --ink:#3A2E2A; --soft:#8A7A72;
@@ -18,287 +18,32 @@
     line-height:1.6;
   }
   .wrap{ max-width:720px; margin:0 auto; }
-  h1{ font-size:30px; margin:0 0 4px; }
-  .sub{ color:var(--soft); font-size:17px; margin:0 0 20px; }
-  .tabs{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:24px; }
-  .tab{
-    border:3px solid var(--ink); background:var(--card); color:var(--ink);
-    border-radius:999px; padding:10px 20px; font:inherit; font-size:17px;
-    cursor:pointer; box-shadow:3px 3px 0 var(--ink);
+  h1{ font-size:2rem; margin:0 0 8px; }
+  p.lead{ color:var(--soft); margin:0 0 32px; }
+  .games{ list-style:none; padding:0; margin:0; display:grid; gap:16px; }
+  .games a{
+    display:block; padding:20px 24px;
+    background:var(--card); border:2px solid var(--line); border-radius:16px;
+    color:var(--ink); text-decoration:none;
+    transition:transform .1s, border-color .1s;
   }
-  .tab:active{ transform:translate(2px,2px); box-shadow:1px 1px 0 var(--ink); }
-  .tab.on{ background:var(--sun); }
-  .bigcard{
-    background:var(--card); border:3px solid var(--ink); border-radius:20px;
-    padding:36px 16px; text-align:center; box-shadow:5px 5px 0 var(--line);
-    margin-bottom:16px;
-  }
-  .bigcard .pic{ font-size:64px; display:block; }
-  .bigcard .txt{ font-size:22px; margin:12px 0 0; }
-  .choices{ display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px; margin-bottom:14px; }
-  .choice{
-    border:3px solid var(--ink); border-radius:16px; background:var(--card);
-    font:inherit; font-size:18px; padding:16px 8px; cursor:pointer;
-    box-shadow:3px 3px 0 var(--line);
-  }
-  .choice:active{ transform:translate(2px,2px); box-shadow:1px 1px 0 var(--line); }
-  .choice.picked{ border-color:var(--sky); background:#EAF3FC; box-shadow:3px 3px 0 var(--sky); }
-  .oddcard{ display:flex; flex-direction:column; align-items:center; gap:8px; padding:22px 8px; }
-  .oddcard .pic{ font-size:44px; }
-  .feedback{ min-height:30px; font-size:18px; margin:0 0 10px; }
-  .good{ color:var(--leaf); } .oops{ color:var(--berry); }
-  .meta{ color:var(--soft); font-size:15px; margin:0; }
-  .rowlabel{ font-size:15px; color:var(--soft); margin:18px 0 8px; }
-  .story{
-    display:none; background:#FFF9E8; border:3px dashed var(--sun);
-    border-radius:20px; padding:20px 22px; margin:18px 0; font-size:20px;
-  }
-  .btnrow{ display:flex; gap:10px; flex-wrap:wrap; }
-  .mode{ display:none; } .mode.on{ display:block; }
-  em{ font-style:normal; text-decoration:underline; text-decoration-color:var(--sun); text-decoration-thickness:3px; }
-  @media print{ .tabs{ display:none; } }
+  .games a:hover{ transform:translateY(-2px); border-color:var(--sun); }
+  .games h2{ margin:0 0 4px; font-size:1.25rem; }
+  .games p{ margin:0; color:var(--soft); }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>📚 Story card game</h1>
-  <p class="sub">Sort the cards, spot the odd one out, then build your own story!</p>
-
-  <div class="tabs">
-    <button class="tab on" id="tab-sort" onclick="showMode('sort')">🗂️ Sort it</button>
-    <button class="tab" id="tab-odd" onclick="showMode('odd')">🔍 Odd one out</button>
-    <button class="tab" id="tab-build" onclick="showMode('build')">✏️ Build a story</button>
-  </div>
-
-  <div class="mode on" id="mode-sort">
-    <p class="feedback" style="color:var(--soft)">Look at the card. Which part of a story is it?</p>
-    <div class="bigcard">
-      <span class="pic" id="sort-pic">🚀</span>
-      <p class="txt" id="sort-text">A rocket zooming to the Moon</p>
-    </div>
-    <div class="choices">
-      <button class="choice" onclick="answerSort('character')">🙂 Character</button>
-      <button class="choice" onclick="answerSort('setting')">🗺️ Setting</button>
-      <button class="choice" onclick="answerSort('problem')">😟 Problem</button>
-      <button class="choice" onclick="answerSort('solution')">💡 Solution</button>
-    </div>
-    <p class="feedback" id="sort-feedback"></p>
-    <p class="meta" id="sort-score">Card 1 of 8</p>
-  </div>
-
-  <div class="mode" id="mode-odd">
-    <p class="feedback" style="color:var(--soft)">Tap the card that doesn't belong. There is no wrong answer — but you must say <em>why</em>!</p>
-    <div class="choices" id="odd-grid"></div>
-    <div class="feedback" id="odd-feedback" style="min-height:60px;"></div>
-    <div class="btnrow">
-      <button class="tab" onclick="renderOddSet()">🔁 Choose a different card</button>
-      <button class="tab" onclick="nextOddSet()">Next set ➡️</button>
-    </div>
-  </div>
-
-  <div class="mode" id="mode-build">
-    <p class="feedback" style="color:var(--soft)">Pick one card from each row to build your story.</p>
-    <div id="build-rows"></div>
-    <div class="story" id="build-story">
-      <p class="rowlabel" style="margin-top:0">Your story</p>
-      <p id="build-story-text" style="margin:0"></p>
-    </div>
-    <div class="btnrow" id="build-actions" style="display:none;">
-      <button class="tab" onclick="readStory()">🔊 Read it to me</button>
-      <button class="tab" onclick="resetBuild()">🔁 Start again</button>
-    </div>
-  </div>
+  <h1>BSLA Sentence Games</h1>
+  <p class="lead">Pick a game to play.</p>
+  <ul class="games">
+    <li>
+      <a href="story-card-game.html">
+        <h2>Story card game</h2>
+        <p>Sort the sentences, spot the odd one out, and build your own story.</p>
+      </a>
+    </li>
+  </ul>
 </div>
-
-<script>
-const CAT_LABEL = {character:'Character', setting:'Setting', problem:'Problem', solution:'Solution'};
-
-const sortCards = [
-  {pic:'🧑‍🚀', text:'A brave space explorer', cat:'character'},
-  {pic:'🌕', text:'The Moon, far away in space', cat:'setting'},
-  {pic:'⛽', text:'The rocket has run out of fuel!', cat:'problem'},
-  {pic:'🔧', text:'The explorer fixes the rocket', cat:'solution'},
-  {pic:'🏰', text:'A castle on a tall hill', cat:'setting'},
-  {pic:'🐶', text:'A puppy who loves to dig', cat:'character'},
-  {pic:'🔑', text:'The key to the door is lost!', cat:'problem'},
-  {pic:'🤝', text:'A friend helps look, and they find it', cat:'solution'}
-];
-let sortIdx = 0, sortScore = 0, sortLocked = false;
-
-function renderSortCard(){
-  const c = sortCards[sortIdx];
-  document.getElementById('sort-pic').textContent = c.pic;
-  document.getElementById('sort-text').textContent = c.text;
-  const fb = document.getElementById('sort-feedback');
-  fb.textContent = ''; fb.className = 'feedback';
-  document.getElementById('sort-score').textContent = 'Card ' + (sortIdx+1) + ' of ' + sortCards.length;
-  sortLocked = false;
-}
-
-function answerSort(choice){
-  if (sortLocked) return;
-  const c = sortCards[sortIdx];
-  const fb = document.getElementById('sort-feedback');
-  if (choice === c.cat){
-    sortScore++;
-    fb.className = 'feedback good';
-    fb.textContent = '✅ Yes! It\'s a ' + CAT_LABEL[c.cat].toLowerCase() + ' card.';
-    sortLocked = true;
-    setTimeout(()=>{
-      sortIdx++;
-      if (sortIdx >= sortCards.length){
-        document.getElementById('sort-pic').textContent = '🏆';
-        document.getElementById('sort-text').textContent = 'You sorted them all!';
-        fb.className = 'feedback';
-        fb.innerHTML = '<button class="tab" onclick="restartSort()">🔁 Play again</button>';
-        document.getElementById('sort-score').textContent =
-          'You got ' + sortScore + ' first tries right out of ' + sortCards.length + '.';
-      } else {
-        renderSortCard();
-      }
-    }, 1100);
-  } else {
-    fb.className = 'feedback oops';
-    fb.textContent = '🤔 Hmm, not quite — read the card again. What is it telling us about?';
-  }
-}
-
-function restartSort(){ sortIdx = 0; sortScore = 0; renderSortCard(); }
-
-const oddSets = [
-  {cards:[
-    {pic:'🐉', text:'A dragon', why:"it's the only creature"},
-    {pic:'🧙', text:'A wizard', why:"it's the only person"},
-    {pic:'🏰', text:'A castle', why:"it's a place, not a character"},
-    {pic:'🍎', text:'An apple', why:"it's not from a fantasy story"}
-  ]},
-  {cards:[
-    {pic:'🏖️', text:'A sunny beach', why:"it's the only warm place"},
-    {pic:'🏔️', text:'A snowy mountain', why:"it's the only cold place"},
-    {pic:'🌲', text:'A dark forest', why:"it's the only scary place"},
-    {pic:'🐕', text:'A lost dog', why:"it's a character, not a setting"}
-  ]},
-  {cards:[
-    {pic:'🌧️', text:'It starts to rain on the picnic', why:"it's about weather"},
-    {pic:'🗺️', text:'The pirate loses the map', why:"it's about losing something"},
-    {pic:'🚪', text:'The door is locked', why:"it's about being stuck"},
-    {pic:'🎉', text:'Everyone has a big party', why:"it's a happy ending, not a problem"}
-  ]}
-];
-let oddIdx = 0;
-
-function renderOddSet(){
-  const grid = document.getElementById('odd-grid');
-  grid.innerHTML = '';
-  oddSets[oddIdx].cards.forEach((c)=>{
-    const b = document.createElement('button');
-    b.className = 'choice oddcard';
-    b.innerHTML = '<span class="pic">' + c.pic + '</span><span>' + c.text + '</span>';
-    b.onclick = ()=>pickOdd(c, b);
-    grid.appendChild(b);
-  });
-  document.getElementById('odd-feedback').innerHTML = '';
-}
-
-function pickOdd(c, btn){
-  [...document.getElementById('odd-grid').children].forEach(el=>el.classList.remove('picked'));
-  btn.classList.add('picked');
-  document.getElementById('odd-feedback').innerHTML =
-    '<p style="margin:0 0 4px;"><strong>💬 Good choice!</strong> Tell your partner <em>why</em> it doesn\'t belong.</p>' +
-    '<p class="meta" style="margin:0;">One idea: maybe because ' + c.why + '. Can you think of a different reason?</p>';
-}
-
-function nextOddSet(){ oddIdx = (oddIdx+1) % oddSets.length; renderOddSet(); }
-
-const buildRows = [
-  {cat:'character', cards:[
-    {pic:'🧑‍🚀', text:'a brave explorer'},
-    {pic:'🐉', text:'a friendly dragon'},
-    {pic:'🐶', text:'a lost puppy'}
-  ]},
-  {cat:'setting', cards:[
-    {pic:'🌕', text:'on the Moon'},
-    {pic:'🏰', text:'in an old castle'},
-    {pic:'🌲', text:'deep in a forest'}
-  ]},
-  {cat:'problem', cards:[
-    {pic:'🔑', text:'the key was lost'},
-    {pic:'⛈️', text:'a big storm came'},
-    {pic:'🗺️', text:'the map blew away'}
-  ]},
-  {cat:'solution', cards:[
-    {pic:'🤝', text:'a friend came to help'},
-    {pic:'💡', text:'they had a clever idea'},
-    {pic:'❤️', text:'they were kind and brave'}
-  ]}
-];
-const buildPicks = {character:null, setting:null, problem:null, solution:null};
-
-function renderBuildRows(){
-  const wrap = document.getElementById('build-rows');
-  wrap.innerHTML = '';
-  buildRows.forEach(row=>{
-    const label = document.createElement('p');
-    label.className = 'rowlabel';
-    label.textContent = CAT_LABEL[row.cat];
-    wrap.appendChild(label);
-    const grid = document.createElement('div');
-    grid.className = 'choices';
-    row.cards.forEach(c=>{
-      const b = document.createElement('button');
-      b.className = 'choice';
-      b.innerHTML = c.pic + ' ' + c.text;
-      b.onclick = ()=>{
-        buildPicks[row.cat] = c.text;
-        [...grid.children].forEach(el=>el.classList.remove('picked'));
-        b.classList.add('picked');
-        updateStory();
-      };
-      grid.appendChild(b);
-    });
-    wrap.appendChild(grid);
-  });
-}
-
-function updateStory(){
-  const p = buildPicks;
-  if (p.character && p.setting && p.problem && p.solution){
-    const story = 'Once upon a time, ' + p.character + ' lived ' + p.setting +
-      '. One day, ' + p.problem + '! But then ' + p.solution +
-      ', and everything was all right in the end.';
-    document.getElementById('build-story-text').textContent = story;
-    document.getElementById('build-story').style.display = 'block';
-    document.getElementById('build-actions').style.display = 'flex';
-  }
-}
-
-function readStory(){
-  const t = document.getElementById('build-story-text').textContent;
-  if ('speechSynthesis' in window){
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(t);
-    u.rate = 0.9;
-    speechSynthesis.speak(u);
-  }
-}
-
-function resetBuild(){
-  buildPicks.character = buildPicks.setting = buildPicks.problem = buildPicks.solution = null;
-  document.getElementById('build-story').style.display = 'none';
-  document.getElementById('build-actions').style.display = 'none';
-  renderBuildRows();
-}
-
-function showMode(m){
-  ['sort','odd','build'].forEach(x=>{
-    document.getElementById('mode-'+x).classList.toggle('on', x===m);
-    document.getElementById('tab-'+x).classList.toggle('on', x===m);
-  });
-}
-
-renderSortCard();
-renderOddSet();
-renderBuildRows();
-</script>
 </body>
 </html>
