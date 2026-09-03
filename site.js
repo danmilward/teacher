@@ -47,7 +47,7 @@
 
     var html = '';
     PAGES.forEach(function(p){ html += '<a href="' + p.href + '">' + p.label + '</a>'; });
-    html += '<hr>';
+    html += '<hr><div class="label">Links</div>';
     SOCIAL.forEach(function(p){ html += '<a href="' + p.href + '">' + p.label + '</a>'; });
     html += '<hr><div class="label">Theme</div>';
     THEMES.forEach(function(t){ html += '<button type="button" data-theme="' + t.id + '">' + t.label + '</button>'; });
