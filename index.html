@@ -28,7 +28,7 @@
     "addressCountry": "NZ"
   },
   "knowsAbout": ["Primary education", "Educational games", "Educational technology", "Creative learning"],
-  "sameAs": ["https://www.linkedin.com/in/danmilward", "https://linktr.ee/danmilward", "https://x.com/dm4wgtn"]
+  "sameAs": ["https://www.linkedin.com/in/danmilward", "https://linktr.ee/danmilward", "https://x.com/danmilward"]
 }
 </script>
 <style>
@@ -53,6 +53,23 @@
   .byline .links a{ color:var(--sky); text-decoration:none; }
   .byline .links a:hover{ text-decoration:underline; }
   .byline .links span{ color:var(--line); margin:0 8px; }
+  .byline .text{ flex:1; }
+  .menu{ position:relative; margin-left:auto; align-self:flex-start; }
+  .menu-btn{
+    width:44px; height:44px; padding:0; cursor:pointer;
+    background:var(--card); border:2px solid var(--line); border-radius:12px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px;
+  }
+  .menu-btn:hover{ border-color:var(--sun); }
+  .menu-btn span{ display:block; width:20px; height:3px; border-radius:2px; background:var(--ink); }
+  .menu-panel{
+    position:absolute; right:0; top:52px; min-width:220px; z-index:10;
+    background:var(--card); border:2px solid var(--line); border-radius:12px;
+    box-shadow:0 8px 24px rgba(58,46,42,.12); padding:8px 0;
+  }
+  .menu-panel a{ display:block; padding:10px 18px; color:var(--ink); text-decoration:none; }
+  .menu-panel a:hover{ background:var(--paper); }
+  .menu-panel hr{ border:0; border-top:1px solid var(--line); margin:6px 0; }
   h2{ font-size:2rem; margin:0 0 8px; }
   p.lead{ color:var(--soft); margin:0 0 32px; }
   .games{ list-style:none; padding:0; margin:0; display:grid; gap:16px; }
@@ -77,12 +94,26 @@
 <div class="wrap">
   <header class="byline">
     <img src="dan.jpg" alt="Dan Milward">
-    <div>
+    <div class="text">
     <h1 class="name">Dan Milward</h1>
     <p class="role">Primary Teacher | Games &amp; Technology | Creative Learning</p>
     <p class="role">Wellington, New Zealand</p>
-    <p class="links"><a href="https://www.linkedin.com/in/danmilward" rel="me">LinkedIn</a><span>&middot;</span><a href="https://x.com/dm4wgtn" rel="me">X</a><span>&middot;</span><a href="https://linktr.ee/danmilward" rel="me">Linktree</a></p>
+    <p class="links"><a href="https://www.linkedin.com/in/danmilward" rel="me">LinkedIn</a><span>&middot;</span><a href="https://x.com/danmilward" rel="me">X</a><span>&middot;</span><a href="https://linktr.ee/danmilward" rel="me">Linktree</a></p>
     </div>
+    <nav class="menu">
+      <button class="menu-btn" id="menuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="menuPanel">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="menu-panel" id="menuPanel" hidden>
+        <a href="index.html">Home</a>
+        <a href="story-card-game.html">Story card game</a>
+        <a href="fathers-day.html">Writing for Father's Day</a>
+        <hr>
+        <a href="https://www.linkedin.com/in/danmilward">LinkedIn</a>
+        <a href="https://x.com/danmilward">X</a>
+        <a href="https://linktr.ee/danmilward">Linktree</a>
+      </div>
+    </nav>
   </header>
   <h2>Resources for Learning:</h2>
   <p class="lead">Please feel free to tinker and peruse my creations. These are things I've developed to assist me as a teacher, to help young people learn or just for fun.</p>
@@ -103,5 +134,11 @@
     </li>
   </ul>
 </div>
+<script>
+  const btn=document.getElementById('menuBtn'), panel=document.getElementById('menuPanel');
+  btn.addEventListener('click',e=>{ e.stopPropagation(); const open=panel.hidden; panel.hidden=!open; btn.setAttribute('aria-expanded',open); });
+  document.addEventListener('click',e=>{ if(!panel.hidden && !panel.contains(e.target)){ panel.hidden=true; btn.setAttribute('aria-expanded','false'); } });
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ panel.hidden=true; btn.setAttribute('aria-expanded','false'); } });
+</script>
 </body>
 </html>
