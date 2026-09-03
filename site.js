@@ -45,7 +45,7 @@
     panel.className = 'menu-panel';
     panel.hidden = true;
 
-    var html = '';
+    var html = '<div class="label">Pages</div>';
     PAGES.forEach(function(p){ html += '<a href="' + p.href + '">' + p.label + '</a>'; });
     html += '<hr><div class="label">Links</div>';
     SOCIAL.forEach(function(p){ html += '<a href="' + p.href + '">' + p.label + '</a>'; });
