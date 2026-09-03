@@ -113,6 +113,11 @@ p.lead{ color:var(--soft); margin:0 0 32px; }
   transition:transform .1s, border-color .1s;
 }
 .games a:hover{ transform:translateY(-2px); border-color:var(--sun); }
+.games .card{
+  padding:20px 24px;
+  background:var(--card); border:var(--bw) solid var(--line); border-radius:var(--radius);
+}
+.games .card .btn{ margin-top:14px; }
 .games h2{ margin:0 0 4px; font-size:1.25rem; }
 .games p{ margin:0; color:var(--soft); }
 .objective{
