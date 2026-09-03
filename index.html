@@ -31,64 +31,8 @@
   "sameAs": ["https://www.linkedin.com/in/danmilward", "https://linktr.ee/danmilward", "https://x.com/danmilward"]
 }
 </script>
-<style>
-  :root{
-    --paper:#FDF6EC; --ink:#3A2E2A; --soft:#8A7A72;
-    --sun:#F6B93B; --leaf:#2E9E6B; --berry:#E05B4B; --sky:#4A90D9;
-    --card:#FFFFFF; --line:#E8DCCB;
-  }
-  *{ box-sizing:border-box; }
-  body{
-    margin:0; padding:24px 16px 64px;
-    background:var(--paper); color:var(--ink);
-    font-family:"Comic Sans MS","Chalkboard SE","Segoe UI Rounded",-apple-system,sans-serif;
-    line-height:1.6;
-  }
-  .wrap{ max-width:720px; margin:0 auto; }
-  .byline{ display:flex; align-items:center; gap:18px; margin:0 0 28px; padding-bottom:20px; border-bottom:2px solid var(--line); }
-  .byline img{ width:88px; height:88px; border-radius:50%; object-fit:cover; border:3px solid var(--sun); flex-shrink:0; }
-  .byline .name{ font-size:1.5rem; font-weight:bold; margin:0; }
-  .byline .role{ margin:0; color:var(--soft); }
-  .byline .links{ margin:6px 0 0; font-size:.95rem; }
-  .byline .links a{ color:var(--sky); text-decoration:none; }
-  .byline .links a:hover{ text-decoration:underline; }
-  .byline .links span{ color:var(--line); margin:0 8px; }
-  .byline .text{ flex:1; }
-  .menu{ position:relative; margin-left:auto; align-self:flex-start; }
-  .menu-btn{
-    width:44px; height:44px; padding:0; cursor:pointer;
-    background:var(--card); border:2px solid var(--line); border-radius:12px;
-    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px;
-  }
-  .menu-btn:hover{ border-color:var(--sun); }
-  .menu-btn span{ display:block; width:20px; height:3px; border-radius:2px; background:var(--ink); }
-  .menu-panel{
-    position:absolute; right:0; top:52px; min-width:220px; z-index:10;
-    background:var(--card); border:2px solid var(--line); border-radius:12px;
-    box-shadow:0 8px 24px rgba(58,46,42,.12); padding:8px 0;
-  }
-  .menu-panel a{ display:block; padding:10px 18px; color:var(--ink); text-decoration:none; }
-  .menu-panel a:hover{ background:var(--paper); }
-  .menu-panel hr{ border:0; border-top:1px solid var(--line); margin:6px 0; }
-  h2{ font-size:2rem; margin:0 0 8px; }
-  p.lead{ color:var(--soft); margin:0 0 32px; }
-  .games{ list-style:none; padding:0; margin:0; display:grid; gap:16px; }
-  .games a{
-    display:block; padding:20px 24px;
-    background:var(--card); border:2px solid var(--line); border-radius:16px;
-    color:var(--ink); text-decoration:none;
-    transition:transform .1s, border-color .1s;
-  }
-  .games a:hover{ transform:translateY(-2px); border-color:var(--sun); }
-  .games h2{ margin:0 0 4px; font-size:1.25rem; }
-  .games p{ margin:0; color:var(--soft); }
-  .games .objective{
-    margin-top:12px; padding:8px 12px;
-    background:var(--paper); border-left:4px solid var(--leaf); border-radius:8px;
-    font-size:.9rem; color:var(--ink);
-  }
-  .games .objective strong{ color:var(--leaf); }
-</style>
+<script>(function(){try{var t=localStorage.getItem('theme');if(t&&t!=='paper')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<link rel="stylesheet" href="site.css">
 </head>
 <body>
 <div class="wrap">
@@ -100,22 +44,9 @@
     <p class="role">Wellington, New Zealand</p>
     <p class="links"><a href="https://www.linkedin.com/in/danmilward" rel="me">LinkedIn</a><span>&middot;</span><a href="https://x.com/danmilward" rel="me">X (formerly Twitter)</a><span>&middot;</span><a href="https://linktr.ee/danmilward" rel="me">Linktree</a></p>
     </div>
-    <nav class="menu">
-      <button class="menu-btn" id="menuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="menuPanel">
-        <span></span><span></span><span></span>
-      </button>
-      <div class="menu-panel" id="menuPanel" hidden>
-        <a href="index.html">Home</a>
-        <a href="story-card-game.html">Story card game</a>
-        <a href="fathers-day.html">Writing for Father's Day</a>
-        <hr>
-        <a href="https://www.linkedin.com/in/danmilward">LinkedIn</a>
-        <a href="https://x.com/danmilward">X (formerly Twitter)</a>
-        <a href="https://linktr.ee/danmilward">Linktree</a>
-      </div>
-    </nav>
+    <nav class="menu" aria-label="Site menu"></nav>
   </header>
-  <h2>Resources for Learning:</h2>
+  <h2 class="section">Resources for Learning:</h2>
   <p class="lead">Please feel free to tinker and peruse my creations. These are things I've developed to assist me as a teacher, to help young people learn or just for fun.</p>
   <ul class="games">
     <li>
@@ -134,11 +65,6 @@
     </li>
   </ul>
 </div>
-<script>
-  const btn=document.getElementById('menuBtn'), panel=document.getElementById('menuPanel');
-  btn.addEventListener('click',e=>{ e.stopPropagation(); const open=panel.hidden; panel.hidden=!open; btn.setAttribute('aria-expanded',open); });
-  document.addEventListener('click',e=>{ if(!panel.hidden && !panel.contains(e.target)){ panel.hidden=true; btn.setAttribute('aria-expanded','false'); } });
-  document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ panel.hidden=true; btn.setAttribute('aria-expanded','false'); } });
-</script>
+<script src="site.js"></script>
 </body>
 </html>

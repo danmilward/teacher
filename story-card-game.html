@@ -4,45 +4,34 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Story card game</title>
+<script>(function(){try{var t=localStorage.getItem('theme');if(t&&t!=='paper')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<link rel="stylesheet" href="site.css">
 <style>
-  :root{
-    --paper:#FDF6EC; --ink:#3A2E2A; --soft:#8A7A72;
-    --sun:#F6B93B; --leaf:#2E9E6B; --berry:#E05B4B; --sky:#4A90D9;
-    --card:#FFFFFF; --line:#E8DCCB;
-  }
-  *{ box-sizing:border-box; }
-  body{
-    margin:0; padding:24px 16px 64px;
-    background:var(--paper); color:var(--ink);
-    font-family:"Comic Sans MS","Chalkboard SE","Segoe UI Rounded",-apple-system,sans-serif;
-    line-height:1.6;
-  }
-  .wrap{ max-width:720px; margin:0 auto; }
   h1{ font-size:30px; margin:0 0 4px; }
   .sub{ color:var(--soft); font-size:17px; margin:0 0 20px; }
   .tabs{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:24px; }
   .tab{
-    border:3px solid var(--ink); background:var(--card); color:var(--ink);
-    border-radius:999px; padding:10px 20px; font:inherit; font-size:17px;
-    cursor:pointer; box-shadow:3px 3px 0 var(--ink);
+    border:var(--bw-game) solid var(--ink); background:var(--card); color:var(--ink);
+    border-radius:var(--pill); padding:10px 20px; font:inherit; font-size:17px;
+    cursor:pointer; box-shadow:var(--pop-ink);
   }
-  .tab:active{ transform:translate(2px,2px); box-shadow:1px 1px 0 var(--ink); }
-  .tab.on{ background:var(--sun); }
+  .tab:active{ transform:translate(2px,2px); box-shadow:var(--pop-ink-down); }
+  .tab.on{ background:var(--sun); color:var(--on-sun); }
   .bigcard{
-    background:var(--card); border:3px solid var(--ink); border-radius:20px;
-    padding:36px 16px; text-align:center; box-shadow:5px 5px 0 var(--line);
+    background:var(--card); border:var(--bw-game) solid var(--ink); border-radius:var(--radius);
+    padding:36px 16px; text-align:center; box-shadow:var(--pop-big);
     margin-bottom:16px;
   }
   .bigcard .pic{ font-size:64px; display:block; }
   .bigcard .txt{ font-size:22px; margin:12px 0 0; }
   .choices{ display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px; margin-bottom:14px; }
   .choice{
-    border:3px solid var(--ink); border-radius:16px; background:var(--card);
+    border:var(--bw-game) solid var(--ink); border-radius:var(--radius); background:var(--card); color:var(--ink);
     font:inherit; font-size:18px; padding:16px 8px; cursor:pointer;
-    box-shadow:3px 3px 0 var(--line);
+    box-shadow:var(--pop-line);
   }
-  .choice:active{ transform:translate(2px,2px); box-shadow:1px 1px 0 var(--line); }
-  .choice.picked{ border-color:var(--sky); background:#EAF3FC; box-shadow:3px 3px 0 var(--sky); }
+  .choice:active{ transform:translate(2px,2px); box-shadow:var(--pop-line-down); }
+  .choice.picked{ border-color:var(--sky); background:var(--sky-tint); box-shadow:var(--pop-line); }
   .oddcard{ display:flex; flex-direction:column; align-items:center; gap:8px; padding:22px 8px; }
   .oddcard .pic{ font-size:44px; }
   .feedback{ min-height:30px; font-size:18px; margin:0 0 10px; }
@@ -50,17 +39,21 @@
   .meta{ color:var(--soft); font-size:15px; margin:0; }
   .rowlabel{ font-size:15px; color:var(--soft); margin:18px 0 8px; }
   .story{
-    display:none; background:#FFF9E8; border:3px dashed var(--sun);
-    border-radius:20px; padding:20px 22px; margin:18px 0; font-size:20px;
+    display:none; background:var(--sun-tint); border:var(--bw-game) dashed var(--sun);
+    border-radius:var(--radius); padding:20px 22px; margin:18px 0; font-size:20px;
   }
   .btnrow{ display:flex; gap:10px; flex-wrap:wrap; }
   .mode{ display:none; } .mode.on{ display:block; }
   em{ font-style:normal; text-decoration:underline; text-decoration-color:var(--sun); text-decoration-thickness:3px; }
-  @media print{ .tabs{ display:none; } }
+  @media print{ .tabs, .topbar{ display:none; } }
 </style>
 </head>
 <body>
 <div class="wrap">
+  <div class="topbar">
+    <a class="back" href="index.html">&larr; Back to Resources for Learning</a>
+    <nav class="menu" aria-label="Site menu"></nav>
+  </div>
   <h1>📚 Story card game</h1>
   <p class="sub">Sort the cards, spot the odd one out, then build your own story!</p>
 
@@ -300,5 +293,6 @@ renderSortCard();
 renderOddSet();
 renderBuildRows();
 </script>
+<script src="site.js"></script>
 </body>
 </html>
