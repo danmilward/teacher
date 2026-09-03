@@ -134,7 +134,8 @@ p.lead{ color:var(--soft); margin:0 0 32px; }
 html[data-theme="terminal"] .byline .name::before{ content:"> "; color:var(--sun); }
 html[data-theme="terminal"] .byline .name::after{
   content:""; display:inline-block; width:.6em; height:1.1em; margin-left:.25em;
-  background:var(--sun); vertical-align:text-bottom; animation:blink 1s steps(1) infinite;
+  background:var(--sun); vertical-align:text-bottom;
+  animation:blink 1s steps(1) 5 forwards;
 }
 html[data-theme="terminal"] h1::before{ content:"$ "; color:var(--leaf); }
-@keyframes blink{ 50%{ opacity:0; } }
+@keyframes blink{ 50%,100%{ opacity:0; } }
