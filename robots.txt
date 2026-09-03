@@ -1,3 +1,3 @@
 User-agent: *
 Allow: /
-Sitemap: https://danmilward.github.io/teacher/sitemap.xml
+Sitemap: https://danmilward.nz/sitemap.xml
