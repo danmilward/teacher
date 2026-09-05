@@ -11,7 +11,8 @@
     {href:'fathers-day.html',     label:"Writing for Father's Day"},
     {href:'quarter-past.html',    label:'Analog to Digital (First Worksheet)'},
     {href:'analog-to-digital.html', label:'Digital Time in Quarter Hours'},
-    {href:'digital-to-analog.html', label:'Going from Digital to Analog'}
+    {href:'digital-to-analog.html', label:'Going from Digital to Analog'},
+    {href:'oclock-matching.html',   label:"O'clock Matching Game"}
   ];
   var SOCIAL = [
     {href:'https://www.linkedin.com/in/danmilward', label:'LinkedIn'},
