@@ -10,7 +10,7 @@
     {href:'story-card-game.html', label:'Story card game'},
     {href:'fathers-day.html',     label:"Writing for Father's Day"},
     {href:'quarter-past.html',    label:'Quarter Past and Half Past'},
-    {href:'analog-to-digital.html', label:'Going from Analog to Digital'},
+    {href:'analog-to-digital.html', label:'Digital #1'},
     {href:'digital-to-analog.html', label:'Going from Digital to Analog'}
   ];
   var SOCIAL = [
