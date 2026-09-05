@@ -142,5 +142,5 @@ html[data-theme="terminal"] .byline .name::after{
   background:var(--sun); vertical-align:text-bottom;
   animation:blink 1s steps(1) 5 forwards;
 }
-html[data-theme="terminal"] h1::before{ content:"$ "; color:var(--leaf); }
+html[data-theme="terminal"] h1::before{ content:"# "; color:var(--leaf); }
 @keyframes blink{ 50%,100%{ opacity:0; } }
