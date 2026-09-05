@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="terminal">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Going from Digital to Analog</title>
+<meta name="description" content="A printable worksheet for Year 2 students: read the time on a digital clock and draw the hands on a blank analog clock. Includes an extension sheet with quarter hours.">
+<link rel="canonical" href="https://danmilward.nz/digital-to-analog.html">
+<link rel="icon" href="dan.jpg">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<link rel="stylesheet" href="site.css">
+<style>
+  h1{ font-size:2rem; margin:0 0 8px; }
+  .objective.top{ margin:0 0 32px; background:var(--card); font-size:.95rem; }
+  .steps{ list-style:none; padding:0; margin:0; display:grid; gap:24px; counter-reset:step; }
+  .step{ background:var(--card); border:var(--bw) solid var(--line); border-radius:var(--radius); padding:20px 24px; }
+  .step h2{ margin:0 0 12px; font-size:1.25rem; display:flex; align-items:center; gap:12px; }
+  .step h2::before{
+    counter-increment:step; content:counter(step);
+    display:inline-flex; align-items:center; justify-content:center;
+    width:32px; height:32px; border-radius:50%;
+    background:var(--sun); color:var(--on-sun); font-size:1rem; flex-shrink:0;
+  }
+  .step img{ display:block; width:100%; max-width:420px; height:auto; background:#fff; border:1px solid var(--line); border-radius:var(--radius-sm); margin:0 0 12px; }
+  .step p{ margin:0 0 8px; }
+  .step ul{ margin:0; padding-left:20px; }
+  .step li{ margin:0 0 4px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <a class="back" href="index.html">&larr; Back to Resources for Learning</a>
+    <nav class="menu" aria-label="Site menu"></nav>
+  </div>
+  <h1>Going from Digital to Analog</h1>
+  <p class="lead" style="margin-bottom:16px">A printable worksheet for Year 2 students to practise reading a digital clock and drawing the matching hands on an analog clock.</p>
+  <p class="objective top"><strong>Objective:</strong> Reading o'clock and half past on a digital clock and showing the same time by drawing the hour and minute hands on an analog clock</p>
+
+  <ol class="steps">
+    <li class="step">
+      <h2>Worksheet</h2>
+      <a href="digital-to-analog/worksheet.png" target="_blank"><img src="digital-to-analog/worksheet.png" alt="Time on Analog Clock worksheet: three digital clocks showing 03:00, 07:30 and 10:30, each next to a blank analog clock face"></a>
+      <p>Three digital clocks showing o'clock and half past times. For each one, students draw the hour hand and the minute hand on the blank analog clock.</p>
+      <a class="btn" href="digital-to-analog/worksheet.png" download="digital-to-analog-worksheet.png">Download worksheet</a>
+    </li>
+    <li class="step">
+      <h2>How to use it</h2>
+      <ul>
+        <li>Do the first clock together. Point out that the minute hand goes to the 12 for o'clock and the 6 for half past.</li>
+        <li>Remind students to draw the hour hand shorter than the minute hand, and to put it halfway between the two numbers for half past.</li>
+        <li>Students complete the rest on their own, then swap with a partner to check.</li>
+      </ul>
+      <p>This is the reverse of <a href="analog-to-digital.html">Going from Analog to Digital</a>. Doing both directions helps the mapping stick.</p>
+    </li>
+    <li class="step">
+      <h2>Extension</h2>
+      <a href="digital-to-analog/extension.png" target="_blank"><img src="digital-to-analog/extension.png" alt="Extension worksheet: three digital clocks showing 02:15, 09:45 and 12:00, each next to a blank analog clock face"></a>
+      <p>A second sheet that moves on to quarter past and quarter to, plus 12 o'clock where both hands sit on the 12. For quarter to 10, watch for students who draw the hour hand on the 10 instead of just before it.</p>
+      <a class="btn" href="digital-to-analog/extension.png" download="digital-to-analog-extension.png">Download extension</a>
+    </li>
+    <li class="step">
+      <h2>Worksheet, redrawn</h2>
+      <a href="digital-to-analog/worksheet-redrawn.png" target="_blank"><img src="digital-to-analog/worksheet-redrawn.png" alt="Redrawn Time on Analog Clock worksheet in the same style as the extension sheet: three digital clocks showing 03:00, 07:30 and 10:30, each next to a blank analog clock face"></a>
+      <p>The same worksheet redrawn to match the extension sheet, so the two print as a matching pair.</p>
+      <a class="btn" href="digital-to-analog/worksheet-redrawn.png" download="digital-to-analog-worksheet-redrawn.png">Download redrawn worksheet</a>
+    </li>
+  </ol>
+</div>
+<script src="site.js"></script>
+</body>
+</html>
