@@ -9,7 +9,8 @@
     {href:'index.html',           label:'Home'},
     {href:'story-card-game.html', label:'Story card game'},
     {href:'fathers-day.html',     label:"Writing for Father's Day"},
-    {href:'quarter-past.html',    label:'Quarter Past and Half Past'}
+    {href:'quarter-past.html',    label:'Quarter Past and Half Past'},
+    {href:'analog-to-digital.html', label:'Going from Analog to Digital'}
   ];
   var SOCIAL = [
     {href:'https://www.linkedin.com/in/danmilward', label:'LinkedIn'},
