@@ -1,8 +1,8 @@
 (function(){
   var THEMES = [
+    {id:'terminal', label:'Terminal'},
     {id:'paper',    label:'Paper'},
     {id:'white',    label:'Clean white'},
-    {id:'terminal', label:'Terminal'},
     {id:'github',   label:'GitHub'}
   ];
   var PAGES = [
@@ -18,12 +18,12 @@
   ];
 
   function currentTheme(){
-    return document.documentElement.getAttribute('data-theme') || 'paper';
+    return document.documentElement.getAttribute('data-theme') || 'terminal';
   }
   function setTheme(id){
     var root = document.documentElement;
     root.classList.add('theming');
-    if (id === 'paper') root.removeAttribute('data-theme'); else root.setAttribute('data-theme', id);
+    root.setAttribute('data-theme', id);
     try { localStorage.setItem('theme', id); } catch(e) {}
     setTimeout(function(){ root.classList.remove('theming'); }, 300);
     markTheme();
