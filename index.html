@@ -33,6 +33,23 @@
 </script>
 <script>(function(){try{var t=localStorage.getItem('theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
 <link rel="stylesheet" href="site.css">
+<style>
+  .wrap{ max-width:960px; }
+  .grid{ list-style:none; padding:0; margin:0; display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:20px; }
+  .grid a, .grid .card{
+    display:flex; flex-direction:column; height:100%; overflow:hidden;
+    background:var(--card); border:var(--bw) solid var(--line); border-radius:var(--radius);
+    color:var(--ink); text-decoration:none; transition:transform .1s, border-color .1s;
+  }
+  .grid a:hover{ transform:translateY(-2px); border-color:var(--sun); }
+  .grid img{ display:block; width:100%; aspect-ratio:3/2; object-fit:cover; object-position:top; background:#fff; border-bottom:var(--bw) solid var(--line); }
+  .grid .body{ padding:16px 20px 20px; display:flex; flex-direction:column; flex:1; }
+  .grid h2{ margin:0 0 6px; font-size:1.15rem; }
+  .grid p{ margin:0; color:var(--soft); font-size:.95rem; }
+  .grid .body p:not(.objective){ margin-bottom:12px; }
+  .grid .objective{ margin-top:auto; }
+  .grid .body .btn{ margin-top:14px; align-self:flex-start; }
+</style>
 </head>
 <body>
 <div class="wrap">
@@ -48,73 +65,100 @@
   </header>
   <h2 class="section">Resources for Learning:</h2>
   <p class="lead">Please feel free to tinker and peruse my creations. These are things I've developed to assist me as a teacher, to help young people learn or just for fun.</p>
-  <ul class="games">
+  <ul class="grid">
     <li>
       <a href="story-card-game.html">
-        <h2>Story card game</h2>
-        <p>Sort the sentences, spot the odd one out, and build your own story.</p>
-        <p class="objective"><strong>Learning objective:</strong> Learning new words, developing knowledge of story elements</p>
+        <img src="thumbs/story-card-game.png" alt="" loading="lazy">
+        <div class="body">
+          <h2>Story card game</h2>
+          <p>Sort the sentences, spot the odd one out, and build your own story.</p>
+          <p class="objective"><strong>Learning objective:</strong> Learning new words, developing knowledge of story elements</p>
+        </div>
       </a>
     </li>
     <li>
       <a href="fathers-day.html">
-        <h2>Writing for Father's Day</h2>
-        <p>Downloadable templates: a sentence builder and a draft card template.</p>
-        <p class="objective"><strong>Learning objective:</strong> Learning new words, developing knowledge of story elements</p>
+        <img src="thumbs/fathers-day.png" alt="" loading="lazy">
+        <div class="body">
+          <h2>Writing for Father's Day</h2>
+          <p>Downloadable templates: a sentence builder and a draft card template.</p>
+          <p class="objective"><strong>Learning objective:</strong> Learning new words, developing knowledge of story elements</p>
+        </div>
       </a>
     </li>
     <li>
       <a href="quarter-past.html">
-        <h2>Analog to Digital (First Worksheet)</h2>
-        <p>A blank template for modelling analog to digital time with Year 2 students.</p>
-        <p class="objective"><strong>Learning objective:</strong> Reading and writing quarter past, half past and quarter to on analog and digital clocks</p>
+        <img src="thumbs/quarter-past.png" alt="" loading="lazy">
+        <div class="body">
+          <h2>Analog to Digital (First Worksheet)</h2>
+          <p>A blank template for modelling analog to digital time with Year 2 students.</p>
+          <p class="objective"><strong>Learning objective:</strong> Reading and writing quarter past, half past and quarter to on analog and digital clocks</p>
+        </div>
       </a>
     </li>
     <li>
       <a href="analog-to-digital.html">
-        <h2>Digital Time in Quarter Hours</h2>
-        <p>A printable worksheet: read five analog clocks and write each time on a digital clock. With an extension sheet.</p>
-        <p class="objective"><strong>Learning objective:</strong> Reading quarter past, half past and quarter to on an analog clock and writing the time in digital format</p>
+        <img src="thumbs/analog-to-digital.png" alt="" loading="lazy">
+        <div class="body">
+          <h2>Digital Time in Quarter Hours</h2>
+          <p>A printable worksheet: read five analog clocks and write each time on a digital clock. With an extension sheet.</p>
+          <p class="objective"><strong>Learning objective:</strong> Reading quarter past, half past and quarter to on an analog clock and writing the time in digital format</p>
+        </div>
       </a>
     </li>
     <li>
       <a href="digital-to-analog.html">
-        <h2>Going from Digital to Analog</h2>
-        <p>A printable worksheet: read the digital clock and draw the hands on the analog clock. With an extension sheet.</p>
-        <p class="objective"><strong>Learning objective:</strong> Reading o'clock and half past on a digital clock and drawing the hour and minute hands on an analog clock</p>
+        <img src="thumbs/digital-to-analog.png" alt="" loading="lazy">
+        <div class="body">
+          <h2>Going from Digital to Analog</h2>
+          <p>A printable worksheet: read the digital clock and draw the hands on the analog clock. With an extension sheet.</p>
+          <p class="objective"><strong>Learning objective:</strong> Reading o'clock and half past on a digital clock and drawing the hour and minute hands on an analog clock</p>
+        </div>
       </a>
     </li>
     <li>
       <a href="oclock-matching.html">
-        <h2>Time Matching Games</h2>
-        <p>A cut-and-match activity for early finishers: twelve o'clock pairs, plus a harder set with quarters and halves.</p>
-        <p class="objective"><strong>Learning objective:</strong> Reading o'clock, quarter past, half past and quarter to on an analog clock and matching each to the time in words</p>
+        <img src="thumbs/oclock-matching.png" alt="" loading="lazy">
+        <div class="body">
+          <h2>Time Matching Games</h2>
+          <p>A cut-and-match activity for early finishers: twelve o'clock pairs, plus a harder set with quarters and halves.</p>
+          <p class="objective"><strong>Learning objective:</strong> Reading o'clock, quarter past, half past and quarter to on an analog clock and matching each to the time in words</p>
+        </div>
       </a>
     </li>
     <li>
       <a href="tick-tock.html">
-        <h2>Tick Tock Matching Game</h2>
-        <p>Draw a line from each digital time to the clock that shows it. A worksheet plus two extension sheets for fast finishers.</p>
-        <p class="objective"><strong>Learning objective:</strong> Reading o'clock, quarter past, half past and quarter to on an analog clock and matching each to its digital time</p>
+        <img src="thumbs/tick-tock.png" alt="" loading="lazy">
+        <div class="body">
+          <h2>Tick Tock Matching Game</h2>
+          <p>Draw a line from each digital time to the clock that shows it. A worksheet plus two extension sheets for fast finishers.</p>
+          <p class="objective"><strong>Learning objective:</strong> Reading o'clock, quarter past, half past and quarter to on an analog clock and matching each to its digital time</p>
+        </div>
       </a>
     </li>
   </ul>
 
   <h2 class="section" style="margin-top:40px">Major Achievements</h2>
   <p class="lead">Two things I'm proud to have built.</p>
-  <ul class="games">
+  <ul class="grid">
     <li>
       <div class="card">
-        <h2>Gamefroot</h2>
-        <p>A browser-based game maker that has helped millions of young people learn creative coding by building and sharing their own video games, animations and interactive stories.</p>
-        <a class="btn" href="https://make.gamefroot.com" target="_blank" rel="noopener">Open Gamefroot</a>
+        <img src="thumbs/gamefroot.png" alt="" loading="lazy">
+        <div class="body">
+          <h2>Gamefroot</h2>
+          <p>A browser-based game maker that has helped millions of young people learn creative coding by building and sharing their own video games, animations and interactive stories.</p>
+          <a class="btn" href="https://make.gamefroot.com" target="_blank" rel="noopener">Open Gamefroot</a>
+        </div>
       </div>
     </li>
     <li>
       <div class="card">
-        <h2>StoryMate</h2>
-        <p>A no-code tool for writing and publishing interactive, branching stories, with an AI assistant for beating writer's block. Built in New Zealand and used by schools, councils and creatives.</p>
-        <a class="btn" href="https://storymate.dev" target="_blank" rel="noopener">Open StoryMate</a>
+        <img src="thumbs/storymate.png" alt="" loading="lazy">
+        <div class="body">
+          <h2>StoryMate</h2>
+          <p>A no-code tool for writing and publishing interactive, branching stories, with an AI assistant for beating writer's block. Built in New Zealand and used by schools, councils and creatives.</p>
+          <a class="btn" href="https://storymate.dev" target="_blank" rel="noopener">Open StoryMate</a>
+        </div>
       </div>
     </li>
   </ul>
