@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="terminal">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tick Tock Matching Game</title>
+<meta name="description" content="A draw-a-line matching worksheet: twelve analog clocks and twelve digital times using o'clock, quarter past, half past and quarter to. With two extension sheets for fast finishers.">
+<link rel="canonical" href="https://danmilward.nz/tick-tock.html">
+<link rel="icon" href="dan.jpg">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<link rel="stylesheet" href="site.css">
+<style>
+  h1{ font-size:2rem; margin:0 0 8px; }
+  .objective.top{ margin:0 0 32px; background:var(--card); font-size:.95rem; }
+  .steps{ list-style:none; padding:0; margin:0; display:grid; gap:24px; counter-reset:step; }
+  .step{ background:var(--card); border:var(--bw) solid var(--line); border-radius:var(--radius); padding:20px 24px; }
+  .step h2{ margin:0 0 12px; font-size:1.25rem; display:flex; align-items:center; gap:12px; }
+  .step h2::before{
+    counter-increment:step; content:counter(step);
+    display:inline-flex; align-items:center; justify-content:center;
+    width:32px; height:32px; border-radius:50%;
+    background:var(--sun); color:var(--on-sun); font-size:1rem; flex-shrink:0;
+  }
+  .step img{ display:block; width:100%; max-width:420px; height:auto; background:#fff; border:1px solid var(--line); border-radius:var(--radius-sm); margin:0 0 12px; }
+  .step p{ margin:0 0 8px; }
+  .step ul{ margin:0; padding-left:20px; }
+  .step li{ margin:0 0 4px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <a class="back" href="index.html">&larr; Back to Resources for Learning</a>
+    <nav class="menu" aria-label="Site menu"></nav>
+  </div>
+  <h1>Tick Tock Matching Game</h1>
+  <p class="lead" style="margin-bottom:16px">Twelve clocks, twelve digital times, one line each. A worksheet plus two extension sheets for fast finishers.</p>
+  <p class="objective top"><strong>Objective:</strong> Reading o'clock, quarter past, half past and quarter to on an analog clock and matching each to its digital time</p>
+
+  <ol class="steps">
+    <li class="step">
+      <h2>Worksheet</h2>
+      <a href="tick-tock/worksheet.png" target="_blank"><img src="tick-tock/worksheet.png" alt="Tick Tock Matching Game worksheet: six analog clocks down the left, six down the right, and twelve digital times in a shaded middle column to join with lines"></a>
+      <p>Six clocks down each side and twelve digital times in the middle. Students draw a line from each time to the clock that shows it.</p>
+      <a class="btn" href="tick-tock/worksheet.png" download="tick-tock-matching-worksheet.png">Download worksheet</a>
+    </li>
+    <li class="step">
+      <h2>How to use it</h2>
+      <ul>
+        <li>Do the first time together. Ask which clocks it could be, then which one it is and why.</li>
+        <li>Students work through the rest, crossing off each clock as they use it. Every clock is used exactly once, so the last few can be found by elimination.</li>
+        <li>Check by reading each clock aloud as a class.</li>
+      </ul>
+    </li>
+    <li class="step">
+      <h2>Extension 1</h2>
+      <a href="tick-tock/extension-1.png" target="_blank"><img src="tick-tock/extension-1.png" alt="Tick Tock Matching Game Extension 1: a fresh set of twelve clocks and twelve digital times"></a>
+      <p>A fresh set of twelve times for fast finishers. Same four types: o'clock, quarter past, half past and quarter to.</p>
+      <a class="btn" href="tick-tock/extension-1.png" download="tick-tock-matching-extension-1.png">Download extension 1</a>
+    </li>
+    <li class="step">
+      <h2>Extension 2</h2>
+      <a href="tick-tock/extension-2.png" target="_blank"><img src="tick-tock/extension-2.png" alt="Tick Tock Matching Game Extension 2: a third set of twelve clocks and twelve digital times"></a>
+      <p>A third set. Includes 12:45 and 1:45, where the hour hand sits just before the 1 or the 2.</p>
+      <a class="btn" href="tick-tock/extension-2.png" download="tick-tock-matching-extension-2.png">Download extension 2</a>
+    </li>
+  </ol>
+</div>
+<script src="site.js"></script>
+</body>
+</html>

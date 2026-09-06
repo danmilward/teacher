@@ -12,7 +12,8 @@
     {href:'quarter-past.html',    label:'Analog to Digital (First Worksheet)'},
     {href:'analog-to-digital.html', label:'Digital Time in Quarter Hours'},
     {href:'digital-to-analog.html', label:'Going from Digital to Analog'},
-    {href:'oclock-matching.html',   label:'Time Matching Games'}
+    {href:'oclock-matching.html',   label:'Time Matching Games'},
+    {href:'tick-tock.html',         label:'Tick Tock Matching Game'}
   ];
   var SOCIAL = [
     {href:'https://www.linkedin.com/in/danmilward', label:'LinkedIn'},
