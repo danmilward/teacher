@@ -78,4 +78,43 @@
   }
 
   document.querySelectorAll('nav.menu').forEach(buildMenu);
+
+  /* ---------- Screen shake on the profile photo ----------
+     Trauma-based shake: each click adds trauma, shake strength is trauma squared,
+     offsets come from smoothed noise so it feels like an impact, not a jitter,
+     and it decays over time. Rapid clicks stack up to a cap. */
+  var photo = document.querySelector('.byline img');
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (photo && !reduce) {
+    var target = document.querySelector('.wrap');
+    var trauma = 0, raf = null, t = 0;
+    var seed = [Math.random()*100, Math.random()*100, Math.random()*100];
+    function noise(x, s){ // cheap smooth noise in [-1,1]
+      return Math.sin(x*1.7 + s) * 0.55 + Math.sin(x*3.1 + s*1.3) * 0.3 + Math.sin(x*6.3 + s*0.7) * 0.15;
+    }
+    function frame(){
+      t += 1;
+      var shake = trauma * trauma;
+      var dx = 22 * shake * noise(t*0.9, seed[0]);
+      var dy = 22 * shake * noise(t*0.9, seed[1]);
+      var rot = 3.5 * shake * noise(t*0.9, seed[2]);
+      target.style.transform = 'translate(' + dx.toFixed(1) + 'px,' + dy.toFixed(1) + 'px) rotate(' + rot.toFixed(2) + 'deg)';
+      trauma = Math.max(0, trauma - 0.024);
+      if (trauma > 0) raf = requestAnimationFrame(frame);
+      else { target.style.transform = ''; raf = null; }
+    }
+    photo.style.cursor = 'pointer';
+    photo.setAttribute('title', 'Do not press');
+    photo.addEventListener('click', function(){
+      trauma = Math.min(1, trauma + 0.6);
+      // squash and stretch on the photo itself
+      photo.classList.remove('thud'); void photo.offsetWidth; photo.classList.add('thud');
+      // impact flash
+      var flash = document.createElement('div');
+      flash.className = 'impact-flash';
+      document.body.appendChild(flash);
+      setTimeout(function(){ flash.remove(); }, 260);
+      if (!raf) raf = requestAnimationFrame(frame);
+    });
+  }
 })();
