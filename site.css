@@ -147,19 +147,3 @@ html[data-theme="terminal"] h1::before{ content:"# "; color:var(--leaf); }
 
 /* ---------- Photo screen shake ---------- */
 .wrap{ will-change:transform; }
-.byline img.thud{ animation:thud .45s cubic-bezier(.2,1.6,.4,1); }
-@keyframes thud{
-  0%{ transform:scale(1); }
-  18%{ transform:scale(1.28, .78); }
-  45%{ transform:scale(.88, 1.16); }
-  70%{ transform:scale(1.06, .96); }
-  100%{ transform:scale(1); }
-}
-.impact-flash{
-  position:fixed; inset:0; pointer-events:none; z-index:100;
-  background:radial-gradient(circle at 50% 30%, rgba(246,185,59,.55), rgba(246,185,59,0) 60%);
-  animation:flash .26s ease-out forwards;
-}
-html[data-theme="terminal"] .impact-flash{ background:radial-gradient(circle at 50% 30%, rgba(217,119,87,.55), rgba(217,119,87,0) 60%); }
-@keyframes flash{ from{ opacity:1; } to{ opacity:0; } }
-@media (prefers-reduced-motion: reduce){ .byline img.thud, .impact-flash{ animation:none; } }

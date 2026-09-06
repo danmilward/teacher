@@ -107,13 +107,6 @@
     photo.setAttribute('title', 'Do not press');
     photo.addEventListener('click', function(){
       trauma = Math.min(1, trauma + 0.6);
-      // squash and stretch on the photo itself
-      photo.classList.remove('thud'); void photo.offsetWidth; photo.classList.add('thud');
-      // impact flash
-      var flash = document.createElement('div');
-      flash.className = 'impact-flash';
-      document.body.appendChild(flash);
-      setTimeout(function(){ flash.remove(); }, 260);
       if (!raf) raf = requestAnimationFrame(frame);
     });
   }
