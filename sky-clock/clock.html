@@ -23,7 +23,8 @@
 
   *{box-sizing:border-box}
 
-  html,body{height:100%}
+  html{height:100%;background:#0D1B2A}   /* keeps the sky gradient on body, sized to the whole page */
+  body{min-height:100%}
 
   body{
     margin:0;
@@ -125,7 +126,62 @@
     border-radius:var(--r-card);
     padding:16px 20px 18px;
     text-align:center;
+    display:flex;align-items:center;gap:14px;
   }
+  .readout .time{flex:1;min-width:0}
+  .readout .divider{width:3px;height:64px;background:var(--ink);border-radius:2px;opacity:.85;flex:none}
+  .spinbtn{
+    flex:none;display:flex;align-items:center;gap:10px;
+    background:transparent;color:var(--ink);
+    padding:8px 10px;border-radius:18px;backdrop-filter:none;
+    font-size:15px;line-height:1.15;text-align:left;
+  }
+  .spinbtn:hover{background:rgba(21,37,50,.07)}
+  .spinbtn .icon{
+    width:54px;height:54px;border-radius:50%;flex:none;
+    background:conic-gradient(#E2564A 0 30deg,#F2A02C 0 60deg,#FFC94A 0 90deg,#7DC15C 0 120deg,#2E9E6B 0 150deg,#15788F 0 180deg,#3B6FD8 0 210deg,#6A4FC7 0 240deg,#B24AA8 0 270deg,#E05B8A 0 300deg,#F07E5B 0 330deg,#F5C24D 0 360deg);
+    box-shadow:0 2px 8px rgba(0,0,0,.25), inset 0 0 0 3px var(--face);
+    position:relative;
+  }
+  .spinbtn .icon::after{
+    content:"";position:absolute;left:50%;top:50%;width:12px;height:12px;
+    border-radius:50%;background:var(--ink);transform:translate(-50%,-50%);
+  }
+  @media (max-width:430px){
+    .readout{flex-direction:column;gap:10px}
+    .readout .divider{width:64px;height:3px}
+  }
+
+  /* ---------- spin the wheel ---------- */
+  .overlay.hidden{display:none}
+  .overlay{
+    position:fixed;inset:0;z-index:20;
+    background:rgba(13,27,42,.72);backdrop-filter:blur(4px);
+    display:grid;place-items:center;padding:18px;
+  }
+  .wheelbox{
+    width:min(420px,100%);
+    background:var(--face);border-radius:var(--r-card);
+    padding:18px 20px 20px;
+    display:flex;flex-direction:column;gap:12px;align-items:center;text-align:center;
+  }
+  .wheelbox h2{margin:0;font-size:22px;font-weight:800}
+  .wheelbox p{margin:0;font-size:16px;font-weight:300;color:var(--ink-soft)}
+  .wheelstage{position:relative;width:min(320px,80vw);aspect-ratio:1}
+  .wheelstage svg{width:100%;height:100%;display:block;filter:drop-shadow(0 10px 22px rgba(0,0,0,.25))}
+  .pointer{
+    position:absolute;left:50%;top:-6px;transform:translateX(-50%);
+    width:0;height:0;border-left:14px solid transparent;border-right:14px solid transparent;
+    border-top:30px solid var(--ink);filter:drop-shadow(0 2px 3px rgba(0,0,0,.3));z-index:2;
+  }
+  .wedge-label{font-size:13px;font-weight:600;fill:#fff;text-anchor:end;dominant-baseline:central;
+    paint-order:stroke;stroke:rgba(0,0,0,.28);stroke-width:2px}
+  .wedge-label.flip{text-anchor:start}
+  .wheelresult{font-size:30px;font-weight:800;font-variant-numeric:tabular-nums;min-height:1.2em}
+  .wheelbox .row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+  .wheelbox button{background:var(--ink);color:var(--face);backdrop-filter:none}
+  .wheelbox button.ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 2px rgba(21,37,50,.18)}
+  .wheelbox button:disabled{opacity:.45;cursor:default}
   .digits{
     font-size:clamp(44px,13vw,62px);
     font-weight:800;
@@ -255,8 +311,15 @@
   </div>
 
   <div class="readout">
-    <div class="digits" id="digits" aria-live="polite">7:15<span class="meridiem">am</span></div>
-    <div class="words" id="words">quarter past seven in the morning</div>
+    <div class="time">
+      <div class="digits" id="digits" aria-live="polite">7:15<span class="meridiem">am</span></div>
+      <div class="words" id="words">quarter past seven in the morning</div>
+    </div>
+    <div class="divider" aria-hidden="true"></div>
+    <button class="spinbtn" id="btnWheel" type="button">
+      <span class="icon" aria-hidden="true"></span>
+      <span>Play spin<br>the wheel</span>
+    </button>
   </div>
 
   <div class="transport">
@@ -292,6 +355,23 @@
     <div class="score" id="score">0 right</div>
   </div>
 
+</div>
+
+<div class="overlay hidden" id="wheelOverlay" role="dialog" aria-modal="true" aria-labelledby="wheelTitle">
+  <div class="wheelbox">
+    <h2 id="wheelTitle">Spin for a time</h2>
+    <p id="wheelHint">Spin the wheel, then set the hands to the time it lands on.</p>
+    <div class="wheelstage">
+      <div class="pointer" aria-hidden="true"></div>
+      <svg id="wheel" viewBox="0 0 300 300" aria-hidden="true"></svg>
+    </div>
+    <div class="wheelresult" id="wheelResult" aria-live="polite"></div>
+    <div class="row">
+      <button id="btnSpin" type="button">Spin</button>
+      <button id="btnWheelGo" type="button" class="hidden">Set the hands</button>
+      <button id="btnWheelClose" type="button" class="ghost">Close</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -657,6 +737,129 @@
       v.className = 'verdict no';
       chime(false);
     }
+  });
+
+  /* ---------- spin the wheel ---------- */
+  const WEDGES = 12;
+  const WEDGE_COLOURS = ['#E2564A','#F2A02C','#FFC94A','#7DC15C','#2E9E6B','#15788F',
+                         '#3B6FD8','#6A4FC7','#B24AA8','#E05B8A','#F07E5B','#F5C24D'];
+  const overlay = $('wheelOverlay'), wheelSvg = $('wheel');
+  let wheelTimes = [], wheelRot = 0, spinning = false, landed = null;
+
+  function targetLabel(t) {
+    return fmt(t) + (use24 ? '' : (t < 720 ? ' am' : ' pm'));
+  }
+
+  function buildWheel() {
+    const step = LEVELS[level].step;
+    const slots = Math.floor(1440 / step);
+    const picked = new Set();
+    while (picked.size < WEDGES) picked.add(Math.floor(Math.random() * slots) * step);
+    wheelTimes = [...picked];
+
+    wheelSvg.innerHTML = '';
+    const R = 146, cx = 150, cy = 150, per = 360 / WEDGES;
+    const P = (deg, r) => {
+      const a = (deg - 90) * Math.PI / 180;
+      return `${cx + r * Math.cos(a)} ${cy + r * Math.sin(a)}`;
+    };
+    wheelTimes.forEach((t, i) => {
+      const a0 = i * per, a1 = a0 + per;
+      const path = el('path', {
+        d: `M${cx} ${cy} L${P(a0, R)} A${R} ${R} 0 0 1 ${P(a1, R)} Z`,
+        fill: WEDGE_COLOURS[i % WEDGE_COLOURS.length], stroke: '#fff', 'stroke-width': 2
+      });
+      wheelSvg.appendChild(path);
+      const mid = a0 + per / 2;
+      const [lx, ly] = P(mid, R - 10).split(' ');
+      const flip = mid > 90 && mid < 270;   // left half reads outward-in, so turn it round
+      const label = el('text', {
+        x: lx, y: ly, class: 'wedge-label' + (flip ? ' flip' : ''),
+        transform: `rotate(${flip ? mid + 90 : mid - 90} ${lx} ${ly})`
+      });
+      label.textContent = targetLabel(t);
+      wheelSvg.appendChild(label);
+    });
+    wheelSvg.appendChild(el('circle', { cx, cy, r: 16, fill: '#152532' }));
+    wheelSvg.appendChild(el('circle', { cx, cy, r: 6, fill: '#FFFDF6' }));
+    wheelSvg.style.transform = `rotate(${wheelRot}deg)`;
+  }
+
+  function openWheel() {
+    landed = null;
+    buildWheel();
+    $('wheelResult').textContent = '';
+    $('btnWheelGo').classList.add('hidden');
+    $('btnSpin').textContent = 'Spin';
+    $('btnSpin').disabled = false;
+    overlay.classList.remove('hidden');
+    $('btnSpin').focus();
+  }
+
+  function closeWheel() {
+    overlay.classList.add('hidden');
+    $('btnWheel').focus();
+  }
+
+  function spinWheel() {
+    if (spinning) return;
+    spinning = true;
+    landed = null;
+    $('wheelResult').textContent = '';
+    $('btnWheelGo').classList.add('hidden');
+    $('btnSpin').disabled = true;
+
+    const per = 360 / WEDGES;
+    const win = Math.floor(Math.random() * WEDGES);
+    const jitter = (Math.random() - 0.5) * per * 0.7;
+    // wheel rotation r puts wedge centre (win*per + per/2) at the top pointer when (r + centre) % 360 == 0
+    const want = ((-(win * per + per / 2 + jitter)) % 360 + 360) % 360;
+    const cur = ((wheelRot % 360) + 360) % 360;
+    const delta = ((want - cur) % 360 + 360) % 360;
+    const turns = 5 + Math.floor(Math.random() * 3);
+    const start = wheelRot, total = turns * 360 + delta;
+    const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const duration = reduce ? 400 : 4200;
+    const t0 = performance.now();
+    let lastWedge = Math.floor(start / per);
+
+    const ease = x => 1 - Math.pow(1 - x, 4);
+    const step = now => {
+      const x = Math.min(1, (now - t0) / duration);
+      wheelRot = start + total * ease(x);
+      wheelSvg.style.transform = `rotate(${wheelRot}deg)`;
+      const w = Math.floor(wheelRot / per);
+      if (w !== lastWedge) { lastWedge = w; if (sound) tick(); }
+      if (x < 1) { requestAnimationFrame(step); return; }
+      spinning = false;
+      landed = wheelTimes[win];
+      $('wheelResult').textContent = targetLabel(landed);
+      $('btnSpin').textContent = 'Spin again';
+      $('btnSpin').disabled = false;
+      $('btnWheelGo').classList.remove('hidden');
+      $('btnWheelGo').focus();
+      if (sound) chime(true);
+    };
+    requestAnimationFrame(step);
+  }
+
+  function useLanded() {
+    if (landed === null) return;
+    target = landed;
+    $('target').textContent = targetLabel(target);
+    $('verdict').textContent = '';
+    $('verdict').className = 'verdict';
+    closeWheel();
+    $('target').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  $('btnWheel').addEventListener('click', openWheel);
+  $('btnSpin').addEventListener('click', spinWheel);
+  $('btnWheelGo').addEventListener('click', useLanded);
+  $('btnWheelClose').addEventListener('click', closeWheel);
+  overlay.addEventListener('click', e => { if (e.target === overlay && !spinning) closeWheel(); });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !overlay.classList.contains('hidden') && !spinning) closeWheel();
   });
 
   /* ---------- go ---------- */
