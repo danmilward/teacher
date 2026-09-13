@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="terminal">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sky Clock</title>
+<meta name="description" content="An interactive analog clock for learning to tell the time. Drag the hands, watch the sky change from day to night, read the time in words, and set the hands to a challenge time.">
+<link rel="canonical" href="https://danmilward.nz/sky-clock.html">
+<link rel="icon" href="dan.jpg">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<link rel="stylesheet" href="site.css">
+<style>
+  h1{ font-size:2rem; margin:0 0 8px; }
+  .objective.top{ margin:0 0 20px; background:var(--card); font-size:.95rem; }
+  .frame{
+    display:block; width:100%; height:1240px; border:var(--bw) solid var(--line);
+    border-radius:var(--radius); background:#0D1B2A; overflow:hidden;
+  }
+  .frame iframe{ display:block; width:100%; height:100%; border:0; }
+  .tools{ display:flex; gap:10px; flex-wrap:wrap; margin:14px 0 28px; }
+  .howto{ background:var(--card); border:var(--bw) solid var(--line); border-radius:var(--radius); padding:20px 24px; }
+  .howto h2{ margin:0 0 12px; font-size:1.25rem; }
+  .howto ul{ margin:0; padding-left:20px; }
+  .howto li{ margin:0 0 6px; }
+  @media print{ .topbar, .tools{ display:none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <a class="back" href="index.html">&larr; Back to Resources for Learning</a>
+    <nav class="menu" aria-label="Site menu"></nav>
+  </div>
+  <h1>Sky Clock</h1>
+  <p class="lead" style="margin-bottom:16px">Drag the hands and watch the sky change. The clock reads the time back in numbers and in words, and sets you a time to make.</p>
+  <p class="objective top"><strong>Objective:</strong> Reading and setting o'clock, half past, quarter past and quarter to on an analog clock, and connecting the time to the part of the day</p>
+
+  <div class="frame">
+    <iframe id="clock" src="sky-clock/clock.html" title="Sky Clock, an interactive analog clock"></iframe>
+  </div>
+  <div class="tools">
+    <a class="btn" href="sky-clock/clock.html" target="_blank" rel="noopener">Open full screen</a>
+  </div>
+
+  <div class="howto">
+    <h2>How to use it</h2>
+    <ul>
+      <li>Drag the red hour hand or the blue minute hand. Each hand can also be focused with the keyboard and moved with the arrow keys.</li>
+      <li>Press <strong>Run clockwise</strong> and slide the speed to watch a whole day go past, sun and moon included.</li>
+      <li>Turn on <strong>Minute numbers</strong> to show 5, 10, 15 around the outside while students are learning to count the minutes.</li>
+      <li>The challenge at the bottom asks for a time. Start on the hour, then move up through half hours, five minutes and any minute.</li>
+    </ul>
+  </div>
+</div>
+<script src="site.js"></script>
+<script>
+(function(){
+  var f = document.getElementById('clock'), box = f.parentNode;
+  function fit(){
+    try {
+      var h = f.contentDocument.documentElement.scrollHeight;
+      if (h > 400) box.style.height = h + 'px';
+    } catch(e) {}
+  }
+  f.addEventListener('load', fit);
+  window.addEventListener('resize', fit);
+})();
+</script>
+</body>
+</html>

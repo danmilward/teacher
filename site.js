@@ -8,6 +8,7 @@
   var PAGES = [
     {href:'index.html',           label:'Home'},
     {href:'story-card-game.html', label:'Story card game'},
+    {href:'sky-clock.html',       label:'Sky Clock'},
     {href:'fathers-day.html',     label:"Writing for Father's Day"},
     {href:'quarter-past.html',    label:'Analog to Digital (First Worksheet)'},
     {href:'analog-to-digital.html', label:'Digital Time in Quarter Hours'},
