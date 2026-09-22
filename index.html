@@ -36,12 +36,12 @@
 <style>
   .wrap{ max-width:960px; }
   .grid{ list-style:none; padding:0; margin:0; display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:20px; }
-  .grid a, .grid .card{
+  .grid > li > a, .grid .card{
     display:flex; flex-direction:column; height:100%; overflow:hidden;
     background:var(--card); border:var(--bw) solid var(--line); border-radius:var(--radius);
     color:var(--ink); text-decoration:none; transition:transform .1s, border-color .1s;
   }
-  .grid a:hover{ transform:translateY(-2px); border-color:var(--sun); }
+  .grid > li > a:hover{ transform:translateY(-2px); border-color:var(--sun); }
   .grid img{ display:block; width:100%; aspect-ratio:3/2; object-fit:cover; object-position:top; background:#fff; border-bottom:var(--bw) solid var(--line); }
   .grid .body{ padding:16px 20px 20px; display:flex; flex-direction:column; flex:1; }
   .grid h2{ margin:0 0 6px; font-size:1.15rem; }
@@ -49,6 +49,13 @@
   .grid .body p:not(.objective){ margin-bottom:12px; }
   .grid .objective{ margin-top:auto; }
   .grid .body .btn{ margin-top:14px; align-self:flex-start; }
+  /* Compact cards for the built-things row: short banner, tighter text */
+  .built{ grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); margin-bottom:44px; }
+  .built img{ aspect-ratio:3/1; }
+  .built .body{ padding:14px 18px 16px; }
+  .built h2{ font-size:1.1rem; }
+  .built p{ font-size:.9rem; }
+  .built .body .btn{ margin-top:auto; flex:none; padding:6px 14px; font-size:.9rem; }
 </style>
 </head>
 <body>
@@ -63,8 +70,33 @@
     </div>
     <nav class="menu" aria-label="Site menu"></nav>
   </header>
-  <h2 class="section">Resources for Learning:</h2>
-  <p class="lead">Please feel free to tinker and peruse my creations. These are things I've developed to assist me as a teacher, to help young people learn or just for fun.</p>
+  <h2 class="section">Things I've built</h2>
+  <p class="lead">Two things I'm proud of, made for creative learners everywhere.</p>
+  <ul class="grid built">
+    <li>
+      <div class="card">
+        <img src="thumbs/gamefroot.png" alt="">
+        <div class="body">
+          <h2>Gamefroot</h2>
+          <p>A browser-based game maker that has helped millions of young people learn creative coding by building and sharing their own video games, animations and interactive stories.</p>
+          <a class="btn" href="https://make.gamefroot.com" target="_blank" rel="noopener">Open Gamefroot</a>
+        </div>
+      </div>
+    </li>
+    <li>
+      <div class="card">
+        <img src="thumbs/storymate.png" alt="">
+        <div class="body">
+          <h2>StoryMate</h2>
+          <p>A no-code tool for writing and publishing interactive, branching stories, with an AI assistant for beating writer's block. Built in New Zealand and used by schools, councils and creatives.</p>
+          <a class="btn" href="https://storymate.dev" target="_blank" rel="noopener">Open StoryMate</a>
+        </div>
+      </div>
+    </li>
+  </ul>
+
+  <h2 class="section">Design for Learning</h2>
+  <p class="lead"><em>Experiments of a beginning kaiako.</em> Please feel free to tinker and peruse my creations. These are things I've developed to assist me as a teacher, to help young people learn or just for fun.</p>
   <ul class="grid">
     <li>
       <a href="story-card-game.html">
@@ -148,30 +180,6 @@
     </li>
   </ul>
 
-  <h2 class="section" style="margin-top:40px">Major Achievements</h2>
-  <p class="lead">Two things I'm proud to have built.</p>
-  <ul class="grid">
-    <li>
-      <div class="card">
-        <img src="thumbs/gamefroot.png" alt="" loading="lazy">
-        <div class="body">
-          <h2>Gamefroot</h2>
-          <p>A browser-based game maker that has helped millions of young people learn creative coding by building and sharing their own video games, animations and interactive stories.</p>
-          <a class="btn" href="https://make.gamefroot.com" target="_blank" rel="noopener">Open Gamefroot</a>
-        </div>
-      </div>
-    </li>
-    <li>
-      <div class="card">
-        <img src="thumbs/storymate.png" alt="" loading="lazy">
-        <div class="body">
-          <h2>StoryMate</h2>
-          <p>A no-code tool for writing and publishing interactive, branching stories, with an AI assistant for beating writer's block. Built in New Zealand and used by schools, councils and creatives.</p>
-          <a class="btn" href="https://storymate.dev" target="_blank" rel="noopener">Open StoryMate</a>
-        </div>
-      </div>
-    </li>
-  </ul>
 </div>
 <script src="site.js"></script>
 </body>
