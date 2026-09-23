@@ -6,19 +6,11 @@
     {id:'github',   label:'GitHub'}
   ];
   var PAGES = [
-    {href:'index.html',           label:'Home'},
-    {href:'story-card-game.html', label:'Story card game'},
-    {href:'sky-clock.html',       label:'Sky Clock'},
-    {href:'fathers-day.html',     label:"Writing for Father's Day"},
-    {href:'quarter-past.html',    label:'Analog to Digital (First Worksheet)'},
-    {href:'analog-to-digital.html', label:'Digital Time in Quarter Hours'},
-    {href:'digital-to-analog.html', label:'Going from Digital to Analog'},
-    {href:'oclock-matching.html',   label:'Time Matching Games'},
-    {href:'tick-tock.html',         label:'Tick Tock Matching Game'}
+    {href:'index.html', label:'Home'}
   ];
   var SOCIAL = [
     {href:'https://www.linkedin.com/in/danmilward', label:'LinkedIn'},
-    {href:'https://x.com/danmilward',              label:'X (formerly Twitter)'},
+    {href:'https://x.com/danmilward',              label:'X'},
     {href:'https://linktr.ee/danmilward',          label:'Linktree'}
   ];
 
@@ -51,7 +43,7 @@
     panel.className = 'menu-panel';
     panel.hidden = true;
 
-    var html = '<div class="label">Pages</div>';
+    var html = '';
     PAGES.forEach(function(p){ html += '<a href="' + p.href + '">' + p.label + '</a>'; });
     html += '<hr><div class="label">Links</div>';
     SOCIAL.forEach(function(p){ html += '<a href="' + p.href + '">' + p.label + '</a>'; });
