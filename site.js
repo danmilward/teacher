@@ -96,18 +96,18 @@
     function frame(){
       t += 1;
       var shake = trauma * trauma;
-      var dx = 22 * shake * noise(t*0.9, seed[0]);
-      var dy = 22 * shake * noise(t*0.9, seed[1]);
-      var rot = 3.5 * shake * noise(t*0.9, seed[2]);
+      var dx = 9 * shake * noise(t*0.9, seed[0]);
+      var dy = 9 * shake * noise(t*0.9, seed[1]);
+      var rot = 1.2 * shake * noise(t*0.9, seed[2]);
       target.style.transform = 'translate(' + dx.toFixed(1) + 'px,' + dy.toFixed(1) + 'px) rotate(' + rot.toFixed(2) + 'deg)';
-      trauma = Math.max(0, trauma - 0.024);
+      trauma = Math.max(0, trauma - 0.028);
       if (trauma > 0) raf = requestAnimationFrame(frame);
       else { target.style.transform = ''; raf = null; }
     }
     photo.style.cursor = 'pointer';
     photo.setAttribute('title', 'Do not press');
     photo.addEventListener('click', function(){
-      trauma = Math.min(1, trauma + 0.6);
+      trauma = Math.min(1, trauma + 0.5);
       if (!raf) raf = requestAnimationFrame(frame);
     });
   }
