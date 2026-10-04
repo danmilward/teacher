@@ -50,12 +50,25 @@
   .grid .objective{ margin-top:auto; }
   .grid .body .btn{ margin-top:14px; align-self:flex-start; }
   /* Compact cards for the built-things row: short banner, tighter text */
-  .built{ grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); margin-bottom:44px; }
+  .built{ grid-template-columns:repeat(2, 1fr); margin-bottom:44px; }
   .built img{ aspect-ratio:3/1; }
   .built .body{ padding:14px 18px 16px; }
   .built h2{ font-size:1.1rem; }
   .built p{ font-size:.9rem; }
   .built .body .btn{ margin-top:auto; flex:none; padding:6px 14px; font-size:.9rem; }
+  /* Featured first card: image beside text, full width of the row */
+  .built .feature{ grid-column:1 / -1; }
+  .built .feature .card{ flex-direction:row; }
+  .built .feature img{ width:38%; flex:none; aspect-ratio:3/2; object-position:left top; border-bottom:0; border-right:var(--bw) solid var(--line); }
+  .built .feature .body{ padding:18px 22px 20px; justify-content:center; }
+  .built .feature h2{ font-size:1.3rem; }
+  .built .feature p{ font-size:.95rem; }
+  .built .feature .body .btn{ margin-top:14px; }
+  @media (max-width:640px){
+    .built{ grid-template-columns:1fr; }
+    .built .feature .card{ flex-direction:column; }
+    .built .feature img{ width:100%; border-right:0; border-bottom:var(--bw) solid var(--line); }
+  }
 </style>
 </head>
 <body>
@@ -71,8 +84,18 @@
     <nav class="menu" aria-label="Site menu"></nav>
   </header>
   <h2 class="section">Things I've built</h2>
-  <p class="lead">Two things I'm proud of, made for creative learners everywhere.</p>
+  <p class="lead">Three things I'm proud of, made for creative learners everywhere.</p>
   <ul class="grid built">
+    <li class="feature">
+      <div class="card">
+        <img src="thumbs/te-hiko-takaro.jpg" alt="">
+        <div class="body">
+          <h2>Te Hiko Tākaro</h2>
+          <p>A free Digital Technologies programme for years 7 to 10 that weaves together coding, culture and creativity. Co-created in Pōneke with teachers and Māori advisors, it takes students from computational thinking through game design to a finished Aotearoa-themed game.</p>
+          <a class="btn" href="https://takaro.gamefroot.com" target="_blank" rel="noopener">Open Te Hiko Tākaro</a>
+        </div>
+      </div>
+    </li>
     <li>
       <div class="card">
         <img src="thumbs/gamefroot.png" alt="">
