@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>3D Shape Memory</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;overflow:hidden}
+  body{
+    background:#FFFFFF; display:flex; align-items:center; justify-content:center;
+    font-family:ui-rounded,"Arial Rounded MT Bold","Nunito","Trebuchet MS",system-ui,sans-serif;
+    -webkit-tap-highlight-color:transparent; user-select:none;
+  }
+  .grid{display:grid; grid-template-columns:repeat(4,1fr); gap:1.5vmin;
+        width:min(96vw, calc(92vh * 28 / 15))}
+  .card{aspect-ratio:7/5; perspective:1000px; cursor:pointer; border:none; background:none; border-radius:1.5vmin}
+  .inner{position:relative; width:100%; height:100%; transform-style:preserve-3d; transition:transform .4s}
+  .card.up .inner{transform:rotateY(180deg)}
+  .side{position:absolute; inset:0; border-radius:1.5vmin; background:#fff; overflow:hidden;
+        backface-visibility:hidden; -webkit-backface-visibility:hidden;
+        box-shadow:0 0 0 1px #D5D9DD, 0 .6vmin 1.2vmin rgba(0,0,0,.15)}
+  .front{padding:5%}
+  .front .pattern{position:absolute; inset:5%; border-radius:1vmin; background:#1E7A4B;}
+  .front .badge{position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+    height:58%; aspect-ratio:1; border-radius:50%; background:#fff; border:.6vmin solid #FFD23F;
+    display:grid; place-items:center; font-size:6vmin; font-weight:900; color:#1E7A4B}
+  .back{transform:rotateY(180deg)}
+  .back canvas{position:absolute; inset:0; width:100%; height:100%; display:block}
+  .card.done .back{box-shadow:0 0 0 .7vmin #FFD23F, 0 .6vmin 1.2vmin rgba(0,0,0,.15)}
+  @media (prefers-reduced-motion:reduce){ .inner{transition:none} }
+</style>
+</head>
+<body>
+<div class="grid" id="grid"></div>
+<script>
+/* ---------- solid models (centred on the origin, y = up) ---------- */
+function cuboid(w,h,d){
+  const [x,y,z] = [w/2,h/2,d/2];
+  return {v:[[-x,-y,-z],[x,-y,-z],[x,-y,z],[-x,-y,z],[-x,y,-z],[x,y,-z],[x,y,z],[-x,y,z]],
+          f:[[0,1,2,3],[4,5,6,7],[0,1,5,4],[2,3,7,6],[1,2,6,5],[0,3,7,4]], edges:true};
+}
+function pyramid(w,h){
+  const x = w/2, y = h/2;
+  return {v:[[-x,-y,-x],[x,-y,-x],[x,-y,x],[-x,-y,x],[0,y,0]],
+          f:[[0,1,2,3],[0,1,4],[1,2,4],[2,3,4],[3,0,4]], edges:true};
+}
+function cylinder(r,h,n=30){
+  const v=[], f=[], y=h/2, top=[], bot=[];
+  for(let i=0;i<n;i++){
+    const a = i/n*2*Math.PI, c = Math.cos(a)*r, s = Math.sin(a)*r;
+    v.push([c,-y,s],[c,y,s]); bot.push(i*2); top.push(i*2+1);
+  }
+  for(let i=0;i<n;i++){ const j=(i+1)%n; f.push([i*2, j*2, j*2+1, i*2+1]); }
+  f.push(top, bot.slice().reverse());
+  return {v,f};
+}
+function cone(r,h,n=30){
+  const v=[], f=[], base=[], y=h/2;
+  for(let i=0;i<n;i++){ const a=i/n*2*Math.PI; v.push([Math.cos(a)*r,-y,Math.sin(a)*r]); base.push(i); }
+  v.push([0,y,0]); const apex = v.length-1;
+  for(let i=0;i<n;i++) f.push([i,(i+1)%n,apex]);
+  f.push(base.slice().reverse());
+  return {v,f};
+}
+function sphere(r,lat=14,lon=24){
+  const v=[], f=[];
+  for(let i=0;i<=lat;i++){ const t=i/lat*Math.PI;
+    for(let j=0;j<lon;j++){ const p=j/lon*2*Math.PI;
+      v.push([r*Math.sin(t)*Math.cos(p), r*Math.cos(t), r*Math.sin(t)*Math.sin(p)]); } }
+  for(let i=0;i<lat;i++) for(let j=0;j<lon;j++){
+    const a=i*lon+j, b=i*lon+(j+1)%lon;
+    f.push([a, b, b+lon, a+lon]);
+  }
+  return {v,f};
+}
+
+/* ---------- the six solids ---------- */
+const SHAPES = [
+  {name:"Cube",              color:[47,128,237],  model:cuboid(1,1,1)},
+  {name:"Rectangular prism", color:[22,163,163],  model:cuboid(1.7,.8,.8)},
+  {name:"Pyramid",           color:[255,138,0],   model:pyramid(1.15,1.2)},
+  {name:"Cylinder",          color:[155,81,224],  model:cylinder(.55,1.2)},
+  {name:"Cone",              color:[235,87,87],   model:cone(.62,1.25)},
+  {name:"Sphere",            color:[39,174,96],   model:sphere(.68)}
+];
+
+/* ---------- renderer: one slow, shared rotation for every card ---------- */
+const TILT = 0.42;                 // tip the tops towards the viewer
+const PERIOD = 26000;              // ms for one full turn
+const LIGHT = (() => { const l=[-0.4,0.78,0.55], m=Math.hypot(...l); return l.map(n=>n/m); })();
+
+// Returns the projected, lit, visible faces of a model, in unit coordinates (y up).
+function project(model, color, angle){
+  const cy = Math.cos(angle), sy = Math.sin(angle), cx = Math.cos(TILT), sx = Math.sin(TILT);
+  const pts = model.v.map(([x,y,z]) => {
+    const X = x*cy + z*sy, Z0 = -x*sy + z*cy;
+    const Y = y*cx - Z0*sx, Z = y*sx + Z0*cx;
+    return [X,Y,Z];
+  });
+  const out = [];
+  for(const face of model.f){
+    const p = face.map(i => pts[i]);
+    let nx=0, ny=0, nz=0;
+    for(let i=0;i<p.length;i++){
+      const [x1,y1,z1] = p[i], [x2,y2,z2] = p[(i+1)%p.length];
+      nx += (y1-y2)*(z1+z2); ny += (z1-z2)*(x1+x2); nz += (x1-x2)*(y1+y2);
+    }
+    const cen = p.reduce((s,q)=>[s[0]+q[0],s[1]+q[1],s[2]+q[2]],[0,0,0]).map(n=>n/p.length);
+    if(nx*cen[0] + ny*cen[1] + nz*cen[2] < 0){ nx=-nx; ny=-ny; nz=-nz; }
+    if(nz <= 0) continue;
+    const m = Math.hypot(nx,ny,nz) || 1;
+    const lit = Math.max(0, (nx*LIGHT[0] + ny*LIGHT[1] + nz*LIGHT[2]) / m);
+    const k = 0.45 + 0.55*lit;
+    out.push({p, fill:`rgb(${color.map(c => Math.round(Math.min(255, c*k + 40*lit*lit))).join(",")})`});
+  }
+  return out;
+}
+
+// Draws the whole card back: the solid in the upper part, the name underneath.
+function drawCard(canvas, shape, angle){
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const cw = canvas.offsetWidth, ch = canvas.offsetHeight;      // unaffected by the flip transform
+  if(!cw || !ch) return;
+  const w = Math.round(cw*dpr), h = Math.round(ch*dpr);
+  if(canvas.width !== w || canvas.height !== h){ canvas.width = w; canvas.height = h; }
+  const ctx = canvas.getContext("2d");
+  ctx.clearRect(0,0,w,h);
+
+  // layout: shape zone = top 72% of the card, label zone = the rest
+  const shapeH = h*0.72;
+  const R = Math.min(w, shapeH) * 0.40;         // drawing radius; every model fits inside ~1 unit
+  const SX = w/2, SY = shapeH/2 + h*0.02;
+
+  for(const {p, fill} of project(shape.model, shape.color, angle)){
+    ctx.beginPath();
+    p.forEach(([x,y], i) => { const X = SX + x*R, Y = SY - y*R; i ? ctx.lineTo(X,Y) : ctx.moveTo(X,Y); });
+    ctx.closePath();
+    ctx.fillStyle = fill;
+    ctx.strokeStyle = shape.model.edges ? "#1D1D2C" : fill;
+    ctx.lineWidth = shape.model.edges ? Math.max(1.5, R*0.04) : 1;
+    ctx.lineJoin = "round";
+    ctx.fill(); ctx.stroke();
+  }
+
+  // label, shrunk to fit on one line
+  let size = h*0.13;
+  ctx.fillStyle = "#1D1D2C"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  const font = s => `900 ${s}px ui-rounded,"Arial Rounded MT Bold","Nunito","Trebuchet MS",system-ui,sans-serif`;
+  ctx.font = font(size);
+  while(ctx.measureText(shape.name).width > w*0.9 && size > 6){ size *= 0.92; ctx.font = font(size); }
+  ctx.fillText(shape.name, w/2, shapeH + (h-shapeH)*0.45);
+}
+
+/* ---------- game ---------- */
+const grid = document.getElementById("grid");
+let first = null, lock = false, pairs = 0, resetTimer = null, live = [];
+
+function deal(){
+  clearTimeout(resetTimer);
+  first = null; lock = false; pairs = 0; grid.innerHTML = ""; live = [];
+  const deck = SHAPES.flatMap(s => [{s, phase:0}, {s, phase:Math.PI}]);   // pair halfway apart
+  for(let i=deck.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[deck[i],deck[j]]=[deck[j],deck[i]]}
+  deck.forEach(({s, phase}) => {
+    const card = document.createElement("button");
+    card.className = "card"; card.dataset.name = s.name; card.setAttribute("aria-label","Hidden card");
+    card.innerHTML = `<div class="inner">
+      <div class="side front"><div class="pattern"></div><div class="badge">?</div></div>
+      <div class="side back"><canvas></canvas></div>
+    </div>`;
+    card.onclick = () => flip(card);
+    grid.appendChild(card);
+    live.push({card, canvas:card.querySelector("canvas"), shape:s, phase});
+  });
+}
+
+function tick(t){
+  const base = (t / PERIOD) * 2 * Math.PI;
+  for(const item of live)
+    if(item.card.classList.contains("up"))
+      drawCard(item.canvas, item.shape, base + item.phase);
+  requestAnimationFrame(tick);
+}
+requestAnimationFrame(tick);
+
+function flip(c){
+  if(pairs === SHAPES.length){ deal(); return; }   // tap any card to start the next game early
+  if(lock || c === first || c.classList.contains("up")) return;
+  c.classList.add("up"); c.setAttribute("aria-label", c.dataset.name);
+  if(!first){ first = c; return; }
+  const a = first, b = c; first = null;
+  if(a.dataset.name === b.dataset.name){
+    a.classList.add("done"); b.classList.add("done"); pairs++;
+    if(pairs === SHAPES.length) resetTimer = setTimeout(deal, 10000);
+  } else {
+    lock = true;
+    setTimeout(() => {
+      [a,b].forEach(x => { x.classList.remove("up"); x.setAttribute("aria-label","Hidden card"); });
+      lock = false;
+    }, 1500);
+  }
+}
+deal();
+</script>
+</body>
+</html>
