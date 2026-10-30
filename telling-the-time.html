@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="terminal">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Telling the Time: Year 2 Placement Unit</title>
+<meta name="description" content="Worksheets and matching games I made for a Year 2 telling-the-time unit on placement: modelling, analog to digital, digital to analog, matching and early finisher extensions for o'clock, quarter past, half past and quarter to.">
+<link rel="canonical" href="https://danmilward.nz/telling-the-time.html">
+<link rel="icon" href="dan.jpg">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<link rel="stylesheet" href="site.css">
+<style>
+  h1{ font-size:2rem; margin:0 0 8px; }
+  .objective.top{ margin:0 0 32px; background:var(--card); font-size:.95rem; }
+  .steps{ list-style:none; padding:0; margin:0; display:grid; gap:24px; counter-reset:step; }
+  .step{ background:var(--card); border:var(--bw) solid var(--line); border-radius:var(--radius); padding:20px 24px; scroll-margin-top:16px; }
+  .step h2{ margin:0 0 12px; font-size:1.25rem; display:flex; align-items:center; gap:12px; }
+  .step h2::before{
+    counter-increment:step; content:counter(step);
+    display:inline-flex; align-items:center; justify-content:center;
+    width:32px; height:32px; border-radius:50%;
+    background:var(--sun); color:var(--on-sun); font-size:1rem; flex-shrink:0;
+  }
+  .step p{ margin:0 0 8px; }
+  .step ul{ margin:0 0 8px; padding-left:20px; }
+  .step li{ margin:0 0 4px; }
+  .plain h2::before{ content:none; }
+  .why{ color:var(--soft); font-style:italic; }
+  .sheets{ list-style:none; padding:0; margin:16px 0 0; display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:16px; }
+  .sheets li{ margin:0; display:flex; flex-direction:column; }
+  .sheets img{ display:block; width:100%; height:auto; aspect-ratio:3/4; object-fit:contain; background:#fff; border:1px solid var(--line); border-radius:var(--radius-sm); }
+  .sheets span{ display:block; font-size:.85rem; color:var(--soft); margin:6px 0 4px; flex:1; }
+  .sheets .dl{ font-size:.85rem; }
+  .toc{ margin:0 0 32px; padding-left:20px; }
+  .toc li{ margin:0 0 4px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <a class="back" href="index.html">&larr; Back to Design for Learning</a>
+    <nav class="menu" aria-label="Site menu"></nav>
+  </div>
+  <h1>Telling the Time</h1>
+  <p class="lead" style="margin-bottom:16px">I made these for a Year 2 class while teaching a unit on telling the time during my placement. Each sheet was made for a particular lesson, so they're working resources rather than a polished pack. They're here in case they're useful to someone else.</p>
+  <p class="objective top"><strong>Objective:</strong> Reading and showing o'clock, quarter past, half past and quarter to on analog and digital clocks, and moving between the two</p>
+
+  <p>The sheets follow the order I used them in: model it together, practise both directions, then match. Every stage has a harder sheet for students who finish early.</p>
+  <ol class="toc">
+    <li><a href="#model">Model it together</a></li>
+    <li><a href="#analog-to-digital">Analog to digital</a></li>
+    <li><a href="#digital-to-analog">Digital to analog</a></li>
+    <li><a href="#tick-tock">Tick Tock matching</a></li>
+    <li><a href="#matching">Cut-and-match puzzles</a></li>
+  </ol>
+
+  <ol class="steps">
+    <li class="step" id="model">
+      <h2>Model it together</h2>
+      <p>A blank template with a clock face, a box for the time in words, and a line for the digital time. Put it on the board and work through one time at a time with the class:</p>
+      <ul>
+        <li>Draw the hands. Talk about where the long hand points for quarter past, half past and quarter to.</li>
+        <li>Write the time in words, then the same time in digits.</li>
+        <li>Join the three so students see it's one time shown three ways.</li>
+      </ul>
+      <p class="why">Why: before students convert on their own, I wanted them to see the words in the middle, linking the clock and the digits.</p>
+      <ul class="sheets">
+        <li><a href="quarter-past/blank-template.png" target="_blank"><img src="quarter-past/blank-template.png" alt="Blank template: four rows, each with an analog clock face with no hands, a box for the time in words, and a line for the digital time" loading="lazy"></a><span>Blank template</span><a class="dl" href="quarter-past/blank-template.png" download="telling-the-time-blank-template.png">Download</a></li>
+        <li><a href="quarter-past/example.png" target="_blank"><img src="quarter-past/example.png" alt="Set 1: quarter past 2, half past 3, quarter to 10 and quarter past 1, with hands and words filled in and the digital time blank" loading="lazy"></a><span>Set 1, hands and words filled in</span><a class="dl" href="quarter-past/example.png" download="telling-the-time-model-1.png">Download</a></li>
+        <li><a href="quarter-past/example-2.png" target="_blank"><img src="quarter-past/example-2.png" alt="Set 2: half past 7, quarter to 4, quarter past 11 and half past 12, with hands and words filled in and the digital time blank" loading="lazy"></a><span>Set 2</span><a class="dl" href="quarter-past/example-2.png" download="telling-the-time-model-2.png">Download</a></li>
+        <li><a href="quarter-past/example-3.png" target="_blank"><img src="quarter-past/example-3.png" alt="Set 3: quarter past 5, quarter to 8, half past 10 and quarter to 2, with hands and words filled in and the digital time blank" loading="lazy"></a><span>Set 3, two quarter to times</span><a class="dl" href="quarter-past/example-3.png" download="telling-the-time-model-3.png">Download</a></li>
+      </ul>
+    </li>
+
+    <li class="step" id="analog-to-digital">
+      <h2>Analog to digital</h2>
+      <p>Five analog clocks showing quarter past, half past and quarter to. Students write each time on the digital clock beside it. Do the first row together, then check as a class and ask students to explain how they knew, especially for quarter to.</p>
+      <p class="why">Why the extension: quarter to 12 and quarter to 1 put the hour hand just before the 12 or the 1, which catches out students who read the hour hand too quickly.</p>
+      <ul class="sheets">
+        <li><a href="analog-to-digital/worksheet.png" target="_blank"><img src="analog-to-digital/worksheet.png" alt="Time in Quarter Hours worksheet: five analog clocks, each with a blank digital clock beside it" loading="lazy"></a><span>Worksheet</span><a class="dl" href="analog-to-digital/worksheet.png" download="analog-to-digital-worksheet.png">Download</a></li>
+        <li><a href="analog-to-digital/extension.png" target="_blank"><img src="analog-to-digital/extension.png" alt="Extension: five analog clocks showing quarter to 12, quarter past 6, half past 11, quarter to 1 and quarter past 9" loading="lazy"></a><span>Extension</span><a class="dl" href="analog-to-digital/extension.png" download="analog-to-digital-extension.png">Download</a></li>
+      </ul>
+    </li>
+
+    <li class="step" id="digital-to-analog">
+      <h2>Digital to analog</h2>
+      <p>The reverse direction. Students read a digital time and draw the hands on a blank clock. The minute hand goes to the 12 for o'clock and the 6 for half past, and the hour hand is drawn shorter and halfway between the numbers for half past. Students then swap with a partner to check.</p>
+      <p class="why">Why: doing both directions helps the mapping stick. Drawing the hands also shows who really understands where the hour hand goes, which reading a clock can hide.</p>
+      <ul class="sheets">
+        <li><a href="digital-to-analog/worksheet.png" target="_blank"><img src="digital-to-analog/worksheet.png" alt="Worksheet: three digital clocks showing 03:00, 07:30 and 10:30, each next to a blank analog clock face" loading="lazy"></a><span>Worksheet: o'clock and half past</span><a class="dl" href="digital-to-analog/worksheet.png" download="digital-to-analog-worksheet.png">Download</a></li>
+        <li><a href="digital-to-analog/extension.png" target="_blank"><img src="digital-to-analog/extension.png" alt="Extension: three digital clocks showing 02:15, 09:45 and 12:00, each next to a blank analog clock face" loading="lazy"></a><span>Extension: quarters and 12:00</span><a class="dl" href="digital-to-analog/extension.png" download="digital-to-analog-extension.png">Download</a></li>
+      </ul>
+    </li>
+
+    <li class="step" id="tick-tock">
+      <h2>Tick Tock matching</h2>
+      <p>Twelve clocks and twelve digital times. Students draw a line from each time to the clock that shows it. Do the first one together: ask which clocks it could be, then which one it is and why. Every clock is used once, so students cross them off as they go.</p>
+      <p class="why">Why: with all four types mixed on one page, students have to tell them apart rather than repeat one pattern. The second extension adds 12:45 and 1:45, where the hour hand sits just before the next number.</p>
+      <ul class="sheets">
+        <li><a href="tick-tock/worksheet.png" target="_blank"><img src="tick-tock/worksheet.png" alt="Tick Tock Matching Game: twelve analog clocks and twelve digital times to join with lines" loading="lazy"></a><span>Worksheet</span><a class="dl" href="tick-tock/worksheet.png" download="tick-tock-matching-worksheet.png">Download</a></li>
+        <li><a href="tick-tock/extension-1.png" target="_blank"><img src="tick-tock/extension-1.png" alt="Tick Tock Extension 1: a fresh set of twelve clocks and twelve digital times" loading="lazy"></a><span>Extension 1</span><a class="dl" href="tick-tock/extension-1.png" download="tick-tock-matching-extension-1.png">Download</a></li>
+        <li><a href="tick-tock/extension-2.png" target="_blank"><img src="tick-tock/extension-2.png" alt="Tick Tock Extension 2: a third set of twelve clocks and twelve digital times" loading="lazy"></a><span>Extension 2</span><a class="dl" href="tick-tock/extension-2.png" download="tick-tock-matching-extension-2.png">Download</a></li>
+      </ul>
+    </li>
+
+    <li class="step" id="matching">
+      <h2>Cut-and-match puzzles</h2>
+      <p>Printed on card and cut along the dashed lines, each row becomes a clock piece and a time-in-words piece. The pointed tab fits the notch, so matched pairs sit together. There's an o'clock set and a harder set with quarters and halves. Keep them in separate zip bags so the pieces don't mix.</p>
+      <p class="why">Why: a hands-on activity early finishers can pick up without me, so I can keep working with the group that needs it. The puzzle shape lets them check their own matches.</p>
+      <ul class="sheets">
+        <li><a href="oclock-matching/sheet-1.png" target="_blank"><img src="oclock-matching/sheet-1.png" alt="O'clock puzzle sheet 1: 1 o'clock to 6 o'clock" loading="lazy"></a><span>O'clock, 1 to 6</span><a class="dl" href="oclock-matching/sheet-1.png" download="oclock-matching-sheet-1.png">Download</a></li>
+        <li><a href="oclock-matching/sheet-2.png" target="_blank"><img src="oclock-matching/sheet-2.png" alt="O'clock puzzle sheet 2: 7 o'clock to 12 o'clock" loading="lazy"></a><span>O'clock, 7 to 12</span><a class="dl" href="oclock-matching/sheet-2.png" download="oclock-matching-sheet-2.png">Download</a></li>
+        <li><a href="oclock-matching/quarters-sheet-1.png" target="_blank"><img src="oclock-matching/quarters-sheet-1.png" alt="Quarters and halves puzzle sheet 1" loading="lazy"></a><span>Quarters and halves 1</span><a class="dl" href="oclock-matching/quarters-sheet-1.png" download="quarters-halves-matching-sheet-1.png">Download</a></li>
+        <li><a href="oclock-matching/quarters-sheet-2.png" target="_blank"><img src="oclock-matching/quarters-sheet-2.png" alt="Quarters and halves puzzle sheet 2, including quarter to 12 and quarter to 1" loading="lazy"></a><span>Quarters and halves 2</span><a class="dl" href="oclock-matching/quarters-sheet-2.png" download="quarters-halves-matching-sheet-2.png">Download</a></li>
+      </ul>
+    </li>
+  </ol>
+
+  <!--
+    LOOKING BACK: add a short section here once you've reflected on the unit. Uncomment and fill in.
+    A few honest sentences beat a long write-up. Prompts:
+    - Which time did students find hardest, and how could you tell?
+    - Which sheet worked best, and which would you change or drop?
+    - What would you do differently next time you teach this?
+
+  <div class="step plain" style="margin-top:24px">
+    <h2 style="font-size:1.25rem;margin:0 0 12px">Looking back</h2>
+    <p>...</p>
+  </div>
+  -->
+
+  <p style="margin-top:32px">For the interactive side of this unit, try the <a href="sky-clock.html">Sky Clock</a>.</p>
+</div>
+<script src="site.js"></script>
+</body>
+</html>

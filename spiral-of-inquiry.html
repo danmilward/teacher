@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="terminal">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Spiral of Inquiry</title>
+<!-- DRAFT: remove this noindex line, add a card on index.html and an entry in sitemap.xml when it's ready to share -->
+<meta name="robots" content="noindex">
+<meta name="description" content="A summary of my spiral of inquiry as a beginning kaiako: what I noticed, what I tried, and what changed.">
+<link rel="canonical" href="https://danmilward.nz/spiral-of-inquiry.html">
+<link rel="icon" href="dan.jpg">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<link rel="stylesheet" href="site.css">
+<style>
+  h1{ font-size:2rem; margin:0 0 8px; }
+  .objective.top{ margin:0 0 32px; background:var(--card); font-size:.95rem; }
+  .steps{ list-style:none; padding:0; margin:0; display:grid; gap:24px; counter-reset:step; }
+  .step{ background:var(--card); border:var(--bw) solid var(--line); border-radius:var(--radius); padding:20px 24px; }
+  .step h2{ margin:0 0 4px; font-size:1.25rem; display:flex; align-items:center; gap:12px; }
+  .step h2::before{
+    counter-increment:step; content:counter(step);
+    display:inline-flex; align-items:center; justify-content:center;
+    width:32px; height:32px; border-radius:50%;
+    background:var(--sun); color:var(--on-sun); font-size:1rem; flex-shrink:0;
+  }
+  .step .q{ margin:0 0 12px 44px; color:var(--soft); font-size:.9rem; font-style:italic; }
+  .step p{ margin:0 0 8px; }
+  .plain h2::before{ content:none; }
+  .todo{ color:var(--berry); }
+  .draft{ margin:0 0 24px; padding:10px 14px; border:var(--bw) dashed var(--berry); border-radius:var(--radius-sm); color:var(--berry); font-size:.9rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <a class="back" href="index.html">&larr; Back to Design for Learning</a>
+    <nav class="menu" aria-label="Site menu"></nav>
+  </div>
+  <!-- DRAFT: delete this banner when finished -->
+  <p class="draft">Draft. Not linked from the site yet.</p>
+
+  <h1>My Spiral of Inquiry</h1>
+  <p class="lead" style="margin-bottom:16px"><span class="todo">[One or two sentences: the context (year level, setting) and what you set out to understand. Keep the school and students anonymous.]</span></p>
+  <p class="objective top"><strong>Inquiry question:</strong> <span class="todo">[Your focusing question]</span></p>
+
+  <ol class="steps">
+    <li class="step">
+      <h2>Scanning</h2>
+      <p class="q">What's going on for our learners?</p>
+      <p class="todo">[What you noticed. Describe patterns, not individual children.]</p>
+    </li>
+    <li class="step">
+      <h2>Focusing</h2>
+      <p class="q">Where will concentrating our energy make the most difference?</p>
+      <p class="todo">[Why you chose this focus.]</p>
+    </li>
+    <li class="step">
+      <h2>Developing a hunch</h2>
+      <p class="q">How are we contributing to this situation?</p>
+      <p class="todo">[Your hunch about what in your own practice might be part of it.]</p>
+    </li>
+    <li class="step">
+      <h2>New learning</h2>
+      <p class="q">How and where will we learn more about what to do?</p>
+      <p class="todo">[Readings, people, observations. One or two key sources.]</p>
+    </li>
+    <li class="step">
+      <h2>Taking action</h2>
+      <p class="q">What will we do differently to make enough of a difference?</p>
+      <p class="todo">[What you tried. Link any of your resources here, e.g. <a href="telling-the-time.html">Telling the Time</a> or <a href="sky-clock.html">Sky Clock</a>.]</p>
+    </li>
+    <li class="step">
+      <h2>Checking</h2>
+      <p class="q">Have we made enough of a difference?</p>
+      <p class="todo">[What changed and how you know. Summarised, with nothing that could identify a student.]</p>
+    </li>
+  </ol>
+
+  <div class="step plain" style="margin-top:24px">
+    <h2 style="margin:0 0 12px">Where to next</h2>
+    <p class="todo">[What you'd keep, change, or inquire into next.]</p>
+  </div>
+</div>
+<script src="site.js"></script>
+</body>
+</html>
