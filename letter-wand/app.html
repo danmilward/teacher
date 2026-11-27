@@ -117,11 +117,11 @@
     user-select:none;
   }
   #wordEmoji{
-    position:absolute; left:50%; top:26%; transform:translate(-50%,-50%);
+    position:absolute; left:50%; top:16%; transform:translate(-50%,-50%);
     font-size:clamp(56px,16vw,84px); pointer-events:none;
   }
   #slots{
-    position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+    position:absolute; left:50%; top:36%; transform:translate(-50%,-50%);
     display:flex; gap:2px; pointer-events:none;
   }
   .slot{
@@ -949,25 +949,27 @@ function scatterLetters(){
   const chars=[...sp.word.w].filter(c=>!isGap(c));
   const colors=[...LETTER_COLORS].sort(()=>Math.random()-.5);
   const placed=[];
-  const keepOut=[ // rough rectangles to stay clear of (emoji, word)
-    {x:W*0.26,y:H*0.06,w:W*0.48,h:H*0.32},
-    {x:W*0.06,y:H*0.38,w:W*0.88,h:H*0.24},
-  ];
-  const gap=Math.max(m*1.6, (W*0.20)*Math.min(1, 6/chars.length));
-  const hits=(x,y)=>keepOut.some(r=>x>r.x-m&&x<r.x+r.w+m&&y>r.y-m&&y<r.y+r.h+m)
-    || placed.some(p=>Math.hypot(p.x-x,p.y-y)<gap);
-
+  // letters only ever go below the word, never above or beside it
+  const br=board.getBoundingClientRect(), sr=$("slots").getBoundingClientRect();
+  const yMin=Math.min(H-m, sr.bottom-br.top+m*1.5), yMax=H-m;
+  const keepOut=[];
+  // a loose grid below the word: every letter gets its own cell, with a little wobble so it still looks playful
+  const n=chars.length, areaW=W-2*m, areaH=Math.max(1,yMax-yMin);
+  let cols=Math.max(1,Math.min(n,Math.round(Math.sqrt(n*areaW/areaH))));
+  let rows=Math.ceil(n/cols);
+  const cellW=areaW/cols, cellH=rows>1?areaH/(rows-1||1):0;
+  const cells=[];
+  for(let r=0;r<rows;r++){
+    const inRow=Math.min(cols,n-r*cols), off=(cols-inRow)*cellW/2;   // centre a short last row
+    for(let c=0;c<inRow;c++) cells.push({x:m+off+cellW*(c+.5), y:rows>1?yMin+cellH*r:(yMin+yMax)/2});
+  }
+  cells.sort(()=>Math.random()-.5);
   const fs=tileFont(board);
+  const jx=Math.max(0,(cellW-fs*1.1)/2)*.6, jy=Math.max(0,Math.min(cellH,fs*1.6)-fs*1.1)/2*.6;
   chars.forEach((ch,i)=>{
-    let x,y,tries=0, g=gap;
-    do{
-      x=clamp(m+Math.random()*(W-2*m), m, W-m);
-      y=clamp(m+Math.random()*(H-2*m), m, H-m);
-      tries++;
-      if(tries%80===0) g*=0.85; // relax spacing if the board is crowded (long words)
-    }while((keepOut.some(r=>x>r.x-m&&x<r.x+r.w+m&&y>r.y-m&&y<r.y+r.h+m)
-            || placed.some(p=>Math.hypot(p.x-x,p.y-y)<g)) && tries<400);
-    x=clamp(x,m,W-m); y=clamp(y,m,H-m);
+    const cell=cells[i];
+    const x=clamp(cell.x+(Math.random()*2-1)*jx, m, W-m);
+    const y=clamp(cell.y+(Math.random()*2-1)*jy, yMin, yMax);
     placed.push({x,y});
     const b=document.createElement("button");
     b.className="floater";
