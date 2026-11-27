@@ -1,0 +1,1837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Letter Wand — Phonics Practice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FFF9EF;
+    --card:#FFFFFF;
+    --ink:#3B3350;
+    --ghost:#E7E0D4;
+    --line:#D9D2C4;
+    --wand:#8B5CF6;
+    --wand-deep:#6D3FE0;
+    --spark:#FFC53D;
+    --go:#3FCF8E;
+    --soft:#8A8399;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    margin:0; background:var(--paper);
+    font-family:'Nunito',system-ui,sans-serif; color:var(--ink);
+    display:flex; flex-direction:column; align-items:center;
+    overscroll-behavior:none; touch-action:manipulation;
+  }
+  h1,h2,.big{font-family:'Fredoka',sans-serif;}
+  .screen{width:100%; max-width:560px; padding:24px 18px 40px; display:none;}
+  .screen.on{display:block;}
+
+  /* ---------- Home menu ---------- */
+  #menu{text-align:center; padding-top:40px;}
+  #menu h1{font-size:clamp(32px,8vw,44px); margin:4px 0 0; font-weight:700;}
+  #menu .sub{color:var(--soft); font-weight:800; margin:6px 0 34px;}
+  .modeBtn{
+    display:flex; align-items:center; gap:16px; width:100%;
+    background:var(--card); border:none; border-radius:24px; cursor:pointer;
+    padding:22px 22px; margin-bottom:16px; text-align:left;
+    box-shadow:0 4px 0 #E8E1D3; transition:transform .1s ease;
+  }
+  .modeBtn:active{transform:scale(.97);}
+  .modeBtn .ico{
+    width:64px; height:64px; border-radius:18px; flex:none;
+    display:flex; align-items:center; justify-content:center; font-size:34px;
+  }
+  .modeBtn.alpha .ico{background:#F1EAFF;}
+  .modeBtn.spell .ico{background:#E4F8EF;}
+  .modeBtn .t{font-family:'Fredoka',sans-serif; font-size:22px; font-weight:600;}
+  .modeBtn .d{color:var(--soft); font-weight:700; font-size:14px; margin-top:2px;}
+
+  /* ---------- Shared top bar ---------- */
+  .topbar{display:flex; align-items:center; gap:14px; margin-bottom:6px;}
+  .closeBtn{
+    border:none; background:none; color:#C9C2B4; font-size:26px; font-weight:800;
+    cursor:pointer; padding:6px 8px; line-height:1;
+  }
+  .barTrack{flex:1; height:16px; background:#ECE6D9; border-radius:99px; overflow:hidden;}
+  .barFill{height:100%; width:0%; background:var(--go); border-radius:99px;
+    box-shadow:inset 0 -4px 0 rgba(0,0,0,.08); transition:width .35s ease;}
+
+  /* ---------- Alphabet picker ---------- */
+  #alpha h1{font-size:clamp(26px,6vw,34px); margin:14px 0 2px; font-weight:700;}
+  #alpha .sub{color:var(--soft); margin:0 0 20px; font-weight:700;}
+  #grid{display:grid; grid-template-columns:repeat(4,1fr); gap:12px;}
+  .cell{
+    aspect-ratio:1; border:none; border-radius:20px; background:var(--card);
+    box-shadow:0 3px 0 #E8E1D3; cursor:pointer; position:relative;
+    font-family:'Fredoka',sans-serif; font-size:clamp(24px,6vw,34px); font-weight:600; color:var(--ink);
+    transition:transform .1s ease;
+  }
+  .cell:active{transform:scale(.94);}
+  .cell .star{position:absolute; top:5px; right:8px; font-size:13px;}
+  .cell.done{background:#F3EEFF; box-shadow:0 3px 0 #DDD2F6;}
+
+  /* ---------- Trace screen ---------- */
+  #trace{padding-top:14px;}
+  #phaseChip{
+    width:max-content; margin:10px auto 2px; padding:7px 16px; border-radius:99px;
+    background:#F1EAFF; color:var(--wand-deep); font-weight:800; font-size:15px;
+  }
+  #phaseChip.solo{background:#FFF3D6; color:#A87400;}
+  #board{
+    background:var(--card); border-radius:26px; box-shadow:0 4px 0 #E8E1D3;
+    margin-top:10px; padding:6px; position:relative;
+  }
+  #stage{display:block; width:100%; height:auto; touch-action:none; border-radius:22px;}
+  .gline{stroke:var(--line); stroke-width:2.5;}
+  .gline.mid{stroke-dasharray:14 12;}
+  .ghost{stroke:var(--ghost); stroke-width:36; fill:none; stroke-linecap:round; stroke-linejoin:round;}
+  .hint{stroke:var(--wand); stroke-width:5; fill:none; stroke-linecap:round;
+        stroke-dasharray:2 12; opacity:.9;}
+  .drawn{stroke:var(--ink); stroke-width:36; fill:none; stroke-linecap:round; stroke-linejoin:round;}
+  #wandDot circle.body{fill:var(--wand);}
+  #wandDot circle.halo{fill:var(--wand); opacity:.18; animation:haloPulse 1.4s ease-in-out infinite;}
+  #wandDot polygon{fill:#fff;}
+  @keyframes pulse{0%{r:12; opacity:.9;}70%{r:26; opacity:0;}100%{r:26; opacity:0;}}
+  .pulseRing{fill:none; stroke:var(--spark); stroke-width:4; animation:pulse 1.3s ease-out infinite;}
+  @keyframes haloPulse{0%,100%{opacity:.14;}50%{opacity:.3;}}
+  .sparkle{pointer-events:none;}
+  @keyframes sparkOut{
+    0%{transform:scale(.3) rotate(0deg); opacity:1;}
+    100%{transform:scale(1.4) rotate(90deg); opacity:0;}
+  }
+  .sparkle *{transform-origin:center; transform-box:fill-box; animation:sparkOut .6s ease-out forwards;}
+  #caption{display:flex; justify-content:center; align-items:baseline; gap:12px; margin-top:14px;}
+  #caption .big{font-size:34px; font-weight:700;}
+  #caption .word{color:var(--soft); font-weight:800; font-size:18px;}
+
+  /* ---------- Spell screen ---------- */
+  #spell{padding-top:14px;}
+  #spellBoard{
+    background:var(--card); border-radius:26px; box-shadow:0 4px 0 #E8E1D3;
+    margin-top:12px; position:relative; height:min(560px, 72vh); overflow:hidden;
+    user-select:none;
+  }
+  #wordEmoji{
+    position:absolute; left:50%; top:26%; transform:translate(-50%,-50%);
+    font-size:clamp(56px,16vw,84px); pointer-events:none;
+  }
+  #slots{
+    position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+    display:flex; gap:2px; pointer-events:none;
+  }
+  .slot{
+    font-family:'Fredoka',sans-serif; font-weight:700;
+    font-size:clamp(54px,15vw,80px); color:var(--ghost); line-height:1;
+    transition:transform .15s ease;
+  }
+  .slot.hot{color:#D9CDF3;}
+  .slot.filled{animation:slotPop .3s cubic-bezier(.2,1.6,.4,1);}
+  @keyframes slotPop{0%{transform:scale(.4);}100%{transform:scale(1);}}
+
+  .floater{
+    position:absolute; border:none; background:none; padding:10px;
+    font-family:'Fredoka',sans-serif; font-weight:700;
+    font-size:clamp(50px,14vw,76px); line-height:1;
+    cursor:grab; touch-action:none;
+    filter:drop-shadow(0 2px 0 rgba(0,0,0,.08));
+  }
+  .floater.drag{cursor:grabbing; z-index:6; filter:drop-shadow(0 8px 8px rgba(59,51,80,.25));}
+  .floater.home{transition:left .4s cubic-bezier(.3,1.2,.4,1), top .4s cubic-bezier(.3,1.2,.4,1), transform .4s;}
+  .floater.snap{transition:left .25s ease, top .25s ease, transform .25s ease; pointer-events:none; z-index:6;}
+  @keyframes wiggle{
+    0%,100%{margin-left:0;} 20%{margin-left:-8px;} 40%{margin-left:8px;}
+    60%{margin-left:-6px;} 80%{margin-left:6px;}
+  }
+  .floater.no{animation:wiggle .35s ease;}
+
+  #spellCaption{text-align:center; margin-top:14px; color:var(--soft); font-weight:800; min-height:24px;}
+
+  /* ---------- Category cards ---------- */
+  #catGrid{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  .catCard{
+    border:none; border-radius:22px; background:var(--card); cursor:pointer;
+    box-shadow:0 4px 0 #E8E1D3; padding:18px 14px 16px; text-align:center;
+    transition:transform .1s ease;
+  }
+  .catCard:active{transform:scale(.95);}
+  .catCard .ce{font-size:38px;}
+  .catCard .cn{font-family:'Fredoka',sans-serif; font-size:18px; font-weight:600; margin-top:6px;}
+  .catCard .cc{color:var(--soft); font-weight:800; font-size:13px; margin-top:2px;}
+  .catCard.all{grid-column:1/-1; background:#F1EAFF; box-shadow:0 4px 0 #DDD2F6;}
+
+  @media (prefers-reduced-motion: reduce){
+    .pulseRing, #wandDot circle.halo, .sparkle *, .slot.filled, .floater.no{animation:none;}
+    .sparkle{display:none;}
+    .floater.fly{transition:none;}
+  }
+
+  /* ---------- Celebration ---------- */
+  #cheer{
+    position:fixed; inset:0; background:rgba(59,51,80,.45); display:none;
+    align-items:center; justify-content:center; padding:24px; z-index:20;
+  }
+  #cheerCard{
+    background:var(--card); border-radius:30px; padding:34px 30px 28px; text-align:center;
+    max-width:340px; width:100%; box-shadow:0 8px 0 rgba(0,0,0,.12);
+    animation:popIn .35s cubic-bezier(.2,1.4,.4,1);
+  }
+  @keyframes popIn{from{transform:scale(.6); opacity:0;} to{transform:scale(1); opacity:1;}}
+  #cheerEmoji{font-size:58px;}
+  #cheerCard h2{margin:8px 0 2px; font-size:30px; font-weight:700;}
+  #cheerCard p{margin:0 0 20px; color:var(--soft); font-weight:800;}
+  .btnRow{display:flex; gap:10px; justify-content:center;}
+  .btn{
+    border:none; border-radius:16px; padding:14px 22px; font-family:'Fredoka',sans-serif;
+    font-size:18px; font-weight:600; cursor:pointer;
+  }
+  .btn.primary{background:var(--go); color:#fff; box-shadow:0 4px 0 #2FA871;}
+  .btn.quiet{background:#F0EBDF; color:var(--ink); box-shadow:0 4px 0 #DDD5C4;}
+  .btn:active{transform:translateY(3px); box-shadow:none;}
+
+  /* ---------- Trace words ---------- */
+  .modeBtn.trace .ico{background:#FFF3D6;}
+  #wpick,#wtrace{padding-top:14px;}
+  .pickTitle{font-family:'Fredoka',sans-serif; font-size:clamp(26px,6vw,34px); margin:14px 0 2px; font-weight:700;}
+  .pickSub{color:var(--soft); margin:0 0 16px; font-weight:700;}
+  .listLabel{display:block; font-weight:800; margin-bottom:8px;}
+  .listLabel span{color:var(--soft); font-weight:700; font-size:13px; margin-left:6px;}
+  #wList,#sList{width:100%; border:2px solid #E8E1D3; border-radius:16px; padding:12px 14px; resize:vertical;
+    font-family:'Fredoka',sans-serif; font-size:22px; line-height:1.4; color:var(--ink); background:#fff; outline:none;}
+  #wList:focus,#sList:focus{border-color:var(--wand);}
+  #wList.shake,#sList.shake{animation:wiggle .35s ease; border-color:#F26D6D;}
+  .listMeta{display:flex; justify-content:space-between; align-items:center; margin:6px 2px 14px; color:var(--soft); font-weight:800; font-size:14px;}
+  .linkBtn{border:none; background:none; color:var(--soft); font-weight:800; font-size:14px; cursor:pointer; text-decoration:underline; padding:4px;}
+  .goBtn{width:100%; font-size:22px; padding:16px;}
+  .wCounter{font-weight:800; color:var(--soft); font-size:15px; white-space:nowrap;}
+  .wchip.added{background:#E4F8EF; box-shadow:0 3px 0 #BFE9D3;}
+  #wInput{flex:1; min-width:0; border:2px solid #E8E1D3; border-radius:16px; padding:12px 14px;
+    font-family:'Fredoka',sans-serif; font-size:22px; color:var(--ink); background:#fff; outline:none;}
+  #wInput:focus{border-color:var(--wand);}
+  .chipHead{margin:22px 0 10px; color:var(--soft); font-weight:800; font-size:14px;}
+  #wChips{display:flex; flex-wrap:wrap; gap:8px;}
+  .wchip{border:none; background:#fff; border-radius:14px; padding:10px 14px; cursor:pointer;
+    font-family:'Fredoka',sans-serif; font-size:20px; font-weight:600; color:var(--ink); box-shadow:0 3px 0 #E8E1D3;}
+  .wchip:active{transform:translateY(2px); box-shadow:none;}
+  .wchip.sur{background:#F1EAFF; box-shadow:0 3px 0 #DDD2F6;}
+  .wNote{color:var(--soft); font-weight:700; font-size:13px; margin-top:22px; line-height:1.5;}
+  .sayBtn{border:none; background:#F1EAFF; border-radius:12px; font-size:20px; padding:6px 10px; cursor:pointer;}
+  #wPhaseChip{width:max-content; margin:10px auto 2px; padding:7px 16px; border-radius:99px;
+    background:#F1EAFF; color:var(--wand-deep); font-weight:800; font-size:15px;}
+  #wPhaseChip.dots{background:#E4F8EF; color:#1E8A5A;}
+  #wPhaseChip.solo{background:#FFF3D6; color:#A87400;}
+  #wboard{background:var(--card); border-radius:26px; box-shadow:0 4px 0 #E8E1D3; margin-top:10px; padding:6px;}
+  #wstage{display:block; width:100%; height:auto; touch-action:none; border-radius:22px;
+    -webkit-touch-callout:none; -webkit-user-select:none; user-select:none;}
+  #wboard{-webkit-touch-callout:none; -webkit-user-select:none; user-select:none;}
+  #wstage.wgrab{cursor:none;}   /* mouse/trackpad: while drawing, the wand is the cursor */
+  .wline{stroke:var(--line); stroke-width:2; vector-effect:non-scaling-stroke;}
+  .wline.mid{stroke-dasharray:6 5;}
+  .wghost{stroke:var(--ghost); stroke-width:13; fill:none; stroke-linecap:round; stroke-linejoin:round;}
+  .wdrawn{stroke:var(--ink); stroke-width:13; fill:none; stroke-linecap:round; stroke-linejoin:round;}
+  .whint{stroke:var(--wand); stroke-width:2.2; fill:none; stroke-linecap:round; stroke-dasharray:1 5; opacity:.9;}
+  .wbody{fill:var(--wand);}
+  .whalo{fill:var(--wand); opacity:.18; animation:haloPulse 1.4s ease-in-out infinite;}
+  .warrow{fill:#fff;}
+  @keyframes wpulse{0%{r:5; opacity:.9;}70%{r:13; opacity:0;}100%{r:13; opacity:0;}}
+  .wpulse{fill:none; stroke:var(--spark); stroke-width:2.5; animation:wpulse 1.3s ease-out infinite;}
+  .hot .wpulse{stroke:var(--wand); stroke-width:3.5; animation-duration:.7s;}
+  #wCaption{text-align:center; margin-top:14px; font-size:46px; min-height:52px;}
+  @media (prefers-reduced-motion: reduce){ .wpulse,.whalo{animation:none;} }
+  /* ---------- Trace sentences + help level ---------- */
+  .modeBtn.sent .ico{background:#E5F2FD;}
+  .grownLink{display:block; margin:18px auto 0; border:none; background:none; color:var(--soft);
+    font-weight:800; font-size:15px; cursor:pointer; padding:10px 14px; text-decoration:underline;}
+  .seg{display:flex; flex-wrap:wrap; gap:8px; margin:0 0 16px;}
+  .seg button{border:2px solid #E8E1D3; background:#fff; border-radius:14px; padding:8px 12px; cursor:pointer;
+    font-family:'Nunito',sans-serif; font-weight:800; font-size:14px; color:var(--ink);}
+  .seg button.on{border-color:var(--wand); background:#F1EAFF; color:var(--wand-deep);}
+  #wSentence{text-align:center; font-family:'Fredoka',sans-serif; font-size:clamp(20px,5vw,28px); font-weight:600;
+    color:#CFC7B8; margin:12px 4px 0; line-height:1.5; cursor:pointer;}
+  #wSentence span{padding:0 3px; border-radius:8px;}
+  #wSentence .done{color:var(--ink);}
+  #wSentence .now{color:var(--wand-deep); background:#F1EAFF;}
+  .chipHead.mine{margin-top:16px;}
+  .wchip.list{background:#E5F2FD; box-shadow:0 3px 0 #C9E2F7; font-size:17px;}
+  .catCard.mine{background:#E5F2FD; box-shadow:0 4px 0 #C9E2F7;}
+  .catCard .mineTag{display:inline-block; margin-top:4px; font-size:11px; font-weight:800; color:#2E7FC1;}
+
+  /* ---------- Grown-ups gate + lists ---------- */
+  #gate{text-align:center;}
+  #gateCode{font-family:'Fredoka',sans-serif; font-size:28px; font-weight:600; margin:8px 0 6px; letter-spacing:.5px;}
+  #gateDots{display:flex; gap:10px; justify-content:center; margin:6px 0 20px;}
+  #gateDots i{width:14px; height:14px; border-radius:50%; background:#E8E1D3; display:block;}
+  #gateDots i.on{background:var(--wand);}
+  #gatePad{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; max-width:300px; margin:0 auto;}
+  #gatePad button{border:none; background:#fff; border-radius:16px; padding:16px 0; font-family:'Fredoka',sans-serif;
+    font-size:26px; font-weight:600; color:var(--ink); box-shadow:0 3px 0 #E8E1D3; cursor:pointer;}
+  #gatePad button:active{transform:translateY(2px); box-shadow:none;}
+  #gatePad .zero{grid-column:2;}
+  #gatePad.shake{animation:wiggle .35s ease;}
+  .gList{display:flex; flex-direction:column; gap:10px; margin:6px 0 14px;}
+  .gItem{display:flex; align-items:center; gap:12px; background:#fff; border-radius:18px; padding:12px 14px; box-shadow:0 3px 0 #E8E1D3;}
+  .gItem .ge{font-size:30px;}
+  .gItem .gn{flex:1; min-width:0;}
+  .gItem .gn b{display:block; font-family:'Fredoka',sans-serif; font-size:19px; font-weight:600;}
+  .gItem .gn span{color:var(--soft); font-weight:700; font-size:13px; display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .gEmpty{color:var(--soft); font-weight:700; background:#fff; border-radius:18px; padding:18px; text-align:center;}
+  .gRow{display:flex; gap:10px; flex-wrap:wrap;}
+  .gRow .btn{flex:1; font-size:17px; padding:12px 14px;}
+  .gHead{font-weight:800; margin:22px 0 8px;}
+  .gInput{width:100%; border:2px solid #E8E1D3; border-radius:14px; padding:11px 13px; font-family:'Fredoka',sans-serif;
+    font-size:20px; color:var(--ink); background:#fff; outline:none; margin-bottom:12px;}
+  .gInput:focus{border-color:var(--wand);}
+  .gNameRow{display:flex; gap:10px;}
+  .gNameRow #leEmoji{width:74px; text-align:center; flex:none;}
+  #leWords{min-height:130px; resize:vertical; line-height:1.4;}
+  .gMsg{color:#1E8A5A; font-weight:800; min-height:20px; margin:6px 2px;}
+  .gMsg.err{color:#C24646;}
+  .btn.danger{background:#FCE4E4; color:#B23B3B; box-shadow:0 4px 0 #F2C8C8;}
+</style>
+</head>
+<body>
+
+<!-- ============ HOME MENU ============ -->
+<div id="menu" class="screen on">
+  <h1>Letter Wand ✨</h1>
+  <p class="sub">Four ways to practise letters, words and sentences</p>
+  <button class="modeBtn alpha" id="goAlpha">
+    <span class="ico">🪄</span>
+    <span><span class="t">Practise the alphabet</span><br><span class="d">Trace each letter with the magic wand</span></span>
+  </button>
+  <button class="modeBtn spell" id="goSpell">
+    <span class="ico">🐵</span>
+    <span><span class="t">Spell words</span><br><span class="d">Drag the letters in order to build the word</span></span>
+  </button>
+  <button class="modeBtn trace" id="goWords">
+    <span class="ico">✍️</span>
+    <span><span class="t">Trace words</span><br><span class="d">Follow the wand through a whole word</span></span>
+  </button>
+  <button class="modeBtn sent" id="goSent">
+    <span class="ico">📝</span>
+    <span><span class="t">Trace sentences</span><br><span class="d">Write a whole sentence, one word at a time</span></span>
+  </button>
+  <button class="grownLink" id="goGrown">For grown-ups: make your own word lists</button>
+</div>
+
+<!-- ============ ALPHABET PICKER ============ -->
+<div id="alpha" class="screen">
+  <div class="topbar">
+    <button class="closeBtn" data-back="menu" aria-label="Back">✕</button>
+  </div>
+  <h1>Pick a letter</h1>
+  <p class="sub">Follow the wand, then write it yourself.</p>
+  <div id="grid"></div>
+</div>
+
+<!-- ============ TRACE GAME ============ -->
+<div id="trace" class="screen">
+  <div class="topbar">
+    <button class="closeBtn" data-back="alpha" aria-label="Back to letters">✕</button>
+    <div class="barTrack"><div class="barFill" id="traceBar"></div></div>
+  </div>
+  <div id="phaseChip">🪄 Follow the wand</div>
+  <div id="board">
+    <svg id="stage" viewBox="0 0 400 430" aria-label="Letter tracing area"></svg>
+  </div>
+  <div id="caption"><span class="big" id="capLetter"></span><span class="word" id="capWord"></span></div>
+</div>
+
+<!-- ============ TRACE WORDS: PICKER ============ -->
+<div id="wpick" class="screen">
+  <div class="topbar">
+    <button class="closeBtn" data-back="menu" aria-label="Back">✕</button>
+  </div>
+  <h1 class="pickTitle">Trace words</h1>
+  <p class="pickSub">Type a list of words, then press Go.</p>
+  <label class="listLabel" for="wList">Words to practise <span>separate with commas</span></label>
+  <textarea id="wList" rows="3" placeholder="mat, sat, pin, tap, fish" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false"></textarea>
+  <div class="listMeta"><span id="wCount">No words yet</span><button class="linkBtn" id="wClear">Clear</button></div>
+  <div class="listLabel">Help for each word</div>
+  <div class="seg" id="wRounds"></div>
+  <button class="btn primary goBtn" id="wGo">Go ✨</button>
+  <div id="wMine"></div>
+  <div class="chipHead">Tap to add</div>
+  <div id="wChips"></div>
+  <p class="wNote">Choose how much help each word gets: follow the wand, follow the dots (just the starting points), then on your own. When a word is done it moves on to the next one by itself. Lowercase and capitals. Works best on an iPad.</p>
+</div>
+
+<!-- ============ TRACE WORDS: GAME ============ -->
+<div id="wtrace" class="screen">
+  <div class="topbar">
+    <button class="closeBtn" data-back="wpick" aria-label="Back to words">✕</button>
+    <div class="barTrack"><div class="barFill" id="wBar"></div></div>
+    <span class="wCounter" id="wCounter"></span>
+    <button class="sayBtn" id="wSay" aria-label="Hear the word">🔊</button>
+  </div>
+  <div id="wSentence" style="display:none"></div>
+  <div id="wPhaseChip">🪄 Follow the wand</div>
+  <div id="wboard"><svg id="wstage" viewBox="0 -24 220 186" aria-label="Word tracing area"></svg></div>
+  <div id="wCaption"></div>
+</div>
+
+<!-- ============ TRACE SENTENCES: PICKER ============ -->
+<div id="spick" class="screen">
+  <div class="topbar">
+    <button class="closeBtn" data-back="menu" aria-label="Back">✕</button>
+  </div>
+  <h1 class="pickTitle">Trace sentences</h1>
+  <p class="pickSub">Type one sentence on each line, then press Go.</p>
+  <label class="listLabel" for="sList">Sentences to practise <span>one per line</span></label>
+  <textarea id="sList" rows="4" placeholder="The cat sat on the mat.&#10;Is it hot?" autocomplete="off" autocapitalize="sentences" autocorrect="off" spellcheck="false"></textarea>
+  <div class="listMeta"><span id="sCount">No sentences yet</span><button class="linkBtn" id="sClear">Clear</button></div>
+  <div class="listLabel">Help for each word</div>
+  <div class="seg" id="sRounds"></div>
+  <button class="btn primary goBtn" id="sGo">Go ✨</button>
+  <div class="chipHead">Tap to add</div>
+  <div id="sChips"></div>
+  <p class="wNote">Each word is traced on its own, with the whole sentence shown above so it's clear where you are. Capital letters, full stops, question marks, commas and apostrophes are all traced too. When a sentence is finished it's read aloud, then the next one starts.</p>
+</div>
+
+<!-- ============ GROWN-UPS: GATE ============ -->
+<div id="gate" class="screen">
+  <div class="topbar">
+    <button class="closeBtn" data-back="menu" aria-label="Back">✕</button>
+  </div>
+  <h1 class="pickTitle">For grown-ups</h1>
+  <p class="pickSub">Tap these numbers in order</p>
+  <div id="gateCode"></div>
+  <div id="gateDots"><i></i><i></i><i></i></div>
+  <div id="gatePad"></div>
+</div>
+
+<!-- ============ GROWN-UPS: MY LISTS ============ -->
+<div id="grown" class="screen">
+  <div class="topbar">
+    <button class="closeBtn" data-back="menu" aria-label="Back">✕</button>
+  </div>
+  <h1 class="pickTitle">Your word lists</h1>
+  <p class="pickSub">Lists you make here show up in Spell words, and as one-tap lists in Trace words.</p>
+  <div class="gList" id="gList"></div>
+  <button class="btn primary goBtn" id="gNew">＋ New list</button>
+  <div class="gHead">Backup</div>
+  <p class="wNote" style="margin-top:0">Lists are saved on this device only, with no sign-in. To move them to another iPad, save a backup file and open it there.</p>
+  <div class="gRow">
+    <button class="btn quiet" id="gExport">Save a backup</button>
+    <button class="btn quiet" id="gImportBtn">Load a backup</button>
+  </div>
+  <input type="file" id="gImport" accept=".json,application/json" hidden>
+  <div class="gMsg" id="gMsg"></div>
+</div>
+
+<!-- ============ GROWN-UPS: EDIT A LIST ============ -->
+<div id="listEdit" class="screen">
+  <div class="topbar">
+    <button class="closeBtn" data-back="grown" aria-label="Back">✕</button>
+  </div>
+  <h1 class="pickTitle" id="leTitle">New list</h1>
+  <label class="listLabel" for="leName">Name and picture</label>
+  <div class="gNameRow">
+    <input class="gInput" id="leEmoji" maxlength="8" placeholder="⭐" autocomplete="off" aria-label="Picture (emoji)">
+    <input class="gInput" id="leName" maxlength="24" placeholder="e.g. Week 3 words" autocomplete="off">
+  </div>
+  <label class="listLabel" for="leWords">Words <span>separate with commas · add an emoji after a word if you like</span></label>
+  <textarea class="gInput" id="leWords" placeholder="dog 🐶, cat 🐱, sun ☀️, ship, chop" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false"></textarea>
+  <div class="listMeta"><span id="leCount">No words yet</span></div>
+  <div class="gMsg err" id="leMsg"></div>
+  <div class="gRow">
+    <button class="btn danger" id="leDelete">Delete list</button>
+    <button class="btn primary" id="leSave">Save list</button>
+  </div>
+</div>
+
+<!-- ============ SPELL CATEGORIES ============ -->
+<div id="spellCats" class="screen">
+  <div class="topbar">
+    <button class="closeBtn" data-back="menu" aria-label="Back">✕</button>
+  </div>
+  <h1 style="font-family:'Fredoka',sans-serif; font-size:clamp(26px,6vw,34px); margin:14px 0 2px;">Pick a word set</h1>
+  <p class="sub" style="color:var(--soft); margin:0 0 20px; font-weight:700;">Which words shall we spell?</p>
+  <div id="catGrid"></div>
+</div>
+
+<!-- ============ SPELL GAME ============ -->
+<div id="spell" class="screen">
+  <div class="topbar">
+    <button class="closeBtn" data-back="spellCats" aria-label="Back">✕</button>
+    <div class="barTrack"><div class="barFill" id="spellBar"></div></div>
+  </div>
+  <div id="spellBoard">
+    <div id="wordEmoji">🐵</div>
+    <div id="slots"></div>
+  </div>
+  <div id="spellCaption">Tap the letters in order</div>
+</div>
+
+<!-- ============ CELEBRATION ============ -->
+<div id="cheer">
+  <div id="cheerCard">
+    <div id="cheerEmoji">🌟</div>
+    <h2 id="cheerTitle">You did it!</h2>
+    <p id="cheerSub"></p>
+    <div class="btnRow">
+      <button class="btn quiet" id="againBtn">Again</button>
+      <button class="btn primary" id="nextBtn">Next</button>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+const $=id=>document.getElementById(id);
+
+/* ================= navigation ================= */
+function show(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("on"));
+  $(id).classList.add("on");
+}
+document.querySelectorAll(".closeBtn").forEach(b=>{
+  b.onclick=()=>{
+    if(b.dataset.back==="alpha") buildGrid();
+    if(b.dataset.back==="spellCats") buildCatGrid();
+    if(b.dataset.back==="grown") gRender();
+    show(b.dataset.back);
+  };
+});
+$("goAlpha").onclick=()=>{ buildGrid(); show("alpha"); };
+$("goSpell").onclick=()=>{ buildCatGrid(); show("spellCats"); };
+
+/* ================= tiny sounds ================= */
+let AC=null;
+function ac(){ try{ AC=AC||new (window.AudioContext||window.webkitAudioContext)(); if(AC.state==="suspended")AC.resume(); }catch(e){} return AC; }
+function tone(f,t0,dur,type="sine",vol=.16){
+  const a=ac(); if(!a) return;
+  const o=a.createOscillator(), g=a.createGain();
+  o.type=type; o.frequency.value=f;
+  g.gain.setValueAtTime(vol,a.currentTime+t0);
+  g.gain.exponentialRampToValueAtTime(.0001,a.currentTime+t0+dur);
+  o.connect(g).connect(a.destination); o.start(a.currentTime+t0); o.stop(a.currentTime+t0+dur+.02);
+}
+const popSound=()=>tone(720,0,.12,"triangle");
+const dud=()=>tone(180,0,.15,"square",.07);
+const fanfare=()=>{[523,659,784,1047].forEach((f,i)=>tone(f,i*.12,.22,"triangle",.14));};
+
+/* =========================================================
+   GAME 1 — ALPHABET TRACING
+   ========================================================= */
+const Tn=90, Md=205, Bs=320;
+function line(...pts){ return pts.map(p=>({x:p[0],y:p[1]})); }
+function arc(cx,cy,rx,ry,a0,a1){
+  const out=[], steps=Math.max(8, Math.ceil(Math.abs(a1-a0)/6));
+  for(let i=0;i<=steps;i++){
+    const a=(a0+(a1-a0)*i/steps)*Math.PI/180;
+    out.push({x:cx+rx*Math.cos(a), y:cy+ry*Math.sin(a)});
+  }
+  return out;
+}
+const join=(...parts)=>parts.flat();
+
+const LETTERS = {
+  A:[ line([200,Tn],[125,Bs]), line([200,Tn],[275,Bs]), line([152,242],[248,242]) ],
+  B:[ line([135,Tn],[135,Bs]), arc(135,147,88,57,-90,90), arc(135,262,98,58,-90,90) ],
+  C:[ arc(205,205,88,115,-55,-305) ],
+  D:[ line([135,Tn],[135,Bs]), arc(135,205,135,115,-90,90) ],
+  E:[ line([135,Tn],[135,Bs]), line([135,Tn],[275,Tn]), line([135,205],[255,205]), line([135,Bs],[275,Bs]) ],
+  F:[ line([135,Tn],[135,Bs]), line([135,Tn],[275,Tn]), line([135,205],[255,205]) ],
+  G:[ arc(205,205,88,115,-55,-305), line([205,205],[293,205]) ],
+  H:[ line([135,Tn],[135,Bs]), line([270,Tn],[270,Bs]), line([135,205],[270,205]) ],
+  I:[ line([200,Tn],[200,Bs]), line([150,Tn],[250,Tn]), line([150,Bs],[250,Bs]) ],
+  J:[ join(line([235,Tn],[235,255]), arc(180,255,55,63,0,180)) ],
+  K:[ line([135,Tn],[135,Bs]), line([270,Tn],[135,210]), line([135,210],[270,Bs]) ],
+  L:[ line([145,Tn],[145,Bs]), line([145,Bs],[280,Bs]) ],
+  M:[ line([125,Tn],[125,Bs]), line([125,Tn],[200,255]), line([200,255],[275,Tn]), line([275,Tn],[275,Bs]) ],
+  N:[ line([135,Tn],[135,Bs]), line([135,Tn],[268,Bs]), line([268,Bs],[268,Tn]) ],
+  O:[ arc(200,205,90,115,-90,-450) ],
+  P:[ line([140,Tn],[140,Bs]), arc(140,152,100,62,-90,90) ],
+  Q:[ arc(200,205,90,115,-90,-450), line([238,268],[298,330]) ],
+  R:[ line([140,Tn],[140,Bs]), arc(140,150,100,60,-90,90), line([140,210],[272,Bs]) ],
+  S:[ line([262,112],[232,90],[186,88],[148,102],[136,135],[150,168],[200,202],
+          [250,236],[266,270],[252,300],[212,320],[168,320],[136,300]) ],
+  T:[ line([115,Tn],[285,Tn]), line([200,Tn],[200,Bs]) ],
+  U:[ join(line([135,Tn],[135,238]), arc(202,238,67,82,180,0), line([269,238],[269,Tn])) ],
+  V:[ line([130,Tn],[200,Bs],[270,Tn]) ],
+  W:[ line([112,Tn],[158,Bs],[200,140],[244,Bs],[290,Tn]) ],
+  X:[ line([135,Tn],[268,Bs]), line([268,Tn],[135,Bs]) ],
+  Y:[ line([135,Tn],[200,208]), line([268,Tn],[200,208]), line([200,208],[200,Bs]) ],
+  Z:[ line([135,Tn],[268,Tn],[135,Bs],[268,Bs]) ],
+};
+const WORDS = {A:"apple 🍎",B:"ball ⚽",C:"cat 🐱",D:"dog 🐶",E:"egg 🥚",F:"fish 🐟",
+  G:"goat 🐐",H:"hat 🎩",I:"ice 🧊",J:"juice 🧃",K:"kite 🪁",L:"lion 🦁",M:"moon 🌙",
+  N:"nose 👃",O:"octopus 🐙",P:"pig 🐷",Q:"queen 👑",R:"rainbow 🌈",S:"sun ☀️",
+  T:"tree 🌳",U:"umbrella ☂️",V:"violin 🎻",W:"whale 🐳",X:"box 📦",Y:"yo-yo 🪀",Z:"zebra 🦓"};
+
+function sampleStroke(pts){
+  const out=[pts[0]];
+  for(let i=1;i<pts.length;i++){
+    const a=pts[i-1], b=pts[i];
+    const d=Math.hypot(b.x-a.x,b.y-a.y), n=Math.max(1,Math.round(d/6));
+    for(let k=1;k<=n;k++) out.push({x:a.x+(b.x-a.x)*k/n, y:a.y+(b.y-a.y)*k/n});
+  }
+  return out;
+}
+const toPath=pts=>pts.map((p,i)=>(i?"L":"M")+p.x.toFixed(1)+" "+p.y.toFixed(1)).join(" ");
+
+const ORDER = Object.keys(LETTERS);
+const doneSet = new Set();
+let cur = {letter:"A", strokes:[], phase:0, strokeIdx:0, ptIdx:0, tracing:false};
+
+const svg=$("stage"), NS="http://www.w3.org/2000/svg";
+const el=(t,attrs)=>{const e=document.createElementNS(NS,t); for(const k in attrs)e.setAttribute(k,attrs[k]); return e;};
+
+function buildGrid(){
+  const g=$("grid"); g.innerHTML="";
+  ORDER.forEach(L=>{
+    const b=document.createElement("button");
+    b.className="cell"+(doneSet.has(L)?" done":"");
+    b.innerHTML=L+(doneSet.has(L)?'<span class="star">⭐</span>':"");
+    b.onclick=()=>{ startLetter(L); show("trace"); };
+    g.appendChild(b);
+  });
+}
+
+let ghostG, drawnG, hintPath, wand, startPulse, sparkleG;
+function buildStage(){
+  svg.innerHTML="";
+  svg.appendChild(el("line",{x1:20,y1:Tn,x2:380,y2:Tn,class:"gline"}));
+  svg.appendChild(el("line",{x1:20,y1:Md,x2:380,y2:Md,class:"gline mid"}));
+  svg.appendChild(el("line",{x1:20,y1:Bs,x2:380,y2:Bs,class:"gline"}));
+  ghostG=el("g",{}); drawnG=el("g",{}); sparkleG=el("g",{});
+  svg.appendChild(ghostG);
+  hintPath=el("path",{class:"hint",d:""}); svg.appendChild(hintPath);
+  svg.appendChild(drawnG);
+  startPulse=el("circle",{class:"pulseRing",r:14,cx:0,cy:0}); svg.appendChild(startPulse);
+  wand=el("g",{id:"wandDot"});
+  wand.appendChild(el("circle",{class:"halo",r:34,cx:0,cy:0}));
+  wand.appendChild(el("circle",{class:"body",r:22,cx:0,cy:0}));
+  const arrow=el("polygon",{points:"-5,-8 10,0 -5,8"}); wand.appendChild(arrow);
+  wand._arrow=arrow;
+  svg.appendChild(wand);
+  svg.appendChild(sparkleG);
+}
+
+function startLetter(L){
+  cur={letter:L, strokes:LETTERS[L].map(sampleStroke), phase:0, strokeIdx:0, ptIdx:0, tracing:false};
+  $("capLetter").textContent=L+" "+L.toLowerCase();
+  $("capWord").textContent="for "+WORDS[L];
+  buildStage(); paint(); setChip(); setTraceBar();
+}
+function setChip(){
+  const c=$("phaseChip");
+  if(cur.phase===0){ c.classList.remove("solo"); c.textContent="🪄 Follow the wand"; }
+  else{ c.classList.add("solo"); c.textContent="✏️ Your turn — no wand!"; }
+}
+function setTraceBar(){
+  const total=cur.strokes.length*2;
+  const done=cur.phase*cur.strokes.length + cur.strokeIdx;
+  $("traceBar").style.width=(100*done/total)+"%";
+}
+function paint(){
+  ghostG.innerHTML="";
+  cur.strokes.forEach(s=>ghostG.appendChild(el("path",{class:"ghost",d:toPath(s)})));
+  drawnG.innerHTML="";
+  for(let i=0;i<cur.strokeIdx;i++)
+    drawnG.appendChild(el("path",{class:"drawn",d:toPath(cur.strokes[i])}));
+  const s=cur.strokes[cur.strokeIdx];
+  if(s && cur.ptIdx>0)
+    drawnG.appendChild(el("path",{class:"drawn",d:toPath(s.slice(0,cur.ptIdx+1))}));
+  if(!s){ hintPath.setAttribute("d",""); wand.style.display="none"; startPulse.style.display="none"; return; }
+  const here=s[cur.ptIdx];
+  if(cur.phase===0){
+    hintPath.setAttribute("d", toPath(s.slice(cur.ptIdx)));
+    wand.style.display="";
+    const ahead=s[Math.min(cur.ptIdx+5, s.length-1)];
+    const ang=Math.atan2(ahead.y-here.y, ahead.x-here.x)*180/Math.PI;
+    wand.setAttribute("transform",`translate(${here.x},${here.y})`);
+    wand._arrow.setAttribute("transform",`rotate(${ang})`);
+    startPulse.style.display="none";
+  }else{
+    hintPath.setAttribute("d","");
+    wand.style.display="none";
+    if(cur.ptIdx===0){
+      startPulse.style.display="";
+      startPulse.setAttribute("cx",s[0].x); startPulse.setAttribute("cy",s[0].y);
+    }else startPulse.style.display="none";
+  }
+}
+function sparkleAt(x,y){
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  if(Math.random()<.55) return;
+  const g=el("g",{class:"sparkle"});
+  const jx=x+(Math.random()*26-13), jy=y+(Math.random()*26-13);
+  const r=2+Math.random()*3;
+  g.appendChild(el("path",{
+    d:`M ${jx} ${jy-r*2} L ${jx+r*.6} ${jy-r*.6} L ${jx+r*2} ${jy} L ${jx+r*.6} ${jy+r*.6} L ${jx} ${jy+r*2} L ${jx-r*.6} ${jy+r*.6} L ${jx-r*2} ${jy} L ${jx-r*.6} ${jy-r*.6} Z`,
+    fill: Math.random()<.5 ? "var(--spark)" : "var(--wand)"}));
+  sparkleG.appendChild(g);
+  setTimeout(()=>g.remove(),650);
+}
+const burstAt=(x,y)=>{for(let i=0;i<7;i++)sparkleAt(x,y);};
+
+function svgPoint(evt){
+  const pt=svg.createSVGPoint(); pt.x=evt.clientX; pt.y=evt.clientY;
+  return pt.matrixTransform(svg.getScreenCTM().inverse());
+}
+const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+
+svg.addEventListener("pointerdown",e=>{
+  ac();
+  const s=cur.strokes[cur.strokeIdx]; if(!s) return;
+  const p=svgPoint(e);
+  const startTol = cur.phase===0 ? 46 : 58;
+  if(dist(p, s[cur.ptIdx]) <= startTol){
+    cur.tracing=true;
+    svg.setPointerCapture(e.pointerId);
+  }
+});
+svg.addEventListener("pointermove",e=>{
+  if(!cur.tracing) return;
+  const s=cur.strokes[cur.strokeIdx]; if(!s) return;
+  const p=svgPoint(e);
+  const tol = cur.phase===0 ? 42 : 56;
+  let best=-1;
+  const look=Math.min(cur.ptIdx+10, s.length-1);
+  for(let i=cur.ptIdx+1;i<=look;i++) if(dist(p,s[i])<=tol) best=i;
+  if(best>cur.ptIdx){
+    cur.ptIdx=best;
+    sparkleAt(s[best].x, s[best].y);
+    if(cur.ptIdx>=s.length-1) finishStroke();
+    else paint();
+  }
+});
+const endTrace=()=>{cur.tracing=false;};
+svg.addEventListener("pointerup",endTrace);
+svg.addEventListener("pointercancel",endTrace);
+
+function finishStroke(){
+  const s=cur.strokes[cur.strokeIdx];
+  burstAt(s[s.length-1].x, s[s.length-1].y);
+  popSound();
+  cur.tracing=false;
+  cur.strokeIdx++; cur.ptIdx=0;
+  setTraceBar();
+  if(cur.strokeIdx>=cur.strokes.length){
+    if(cur.phase===0){
+      cur.phase=1; cur.strokeIdx=0; cur.ptIdx=0;
+      setTimeout(()=>{ setChip(); paint(); }, 450);
+      paint();
+    }else letterComplete();
+  }else paint();
+}
+function letterComplete(){
+  fanfare();
+  doneSet.add(cur.letter);
+  const idx=ORDER.indexOf(cur.letter);
+  openCheer({
+    emoji:["🌟","🎉","🪄","💫","🏆"][idx%5],
+    title:"You wrote "+cur.letter+"!",
+    sub:cur.letter+" is for "+WORDS[cur.letter],
+    nextLabel:"Next letter",
+    showNext: idx<ORDER.length-1,
+    again:()=>startLetter(cur.letter),
+    next:()=>startLetter(ORDER[Math.min(idx+1, ORDER.length-1)]),
+  });
+}
+
+/* =========================================================
+   GAME 2 — SPELL WORDS
+   ========================================================= */
+/* Some words use flat SVG icons (game-icons.net, CC BY 3.0 — Lorc, Delapouite, Caro Asercion)
+   instead of emoji, where emoji has nothing good. `pic()` renders either. */
+const ICONS={"T-Rex":"<path d=\"M249.03 20.844c-15.316.043-30.757 3.48-44 9.187-7.74-.592-15.25-.91-22.5-.905-90.62.073-143.082 46.573-163.968 126.313v340.218h189.313c-5.18-54.53 5.24-114.066 27.28-154.625-28.882-4.973-57.912-8.197-85.843-9.217l-7.656-.282-1.22-7.592c-9.48-58.97-10.128-119.04 22.064-176.47l16.313 9.126c-28.177 50.266-29 102.555-20.97 157.062 81.76 4.08 170.21 25.267 239.376 54.844 22.725-5.73 33.816-29.686 41.842-65.5l-31.968 21.625-10.03-44.438-45.69 30.907-10.78-47.72-43.25 29.22-10.688-47.313-43.812 29.626-15-66.406 70.844-47.906 10.687 47.344 43.813-29.625 10.78 47.718 43.25-29.25 10.032 44.407 45.656-30.875 7.688 34.063c20.848-26.98 35.224-66.535 14.406-85.28-25.446-22.914-52.26-43.34-79.406-60.564-6.566-24.932-61.027-77.113-93.75-47.874-14.44-21.414-38.472-29.88-62.813-29.812zm2.19 21.625c18.102 0 32.593 14.55 32.593 32.78 0 3.19-.453 6.25-1.282 9.156-3.084-6.24-9.503-10.562-16.936-10.562-10.436 0-18.906 8.47-18.906 18.906 0 6.22 3.018 11.713 7.656 15.156-1.03.097-2.07.125-3.125.125-18.104 0-32.626-14.55-32.626-32.78s14.522-32.78 32.625-32.78z\"/>","stegosaurus":"<path d=\"M181.871 77.576c-.672.802-1.21 1.352-2.09 2.604-2.958 4.21-6.754 10.665-10.885 18.49-8.26 15.65-17.977 36.874-27.13 58.682-9.153 21.807-17.77 44.245-23.926 62.4-3.079 9.077-5.542 17.097-7.135 23.3-1.593 6.205-2.044 11.25-2.049 11.192.537 6.396 8.554 21.199 21.145 34.817 11.975 12.952 27.628 25.389 42.447 33.199l23.129-3.598c-7.969-35.558-13.113-76.542-11.23-129.973l17.988.635c-1.852 52.556 3.213 91.985 11.064 126.567l16.707-2.6c13.433-12.352 26.845-29.567 36.531-46.15 10.11-17.306 15.577-34.665 15.04-41.06.004.058-1.226-4.563-3.786-10.073-2.56-5.51-6.277-12.541-10.77-20.418-8.984-15.754-21.083-34.944-33.597-53.35-12.514-18.406-25.483-36.074-36.068-48.717-5.293-6.32-10.031-11.4-13.502-14.496-.846-.754-1.23-.954-1.883-1.45zm226.416 24.496c-.709.48-1.167.712-2.103 1.46-3.604 2.875-8.538 7.56-14.09 13.388-11.104 11.656-24.832 27.933-38.164 44.89-13.332 16.958-26.309 34.638-36.037 49.15-4.865 7.257-8.921 13.735-11.752 18.804-2.832 5.068-4.31 9.436-4.254 9.084-.848 5.417 3.227 21.195 11.91 37.011 8.28 15.082 20.114 30.763 32.23 42.032l23.41 3.5c13.424-36.418 19.391-73.044 23.348-110.16l17.899 1.908c-3.903 36.613-9.81 73.686-23.086 110.965l13.937 2.084c15.039-7.223 31.153-18.751 43.688-30.747 13.135-12.57 21.87-26.48 22.718-31.898-.055.352-.13-4.23-1.28-9.889-1.152-5.659-3.043-13.022-5.466-21.365-4.845-16.687-11.822-37.348-19.36-57.422-7.536-20.074-15.661-39.613-22.69-53.972-3.515-7.18-6.788-13.086-9.34-16.872-.65-.963-1-1.296-1.518-1.95zm-90.86 17.764c-.785.49-1.474.877-2.626 1.766-3.474 2.677-8.191 6.984-13.483 12.324-8.892 8.972-19.506 20.893-30.14 33.613 4.112 6.675 7.95 13.12 11.38 19.135 4.656 8.163 8.565 15.524 11.458 21.75.609 1.311 1.158 2.51 1.685 3.691a397.403 397.403 0 0 1 7.24-11.176c9.81-14.634 22.551-32.008 35.74-48.847-3.304-5.966-6.52-11.492-9.523-16.293-3.788-6.058-7.275-11.007-9.922-14.115-.79-.93-1.233-1.29-1.808-1.848zM98.02 142.527c-.621.688-1.175 1.247-2.04 2.416-2.607 3.527-5.962 8.964-9.587 15.55-7.252 13.17-15.707 31.01-23.594 49.286-.402.932-.796 1.868-1.195 2.801 10.136 8.842 19.668 17.615 27.615 25.492a362.473 362.473 0 0 1 3.334 3.358c.235-.938.455-1.833.717-2.854 1.772-6.903 4.351-15.247 7.525-24.605 5.314-15.67 12.305-34.149 19.894-52.748a309.253 309.253 0 0 0-7.01-6.56c-5.302-4.788-10.014-8.59-13.411-10.854-1.017-.678-1.542-.902-2.248-1.282zM494 170.412c-.884.787-1.76 1.56-2.682 2.404-6.875 6.303-14.765 14.163-22.943 22.752 3.836 11.22 7.302 22.04 10.107 31.702 2.513 8.652 4.51 16.373 5.817 22.796.186.913.338 1.716.506 2.559A682.82 682.82 0 0 1 494 241.338v-70.926zM18 199.92v166.316l36.988-12.818c11.891-13.131 23.013-30.293 30.432-46.047 7.7-16.349 10.3-32.06 9.334-35.557.303 1.098-1.423-2.587-4.686-6.51-3.263-3.921-7.94-8.914-13.521-14.447-11.163-11.064-25.966-24.347-41.072-36.888A702.926 702.926 0 0 0 18 199.919zm270.46 64.518a244.554 244.554 0 0 1-6.48 11.783c-11.01 18.85-25.92 38.105-41.882 52.258l-1.977 1.751-69.021 10.737-2.56-1.272c-18.135-9.003-35.976-23.295-49.956-38.416a209.648 209.648 0 0 1-6.355-7.191c-2.09 6.65-5.074 13.628-8.524 20.953-8.495 18.04-20.846 37.169-34.879 52.217l-1.523 1.635L18 385.285v19.785c2.504-3.326 5.526-6.269 8.799-8.945 10.43-8.529 23.42-14.491 35.049-16.072 1.91-.26 3.88-.402 5.888-.432.67-.01 1.344-.007 2.022.008 8.135.184 16.796 2.167 24.687 5.736 5.261 2.38 10.2 5.507 14.03 10.072 3.83 4.566 6.336 11.115 5.375 17.86-1.498 10.508-8.344 18.764-16.65 24.67-8.308 5.905-18.41 9.853-28.823 11.945-10.413 2.092-21.137 2.343-30.889-.064-7.36-1.818-14.47-5.41-19.488-11.21V494h405.324a31.457 31.457 0 0 1-2.744-5.867c-2.913-8.395-1.009-17.234 3.168-24.057 4.177-6.823 10.36-12.284 17.357-16.82 12.244-7.938 26.94-13.229 40.438-13.81.964-.042 1.922-.06 2.873-.053.95.007 1.894.04 2.828.097 2.242.138 4.5.456 6.756.924V359.82c-7.374-8.025-13.992-16.745-19.43-25.394-6.366-10.128-11.519-19.807-13.623-29.182a255.486 255.486 0 0 1-3.279 3.201c-14.522 13.898-32.741 27.021-50.861 35.264l-2.424 1.103-66.567-9.949-2.002-1.785c-14.79-13.176-28.176-31.035-37.794-48.557-3.779-6.882-7.073-13.59-9.56-20.084zM494 270.074l-.162.21c-4.852 6.32-8.894 11.96-11.692 16.333-2.797 4.374-4.198 8.332-4.011 7.287-.636 3.552 3.075 17.264 11.674 30.942a142.325 142.325 0 0 0 4.191 6.27v-61.042zM288.447 359.09c8.239-.032 16.404.7 23.961 1.996 9.606 1.647 21.93 4.745 32.094 9.38 5.082 2.318 9.684 4.853 13.404 9.007 1.86 2.076 3.56 4.731 4.233 8.097.672 3.367-.015 7.225-1.659 10.201-4.99 9.036-14.287 13.709-24.656 16.834-10.368 3.126-22.422 4.55-34.808 4.682-24.774.263-50.4-3.764-66.05-15.494-3.188-2.39-5.533-6.162-6.193-9.902-.66-3.74.07-7.16 1.252-10.043 2.366-5.768 6.493-10.085 11.48-13.248 11.998-7.61 27.698-10.966 43.41-11.45 1.177-.036 2.355-.056 3.532-.06zm2.268 18.346c-15.371.113-31.17 3.039-39.569 8.365-1.755 1.113-3.405 3.113-4.105 4.36 9.472 6.137 32.521 11.352 53.783 11.126 11.08-.118 21.756-1.49 29.805-3.916 6.382-1.924 10.635-4.583 12.777-6.728-1.248-1.003-3.323-2.408-6.373-3.8-7.76-3.539-19.376-6.595-27.668-8.017-4.84-.83-10.151-1.281-15.584-1.375a124.627 124.627 0 0 0-3.066-.015zM66.52 397.71c-.814.026-1.569.085-2.25.178-6.779.921-18.486 5.964-26.078 12.172-3.795 3.103-6.559 6.465-7.752 9.007-1.192 2.543-1.215 3.67-.355 5.477 1.699 3.57 5.38 6.264 11.715 7.828s14.79 1.546 23.03-.11c8.239-1.655 16.261-4.932 21.939-8.968 5.677-4.036 8.675-8.435 9.26-12.537.204-1.438.013-2.129-1.348-3.752-1.362-1.624-4.108-3.636-7.655-5.24-5.32-2.407-12.397-3.801-17.9-4.036a35.105 35.105 0 0 0-2.606-.02zm417.872 53.7c-9.087.061-23.367 4.381-33.497 10.948-5.402 3.503-9.634 7.584-11.796 11.116-2.163 3.532-2.52 5.86-1.514 8.757 1.623 4.68 5.97 8.72 13.312 11.696.062.025.126.047.188.072H494v-40.793c-2.921-.993-5.648-1.616-7.861-1.752-.557-.034-1.14-.049-1.746-.045z\"/>","triceratops":"<path d=\"M197.479 59.813c-5.975-10.707-12.128-21.381-23.147-31.17-3.266 14.104-12.787 25.802-21.957 37.634-3.49-14.265-20.643-19.598-35.787-26.244-1.483 11.404-2.6 22.726-8.158 35.035-7.585-6.947-20.79-9.806-33.328-13.15 3.502 14.433 2.293 29.338 1.242 44.227l-40.453 3.42 19.314 36.359-38.379 22.781 30.363 22.191-30.039 25.538 30.627 15.26-28.494 24.224 25.434 12.672-16.045 22.228c-3.382-.12-6.748-.194-10.088-.207C17.384 357.016 18 426.512 18 494h132.2c22.992-13.75 43.804-28.112 59.321-44.172-32.829-3.25-51.774-9.921-62.783-21.164-24.535-22.661 9.547-47.633 2.143-67.289-4.652-6.38-11.538-7.695-18.635-9.184-36.095 20.677-56.727 35.6-86.781 56.211-1.207-27.584 3.857-56.846 13.139-78.724-7.633-8.89-13.152-19.953-17.084-32.137l20.539 3.447c1.69 3.87 3.584 7.442 5.689 10.69 6.396-8.455 13.321-25.704 23.383-24.194 24.704 3.716 43.28 22.49 50.105 48.262 10.708 2.88 22.655 10.32 26.33 18.879 7.813 23.009-19.866 46.884-5.966 61.445 7.712 7.877 34.521 17.07 94.798 18.102 3.194-.38 4.02.475 6.166 2.592 21.499 17.817 42.34 34.325 67.122 42.613 1.716-24.108-23.276-41.757-40.71-52.389l9.254-15.437c26.32 17.04 56.79 46.733 56.515 79.483 32.58-21.474 32.567-61.684 29.476-92.858a42.244 42.244 0 0 1-14.202-2.53c-9.572-3.47-17.504-9.83-23.279-17.187-5.775-7.357-9.65-15.737-9.603-24.645 0-.037.005-.075.006-.113-1.19-4.784-1.603-9.773-1.41-14.773-3.96-6.207-8.067-13.32-10.633-21.903-49.9 3.927-65.214-41.983-58.28-66.865-41.662-13.957-69.213-54.133-68.21-95.09l17.986.71c2.176 31.16 16.438 59.117 42.582 72.439-34.508-45.38-6.576-103.394-13.322-147.237-3.146-20.442-7.997-42.573-15.65-58.798zm-22.807 21.335c16.791-.124 34.104 3.915 50.771 12.735l-8.418 15.91c-37.802-20.004-77.088-11.273-103.593 16.297-26.505 27.57-39.949 74.495-21.287 132.418l-17.133 5.52c-20.325-63.088-6.065-117.64 25.443-150.413 19.693-20.483 46.23-32.259 74.217-32.467zm279.623 26.79c-63.489 18.759-116.15 42.119-157.936 101.646 34.835-33.685 71.421-52.248 110.155-62.916 14.047-12.303 29.838-24.61 47.78-38.73zm35.478 43.632c-77.59 5.823-141.897 20.993-203.654 95.662-16.245 26.922 4.404 50.691 28.852 52.434 6.183.22 8.903-1.557 9.539-2.777 26.375-50.656 51.76-79.157 83.547-101.057 23.068-15.893 49.298-28.427 81.716-44.262zM91.353 306.408c-14.442 18.208-24.891 43.897-28.546 67.006 18.525-12.726 34.965-23.67 58-36.459-5.15-16.35-15.47-26.778-29.453-30.547zm181.772 19.108l-14.082 11.21c-5.925-8.305-14.206-9.836-21.555-7.585l-5.412-17.168c16.261-5.246 31.306 1.66 41.049 13.543zm181.977-6.428c-28.968 16.529-59.9 32.96-99.637 30.66-6.28 18.741 20.989 35.328 36.492 28.281 26.91-15.945 52.604-31.054 63.145-58.941zm-235.498 5.488c14.446 34.744 37.707 36.327 58.095 13.608l13.49 11.918c-28.908 38.081-82.138 14.665-89.394-22.914zm91.44 55.133l15.628 8.934c-3.773 6.087 6.303 9.457 10.334 10.943l-6.094 16.937c-17.03-6.242-28.59-20.687-19.867-36.814z\"/>","raptor":"<path d=\"M21.357 56.129C23.914 184.67 98.5 288.625 195.225 318.419c-9.76-16.326-11.79-20.065-13.545-35.11 5.57 11.151 17.776 28.634 47.168 46.123-15.459 6.144-25.038 19.847-27.389 42.843-5.396 2.38-12.07-.661-15.805 8.78-7.575 18.099 8.399 33.481 12.643 50.216 14.08 6.437 13.144 15.724 16.855 24.6 12.993-5.169 25.986-2.705 38.979 0l-.701-14.416-21.774-3.162 3.865-8.777c-11.488-4.736-17.746-12.8-24.23-20.72.351-9.214.702-18.61 1.053-27.392 30.453-7.134 51.72-27.902 61.98-39.681 2.98-3.422-1.105-10.442-5.443-16.504 18.625-19.95 15.037-40.943 13.205-61.237 8.929 13.296 13.891 34.978 4.568 63.145 28.73-3.42 54.964-12.9 75.242-28.006-4.611-12.067-5.113-24.247-1.486-30.904 4.372 12.71 17.02 31.785 31.069 34.879 20.108 4.428 37.03-2.155 54.78-5.971-6.746 14.86-7.405 29.553-8.077 43.545 12.925-15.825 30.205-30.033 30.552-50.217.134-7.764-31.161-11.645-60.05-5.267-2.105-10.317-4.329-20.432-10.868-30.194 5.292-13.485 6.256-28.722 5.196-45.642-12.62-6.784-17.92-19.886-20.77-33.932 24.322 20.149 58.171 30.88 88.535 33.02.195-5.546 2.602-5.824-2.363-11.37-21.92-11.355-47.134-27.842-46.555-41.77 20.459.285 48.265 3.052 68.782 8.194-.673-7.697-.04-15.732-6.21-23.092-4.021-4.797-33.602-12.747-50.404-19.12-.627-3.643-2.934-12.138-9.437-12.167-36.318-.16-70.229 15.264-76.975 35.012-3.305 9.675-.1 41.943-.027 62.914-44.004-6.438-105.465 11.322-149.111 32.71C55.353 200.283 52.28 140.525 21.357 56.128zm392.815 64.396c5.525.056 8.536 6.67 7.517 10.3-.714 2.544-18.077-1.213-17.42-4.858.59-3.267 2.831-5.512 9.903-5.442zm56.062 198.188l-8.136 12c7.284 4.115 4.85 8.81 9.261 18.322 2.964-10.769 4.898-19.553-1.125-30.322zM242.24 401.98c-4.287.01-11.218 1.745-12.933 9.008l12.166 9.809c-2.176-13.427 14.83-6.788 27.318-2.36-3.928-6.695-19.406-16.471-26.55-16.457zm22.947 40.916l.995 12.975h22.595l-23.59-12.975z\"/>","diplodocus":"<path d=\"M346.647 22.946c-19.81.144-40.982 6.645-48.194 25.359A39.33 20.719 0 0 0 279.4 66.033a39.33 20.719 0 0 0 36.664 20.649c17.706 4.338 42.703-3.822 56.312-25.166 22.5 9.72 50.156 21.74 56.615 47.18 13.014 51.25-19.25 147.44-38.24 153.953-54.464 18.681-114.531 21.169-152.465 45.69-43.773 28.295-72.155 82.248-111.75 92.456-32.22 8.307-96.032-7.227-103.89 18.01-1.202 8.7 6.012 16.63 25.914.074 28.679 7.782 106.19 35.345 179.18-23.144a169.515 169.515 0 0 0 14.203 7.9c.994 27.816 8.107 57.606 12.525 85.422h46.705l-4.916-44.467c4.988-16.298 11.013-25.643 14.697-43.342l17.664 3.461c-2.009 10.255-3.905 12.287-7.558 22.088 10.685.506 22.867-.07 33.894-1.025-7.715-17.771-11.885-41.54-15.886-57.371l17.45-4.41c5.517 21.825 14.342 52.147 17.983 60.296 3.248 7.27 11.303 64.77 11.303 64.77h37.223l7.515-85.74c28.595-16.919 38.1-37.13 43.64-60.215 19.358-80.647 23.886-168.749-7.448-243.842-19.615-47.005-57.366-60.762-91.875-72.01-7.463-2.65-17.643-4.381-28.211-4.304zm124.39 367.332c-6.211 7.738-13.93 15.286-23.39 22.273-1.986 24.653-3.834 51.635-5.881 76.506h32.767s-1.97-56.922-3.496-98.78zM356.46 443.266c-11.83 1.167-25.701 1.252-39.832.293l4.838 45.498h41.787z\"/>","pterodactyl":"<path d=\"M195.078 81.106a72.32 72.32 0 0 0-4.875.144c20.211 18.922 90.405 54.51 115.96 67.815.566 6.98 4.585 13.445 9.626 18.35a40.955 40.955 0 0 0 8.951 5.618 36.729 36.729 0 0 0 11.121 3.114c39.043-7.876 79.358-20.672 91.674-40.938-26.172 7.951-64.972 20.712-76.94 11.75 10.764-11.26 66.873-25.417 99.874-34.89-33.286-5.368-67.09-3.996-94.844 1.15-8.986-11.726-37.958-6.492-40.58 1.076-43.533-21.561-93.918-33.137-119.967-33.19zm-72.002 4.12a62.517 62.517 0 0 0-2.113.007C83.334 85.964 42.866 120.307 21 172.24c62.03-24.275 107.601-13.472 127.008 50.608 17.565 58.001 20.151 72.474 37.605 90.674 5.596-.823 11.045-1.271 16.336-1.319 11.296-.1 21.9 1.556 31.834 4.932 7.502 2.55 14.56 6.053 21.232 10.4 31.198-13.47 51.025-65.112 51.586-64.447.517.613-8.556 52.854-37.365 75.49.694.628 1.386 1.26 2.07 1.908 37.534-5.482 46.148-27.539 95.938-46.64 36.044-13.828 90.576 8.131 117.07 57.414 8.86-21.59 19.38-105.537-44.095-138.588-55.477 20.318-92.092 27.083-131.909 29.553-2.828-10.308 10.185-38.304 16.522-49.948a58.814 58.814 0 0 1-26.553-16.79c-13.189 17.134-43.243 50.162-56.353 48.34-40.633-18.251-60.322-49.021-60.93-100.151-15.404-26.37-36.115-38.139-57.92-38.45zm78.957 244.932a94.728 94.728 0 0 0-7.232.352c-7.85 12.626-21.201 21.432-33.524 33.387-13.017 2.469-28.692-4.616-43.332-7.98 5.554 7.889 16.231 17.695 31.723 18.233-10.327 5.87-21.318 10.866-34.403 13.102 14.893 3.369 27.772 5.36 39.61-2.998l-11.053 24.88c6.803-2.052 13.433-5.372 19.47-12.95 7.79 3.006 17.858 4.384 28.475.095-7.337 9.633-15.61 18.732-26.834 26.147 14.966-2.992 27.568-6.43 35.375-18.973l-.963 27.442c8.26-7.014 15.099-16.496 15.489-37.17 18.54-12.41 30.418-29.978 39.662-44.164-4.779-4.05-9.7-7.476-14.82-10.256-10.114 15.388-21.978 32.425-39.512 42.344l.135.238-.78-.412c-8.367 6.232-20.49 7.628-32.45 9.23 2.213-3.659 4.332-8.02 6.323-13.293l-.062-.078c12.52-11.941 32.194-23.737 41.455-46.32a82.068 82.068 0 0 0-12.752-.856z\"/>","dimetrodon":"<path d=\"M298.982 97.941l2.643 154.663c1.182.007 2.364.01 3.543.035 3.934.083 7.85.268 11.742.55a1319.32 1319.32 0 0 0 2.065-13.32c1.971-13.106 4.467-30.398 6.918-47.613 4.548-31.951 8.58-61.086 9.189-65.483-11.4-16.17-23.595-27.229-36.1-28.832zm-17.97 1.829c-13 3.035-25.958 9.247-38.569 18.001l28.79 136.65a235.34 235.34 0 0 1 12.4-1.23zm-54.348 30.412c-10.78 9.487-21.187 20.728-31.01 33.297l46.041 96.562a235.422 235.422 0 0 1 11.756-2.707zm123.195 20.964c-1.74 12.454-3.88 27.722-6.146 43.647-2.454 17.239-4.954 34.555-6.94 47.754-.746 4.962-1.385 9.079-1.959 12.67 5.185.8 10.306 1.782 15.352 2.941l21.506-58.947c-6.572-16.604-13.908-33.22-21.813-48.065zM183.588 180c-7.51 10.993-14.573 22.735-21.09 34.992l50.52 54.461a231.898 231.898 0 0 1 11.232-4.174zm197.787 45.133l-13.803 37.828c10.575 3.434 20.693 7.707 30.207 12.78-3.986-13.445-9.533-31.244-16.404-50.608zm-227.492 7.039a411.753 411.753 0 0 0-13.508 32.072l38.656 22.258a226.545 226.545 0 0 1 16.66-9.258zm146.219 38.94c-50.046.083-99.53 19.975-138.327 48.306-26.682 37.672-120.21 39.383-139.056 77.502 47.173.69 109.846-26.377 150.062-38.574 7.15 3.76 14.778 7.626 21.053 10.459-4.837 14.275-11.095 31.767-7.965 45.254h81.8c-1.925-11.9-33.018-13.838-38.062-19.784-3.905-4.603-4.286-9.148-3.253-13.949 31.11 7.79 74.47 5.796 102.304-1.285 1.08 11.712 6.056 23.306 8.774 35.018h69.882c-12.354-8.423-35.004-13.834-40.048-19.78-7.943-9.361-3.555-22.048 5.386-31.074 10.2-10.296 17.087-13.427 31.737-22.469 17.765 7.829 59.647 15.906 69.1.215-7.47-1.42-15.012-3.545-22.428-6.308l6.285-16.868c10.747 4.005 21.83 6.277 31.935 6.881-.27-7.465-9.186-14.357-23.668-18.297-3.352-27.585-50.887-28.619-72.709-12.677-25.018-14.046-55.73-21.865-87.97-22.526a218.254 218.254 0 0 0-4.832-.045zm-165.735 10.443c-4.395 13.681-7.997 27.493-10.713 41.193 6.995-3.509 14.07-7.05 21.315-10.693a222.72 222.72 0 0 1 17.44-14.356z\"/>","plesiosaur":"<path d=\"M430.754 24.207c-29.547 3.757-51.704 10.265-51.387 38.035.803 23.45 3.968 67.093 6.998 88.6l51.55 32.928c-4.532-27.155-8.18-72.275-14.013-97.952 18.65 4.352 69.214 2.71 70.668-16.34-.015-5.028-5.093-9.844-14.1-13.373.44-1.433.67-2.882.69-4.335 0-15.223-22.79-31.075-50.406-27.563zM17.998 180.177v19.598c18.428-7.807 39.37-13.515 50.625-11.177 19.357 10.804 28.276 41.26 49.621 44.574 9.766 1.067 18.657-2.046 26.057-6.563 7.4-4.516 13.71-10.403 19.742-16.093 12.062-11.38 22.784-21.05 33.16-21.752 15.499-1.048 31.418 9.43 49.006 21.53 17.588 12.102 37.078 25.89 60.785 22.858 16.72-2.138 26.78-15.126 35.518-25.486 8.738-10.36 16.093-18.056 23.94-18.937 38.77 2.911 64.976 42.82 99.073 44.494 9.219.247 19.008-2.173 28.477-5.592v-19.48c-10.693 4.166-21.546 7.252-27.996 7.08-14.444-.388-29.131-10.84-45.22-22.426-16.09-11.587-34.07-24.463-56.343-21.961-24.349.573-41.84 41.58-59.732 44.457-41.788-2.417-71.864-46.095-108.723-44.494-19.298 1.305-32.48 15.47-44.295 26.617-8.914 8.003-19.704 18.977-31.494 17.857-27.79-13.646-28.67-43.847-56.043-45.334-16.169-.119-33.213 5.01-46.158 10.23zm378.457 35.981c3.207 21.465 7.147 41.007 9.645 61.924 1.88 8.493-3.425 19.384-11.516 17.623-136.92-43.236-233.076-26.25-310.91 20.662-13.132 8.557-51.674.446-63.46 13.252-4.214 5.537 39.472 25.084 50.516 38.215 4.393 5.525 9.973 10.767 16.538 15.676 9.48-9.959 20.274-19.542 32.16-28.506l10.84 14.371c-27.02 20.38-47.729 44.12-58.422 66.197-9.557 19.73-11.18 37.148-4.153 51.448 23.287-3.968 44.34-10.724 58.932-24.74 15.852-15.228 25.82-39.425 22.955-82.64l17.96-1.19c.933 14.076.538 26.713-1.017 38.042 33.398 7.438 71.164 10.431 108.03 8.469 6.44-.343 12.844-.86 19.199-1.51 6.289-15.66 16.029-32.157 28.96-49.572l14.452 10.73c-20.287 27.32-31.24 51.334-33.344 70.547-1.888 17.245 2.495 30.596 14.274 42.174 21.491-10.474 40.981-23.441 52.08-41.646 12.015-19.709 15.706-46.036.828-86.536l16.896-6.207c4.2 11.434 7.06 22.157 8.747 32.21 62.78-43.58 57.22-87.695 50.296-145.975-18.234-11.984-33.222-21.825-50.486-33.018zm14.316 191.729a193.44 193.44 0 0 1-12.285 6.517c-1.378 23.364-5.717 41.9-18.41 58.633 5.859 4.404 12.208 7.237 19.037 8.381 10.048-25.866 19.435-49.44 11.658-73.531zM162.896 434.14c-4.115 14.565-10.57 26.416-18.86 35.921 2.636 5.058 6.058 9.397 10.294 12.963 18.517-12.208 34.243-25.877 42.482-42.984-11.598-1.495-22.947-3.468-33.916-5.9z\"/>","mammoth":"<path d=\"M337.2 56.85c2.6 4.01 5 10.08 9.6 14.39-6 14.4-22.9 25.94-42.7 25.66l16.1 15.6 25.9-14.9 20.3 17 19.4-9.5 19.6 7.5L419.6 98c-20.7-7-20.6-23.84-28.8-36.5-1.6-2.43-5.2-3.51-9.8-3.59-7.6-.14-18 2.48-26.1 6.27-7-2.17-10.1-5.32-17.7-7.33zM299.8 112c-23.3 14.8-47.7 29.3-74 28.8-16.4-7.3-39.8-12.2-66.8-15.9 3.5 5.1 4.6 10.5 4.4 16.2-1.3.1-2.6.1-3.9.2-11.5-3.3-27-4.9-50.4-2.9 6.3 1.9 11.8 4 15.4 6.8-34.78 6.1-72.74 15-87.27 47.8-4.11 9.3-6.83 18.8-8.6 28.4l-9.09 25.7 6.61-4.5c-.98 16.6 0 33.6.86 50.6l-6.43 35 7.44-11.9c.24 8.8.23 17.6-.33 26.3l21.74-56.2 11.13 71.5c1.66 11.9-3.98 22.2-7.88 33.2l7.69-.6-.1 10.5-10.02 30.7 9.86-4.7-.12 22.6c18.75 13.3 39.44 10.7 61.01.7l7.3-100.7c4.9-10.8 11.1-21.3 16.5-30.4 5.8-10 10.6-19.8 11.4-25.1l17.8 2.8c-3.4 13.9-9.6 24.8-16.1 35.5 23.5-1.2 44.8-5.7 64.1-13.9-.8-6.9-3.2-15.1-3.6-21l18-1.2c1.1 6.7 3.1 18.5 4.5 26 2.7 15.2 6.3 35.1 9.9 54.8 6.6 36.7 12.8 70.2 13.7 75.1 21 8.4 45.2 6.2 60.1 1.9l-2.9-55.5 7.2 3.6-7.9-15.9-.2-3.6 8.1 6-9.8-38.6-.2-3.9 9 2.2-10.7-35.7-1.1-20.5c12.9-4.1 25.1-8.3 37-12.8-2.3-2.5-4.6-5.1-6.8-7.9-9.3-11.3-14.4-26.5-12.3-40.6 1.1-7.1 4.1-15.4 11.5-18.5 9.1-3.8 24.1-7.4 30.4 1.7 22.6 31.9 40.5 45.2 51.4 47.8 5.5 1.3 9.3.6 13.3-1.7 14.3-10.4 14.5-15.1 14-32.2-7.2-18.7-12.9-37.7-18.6-56.7l14.3 2.9c-7.5-9-16.3-14.5-22-27.9-2.5-7.8-5.1-15.6-7.9-23.4l-6 12.5-27.8-10.7-22.8 11.3-19.7-16.5-31.5 18.2zm82.5 58.8l26.8 15.4c-3.4 3.8-6.6 7.9-15.3 6-9.3-2.1-12-13-11.5-21.4zm107.1 16c-3.4 24-9.8 51-21.7 70.3-4.8 7.8-10.6 14.4-18.2 18.7-7.5 4.4-16.9 5.9-26.3 3.6-18.4-4.3-37.1-20.6-59.8-52-6.5-1.5-10.8.9-11.6 6.2-1 6.9 2.6 19.4 8.4 26.5h.1c20.9 25.7 41.6 36.7 59.7 38.6 18.1 1.9 34.4-5.1 47.3-18.4 20-20.5 30.9-56 22.1-93.5zm-39.9 126c-9.8 3.5-20.4 4.9-31.4 3.8-2.5-.3-5.1-.7-7.6-1.2-1.5 17-5.5 33.2-14.4 42.3-11.1 11.4-47.3 6.7-47.3 6.7-10.9-2.5-11.4 52.2 12.5 43.3 0 0 51.2-14.6 66.3-33.5 3.8-4.8 7.2-10.7 10-17.3l3.2 10.3.7-20.6c.9-2.8 1.8-5.8 2.6-8.7l7 9.2zm-224.3 23.5l-6.6 1.8-1 113.4c9.8 5.5 19.1 3.6 28.2-.7-1.7-9.8-6.8-37.4-12.7-70.5-2.8-15.5-5.5-30.5-7.9-44zm-36.7 9.1c-13 .9-44.9 6.6-46.3 10.1l-1.8 95.3c18.2 10.1 35.7 5.3 53.2.2z\"/>","trilobite":"<path d=\"M159.9 19.55c-20.7.2-41.7 7.8-60.4 20.8-53.2 37-89.8 119.45-56.7 216.85 14 41.3 17.2 76.3 12.5 102.9-4.6 26.5-16.6 44.3-33.4 53.5l9 16.4c22.5-12.3 37.5-36 42.8-66.7 5.4-30.7 1.6-68.6-13.2-112.1-30.7-90.4 3.9-163.55 49.7-195.45 22.9-16 48.2-21.4 69.9-14.6 8.8 2.7 17.2 7.5 24.9 14.6 6.8-1.9 13.9-3.4 21-4.5-11.5-14-25.3-23.3-40.4-28-9.2-2.48-17.2-3.7-25.7-3.7zm166.5 3.8c-14.9 4.6-28.5 13.7-40 27.4 7.3 1 14.5 2.4 21.6 4.2 7.4-6.7 15.5-11.2 24-13.8 21.7-6.8 46.9-1.4 69.8 14.6 45.8 31.9 80.5 105.05 49.7 195.45-14.7 43.5-18.6 81.4-13.2 112.1 5.4 30.7 20.4 54.4 42.8 66.7l9-16.4c-16.7-9.2-28.8-27-33.4-53.5-4.6-26.6-1.5-61.6 12.5-102.9 33.1-97.4-3.5-179.75-56.7-216.85-18.7-13-39.7-20.6-60.3-20.8-8.9.1-18.5 1.48-25.8 3.8zM258 67.45c-45.6 0-86 15.3-115.4 46.25-18.4 19.4-32.6 45.3-40.6 78.1 25.2-18.3 62.6-29.2 87.9-33.8 3-.4 4.9-.3 7.4 1.1 40.3 20.3 84.2 21.5 121.7 0 2.4-1.8 3.6-1.6 6.4-1.1 35.8 5 64.1 15.1 88.5 33.4-8.1-32.6-22.2-58.3-40.6-77.7C344 82.75 303.5 67.45 258 67.45zM190.9 177c-28.4 7.6-94.13 24.2-95.2 57h-.2c-.5 6-.8 12.2-.9 18.6 27.9-23.9 64.7-34.3 97.2-40.1-.5 6.3-.9 12.7-1.3 19.2-30.8 6.8-92.77 17.3-94.6 56.1v.2c.7 7 1.5 13.8 2.6 20.6 22.9-21.8 63.8-35.3 90.8-40.6-.2 6.4 0 13.3 0 19.1-26.5 8.6-82.9 20.6-84.9 50.7 2 7.8 4.3 15.6 6.8 23 18.7-20.2 55.9-32.8 79.3-37.7.4 6.4.8 12.7 1.3 18.9-24.7 5.7-66.7 19.4-71.6 41.5 4.2 9.5 8.9 18.5 13.9 26.9 15.2-17.6 42-26.7 61.5-31.3.8 6.4 1.8 12.5 2.8 18.7-15.1 5.1-50.3 13.9-52.3 30.7 6.9 9.3 14.4 17.8 22.2 25.3 9.9-10.1 26-15.7 37.8-18.5 1.6 6.3 3.3 12.3 5.2 18-10.8 3.9-21.6 5.4-28.7 12.5 22.7 17.1 48.3 26.6 75.4 26.6 26.6 0 51.8-9.1 74.3-25.8-7.6-7.1-20-10.8-28.7-13.1 1.8-5.7 3.6-11.7 5.2-18 12.9 3.3 30.8 10.5 37.8 19.3 8.8-8.2 17-17.7 24.6-28.2-8.6-18.2-37.1-25.7-54.4-29.5 1-6 2-12.1 2.8-18.6 23.7 5.2 49 13 63 30.7 4.7-8.1 9.1-16.7 13.1-25.7-6.4-24.2-52.2-37.4-72.2-41.7.5-6.2.9-12.4 1.3-18.8 27.5 5.7 63.2 18.2 79.9 37.7 2.5-7.2 4.7-14.6 6.6-22.2-13.7-27.7-60.3-45.9-85.3-51.2 0-6.8.3-13 0-19.2 34.5 11.7 70 18.2 91.2 42.4 1.2-7.4 2.1-14.9 2.8-22.5-7.3-35.6-67.6-51.1-95.2-56.4-.4-6.5-.8-13-1.3-19.2 34.9 7 72.7 16.8 97.8 40.2-.1-8-.5-15.8-1.2-23.3-13.5-33.4-66.2-46.7-95-52.2-44.8 21.5-92.3 22.1-134.2-.1zm114 37c.5 6.7 1 13.6 1.4 20.6-31.3 12.6-68.2 13-97.3.6.4-6.8.8-13.5 1.4-20.2 28.4 13.4 68.6 14.8 94.5-1zm2.5 55.7c0 7.4-.1 15.3-.2 21.8-31.6 13.2-69.7 13.5-99.1.6-.1-7.9-.2-13.9-.2-21.2 30.3 15.1 72.2 16.8 99.5-1.2zm-1.6 55.3c-.5 7.6-1 15.1-1.7 22.3-30 11.6-65 11.9-92.9.6-.7-7-1.2-14.3-1.7-21.7 28.2 14.2 71 15.9 96.3-1.2zm-5.7 56.1c-1.1 7.6-2.3 14.8-3.6 21.8-26.1 7.7-53.6 7.9-77.9.3-1.2-6.8-2.4-13.9-3.5-21.4 26.7 10.5 60.4 11.6 85-.7zM225 432.6c19.5 8.1 46.4 9.7 64.9.1-2.2 8.2-4.5 15.7-6.9 22.5-17.3 3.7-35.1 3.9-51.2-.2-2.4-6.7-4.6-14.2-6.8-22.4z\"/>","fossil":"<path d=\"M221.75 17.813c-2.866.013-5.723.092-8.594.25C94.004 24.596 10.79 136.428 17.436 251.155 25.995 398.813 164.3 501.693 306.315 492.562h.03c68.975-4.446 134.884-33.45 186.063-79.562l4.344-3.906-1.625-5.625-29.844-102.595-1.217-4.188-3.97-1.75L378 258.594c14.594-24.457 22.398-53.31 21-82.563-4.3-89.976-83.124-154.5-168.656-158.06-2.85-.12-5.728-.17-8.594-.157zm.125 18.687c1.174-.007 2.36.015 3.53.03L218.5 81.28l-.28 1.75.155.626c-26.733 2.106-53.554 11.503-75.875 28.438l-14.375-47.28c25.05-16.172 54.175-26.346 86.063-28.095 2.567-.142 5.13-.205 7.687-.22zm22.25 1.406c38.27 5.08 74 23.623 99.28 51.375l-34 19.94-.374.218c-19.422-15.903-44.874-24.69-71.592-26.063l-.22-.938 6.907-44.53zm-132 38.5l14.344 47.25.624 2.094c-14.64 15.204-26.215 34.55-32.844 58.125-.675 2.4-1.285 4.79-1.875 7.156l-40.47-33.218c13.17-31.817 33.873-60.15 60.22-81.406zM355.25 104.03c14.607 20.833 23.788 45.562 25.094 72.876.025.52.044 1.044.062 1.563l-35.844 2.874c-.124-2.074-.265-4.16-.5-6.25-2.332-20.82-10.02-38.198-21.343-52.03l32.53-19.033zm-116.125 44.94c2.345.038 4.665.25 6.97.593l-1.47 39.28c-4.208.59-8.338 1.873-12.22 3.907l-43.718-17.813c11.268-15.01 28.152-25.316 47.938-25.937.834-.026 1.668-.045 2.5-.03zm25.47 6.843c14.38 7.937 24.832 22.162 25.217 39.343.145 6.436-1.438 13.01-4.218 18.75-1.47-4.27-3.73-8.338-6.813-12-4.44-5.274-10.04-9.043-16.092-11.22l.593.033 1.314-34.907zm-219.44 20.625l43.032 35.375c-3.903 25.766-2.57 49.148 2.97 69.968L39 275.22c-1.418-8.22-2.41-16.602-2.906-25.158-1.455-25.12 1.79-50.093 9.062-73.625zm134.282 14.875l38.032 15.562c-4.74 7.95-6.338 17.343-4.657 26.313l-28.844 25.125c-6.018-10.772-9.68-22.974-10.157-36.188-.384-10.633 1.657-21.176 5.625-30.813zm200.22 5.937c-3.353 28.986-16.63 56.285-36.75 76.22L321 251.56c13.37-13.268 21.052-31.418 23.188-51.437l35.468-2.875zm-159 53.875c7.497 11.248 19.977 18.867 33.124 21.53l2.782 32.376c-23.827-2.664-46.187-14.117-61.656-31.436l25.75-22.47zm85.28 11.813l22.625 22.625c-15.317 10.92-33.362 18.028-53.25 19.656l-2.718-32c12.847-1.323 23.948-4.934 33.344-10.283zM43.22 294.594l54.718 6.875c9.884 23.128 25.378 42.458 44.593 57.75l-53.936 22.405c-20.91-25.13-36.706-54.492-45.375-87.03zM448.06 310.03l.47.22 26.906 92.563c-30.294 26.24-65.746 46.28-103.688 58.406l8.594-87.033.156-1.562c26.19-14.795 49.554-35.547 67.563-62.594zm-287.28 61.876c26.235 15.822 57.278 25.373 89.593 28.156l-44 61c-39.634-13.116-75.807-35.403-104.53-64.718l58.936-24.438zm199.968 10.53l-8.344 84.22c-15.49 3.766-31.305 6.222-47.28 7.25-27.044 1.742-53.936-.874-79.688-7.312l45.656-63.344 1.72-2.375c29.813-.32 60.02-6.33 87.936-18.438z\"/>","bones":"<path d=\"M236.375 34.5l-18.53 2.406 5.06 39.407c-9.114 1.973-18.22 4.657-27.28 8.062l-9.5-40.156-18.188 4.31 10.25 43.345c-8.443 4.105-16.825 8.87-25.093 14.344l-17.28-42.876-17.314 6.968 19.03 47.22c-5.018 4.003-9.758 8.155-14.25 12.468L89.47 89.625l-14.345 12 35.22 42.063c-4.675 5.425-9.01 11.022-12.97 16.78L53.47 133.5l-9.782 15.938 43.874 26.906c-3.705 6.694-6.962 13.558-9.812 20.53l-47.53-12.81-4.845 18.06L71.5 214.532c-3.59 11.932-6.03 24.1-7.344 36.345l-39.656-2.25-1.03 18.688 39.56 2.218c-.18 11.804.654 23.588 2.47 35.19L31.375 311l3.375 18.375 34.47-6.344c2.885 11.524 6.74 22.782 11.56 33.595l-26.31 11.97 7.75 17 27-12.283c5.96 10.538 12.905 20.534 20.78 29.813l-20.53 16.813 11.843 14.468 21.5-17.625c8.905 8.594 18.724 16.354 29.406 23.126L141.53 456l15.564 10.344 11.437-17.22c11.12 5.558 23.014 10.1 35.626 13.47l3.563-17.72c-10.315-2.77-20.055-6.39-29.19-10.812l7.47-11.25-15.563-10.343-8.28 12.467c-9.12-5.807-17.506-12.456-25.157-19.78l13.906-11.407-11.844-14.438-14.843 12.157c-6.764-8.09-12.778-16.756-18-25.908l22.5-10.25-7.75-17-23.19 10.563c-4.193-9.428-7.62-19.208-10.218-29.22l32.313-5.967-3.375-18.375-32.72 6.03c-1.586-10.158-2.347-20.456-2.25-30.78l40.032 2.25 1.063-18.657-39.97-2.25c.73-6.54 1.805-13.07 3.25-19.53 4.226.572 9.16 1.176 15.064 1.843 14.326 1.616 32.835 3.446 51.155 5.186 29.98 2.848 49.638 4.533 59.375 5.375l-33.063 72.345-5.78 12.656 1.343.064L234.563 365l9.406-16.156-29.94-17.375 51.782 2.092.75-18.687-49.343-2 33.593-13.22-6.844-17.405-35.407 13.938L234 240.53l5.5-12.06-13.22-1.126s-35.88-3.062-72.405-6.53c-18.263-1.736-36.696-3.565-50.813-5.158-4.618-.52-8.52-1.014-12.03-1.47 9.83-29.017 27.474-56.23 53.812-78.5l20.937 52 17.345-7-22.875-56.75c.296-.202.578-.42.875-.624 7.11-4.84 14.278-9.096 21.47-12.812l18.874 79.906 18.186-4.28-19.72-83.5c8.432-3.326 16.87-5.95 25.314-7.876l11.78 91.75 18.532-2.375-11.875-92.53c8.964-1.012 17.896-1.247 26.75-.814l3 96.19 18.688-.595-.344-11.25 34.22 39.28-37.28 17.064 7.78 17 32.313-14.782-15.688 32.343 16.813 8.19L353.344 226l2.72-5.563-4.064-4.656-41.375-47.468 50.53-47.843c23.78 15.006 45.428 35.18 63.533 59.343-23.814 6.14-44.022 24.153-50.688 53.718l47 103.064 16.875-2.406-26.938-68.625 17.407-6.844 28.562 72.75 34.813-5-8.408-138.626c-11.76-6.55-24.637-9.992-37.312-10.375-4.585-6.65-9.41-13.05-14.47-19.19l18.564-18.686-13.25-13.156-17.72 17.812c-5.074-5.355-10.35-10.44-15.78-15.28l18.125-27.314-15.595-10.312-17 25.656c-6.047-4.625-12.28-8.927-18.656-12.906l10.56-31.844-17.75-5.875-9.374 28.28c-7.146-3.664-14.46-6.923-21.906-9.75l3.156-33.686-18.625-1.75-2.75 29.5c-8.182-2.25-16.497-3.956-24.905-5.126l-.938-30.188L269 44.22l.875 27.936c-1.664-.064-3.33-.105-5-.125-1.19-.013-2.37-.007-3.563 0-6.633.05-13.29.455-19.968 1.22l-4.97-38.75zm52.844 58.22c7.597 1.222 15.11 2.952 22.53 5.155l-4.438 47.406.407.032-16.376 15.5-2.125-68.093zm40.717 11.56c4.807 1.977 9.565 4.156 14.25 6.532l-16.312 15.438 2.063-21.97zM441.5 195.5c.786-.023 1.572.006 2.375.063 12.852.9 22.34 11.843 21.438 24.687-.902 12.84-11.836 22.34-24.688 21.438-12.852-.902-22.34-11.848-21.438-24.688.845-12.037 10.52-21.152 22.313-21.5zM328.25 439.563c-5.288 1.61-10.488 3.022-15.625 4.28l4 18.282c5.63-1.356 11.322-2.9 17.094-4.656l-5.47-17.908zm-33.906 8.093c-7.15 1.227-14.145 2.1-20.97 2.656l.376 18.532c8.005-.56 16.202-1.516 24.563-2.938l-3.97-18.25zM226 448.75l-3.594 17.78c10.464 1.76 21.356 2.75 32.656 2.876l-.375-18.344c-9.96-.06-19.515-.87-28.687-2.312z\"/>","skeleton":"<path d=\"M329.1 466c-5.3 1-10.8 1-16.6 1l-.5 16h19.1zm-50.8-2-1.6 17c6.4 1 12.6 1 18.6 2l.6-17c-5.7 0-11.6-1-17.6-2zm93.6-5c-8 2-16.7 4-26.2 6l1.9 16c10.4-1 19.9-3 28.7-6zm15.7-6 4.4 16c5-2 9.7-4 14.1-7l7 12 14.4-8-7.7-13c4.1-3 7.7-7 10.8-11l16.4 14 10.6-13-17.5-14c2.1-4 3.8-8 5.1-12l26.3 4 2.7-16-25.9-5c.1-1.9.2-4 .1-6.2 0-2-.2-4.1-.4-6.2l25.8-6.2-3.9-16.2-25.5 6.1c-1.4-4.3-3.3-8.7-5.5-13l20.1-14-9.5-13.7-19.5 13.5c-3.3-4.4-7-8.8-11.2-13.1l13.2-19.4-13.8-9.4-11.8 17.4c-4.7-3.8-9.8-7.5-15.2-11.1l10.1-20.5-14.9-7.4-9.6 19.4c-5.6-3-11.5-5.9-17.7-8.6l7.1-18-15.5-6.2-7 17.9c-4.9-1.7-9.9-3.4-15-5l7.1-22-15.9-5.2-7.3 22.6c-5-1.3-10.2-2.5-15.5-3.6l4.7-30.3-16.5-2.5-4.6 29.7c-5.2-.9-10.5-1.7-15.9-2.4l5.1-31.5-16.4-2.7-5.3 32.4c-1.1-.1-2.2-.2-3.4-.3-4.8-.5-9.5-1-14.1-1.5l7.5-33.1L222 226l-7.8 34.3c-6-1.1-11.8-2.3-17.4-3.6l10.8-35.4-37-11.6-13.3 33.7c-6.2-2.9-12-5.9-17.2-9.1l15.4-28.6-14.7-7.9-14.5 26.9c-4.1-3.4-7.9-6.8-11.3-10.4l16-17.8-12.4-11.2-14.1 15.8c-3.6-5.5-6.47-11.1-8.63-16.9-19.13-51 18.93-107.8 81.93-111.3.9 6.2 2.8 12.8 5.9 19.5l74.9 21.4 3.4-8.8-31.8-11 5.4-15.7 32.6 11.2 6.6-16.6-31.4-16.4c-13-55.1-59.6-38.9-65.6-.3-2.5.1-5 .3-7.4.5L167.5 33 151 35l2.9 24.6c-4.2 1.1-8.3 2.3-12.3 3.8L132.2 42 117 48.7l9.5 21.7c-4.3 2.5-8.4 5.2-12.3 8.1l-13.7-18.1-13.3 10 14.5 19.2c-3.36 3.6-6.46 7.4-9.27 11.3L72.64 87.6l-9.31 13.8 20.6 13.9c-2.06 4.3-3.81 8.7-5.23 13.1l-26.13-6-3.74 16.3 26.24 6c-.59 4.5-.87 9-.81 13.6l-28.21 2.2 1.31 16.6 28.6-2.3c.78 4.1 1.83 8.1 3.16 12L51.44 201l7.6 14.8 26.73-13.6c2.12 3.9 4.56 7.8 7.31 11.6l-23.7 26.5 12.41 11.1 22.11-24.7c4.3 4.4 9.1 8.6 14.4 12.7l-17.5 32.5 14.6 8 16.8-31.1c5.8 3.6 12.2 6.9 19 10l-19.7 50 12 65.3v.2l10.4 56.7h-16.4l.3 17 36.1-1-1.8-10-11.5-62L192 272.6c5.9 1.5 12.1 2.8 18.5 3.9l-19.4 85 16.3 3.7 19.6-86.1c5.3.7 10.8 1.3 16.4 1.8.7 0 1.4.1 2.2.2l-11.5 70.4 16.5 2.7 11.5-71.3c5.5.7 10.9 1.5 16.1 2.4l-9.1 58.2 16.5 2.6 9-57.7c5 1.1 10 2.2 14.8 3.5l-3 62.5L302 430h-17.1v17h32.8l3.5-59.7 31.8-80.5c20.6 9.1 37.1 20 49.7 31.7 18.8 17.6 28.6 37.1 29.1 55.7.4 17.8-8.1 34.8-24.9 47.8-5.6 4-12 8-19.3 11zM154.1 339.4l32.8-107.1-6.5-2.1-31.6 80.2zm169.9-4.6 13.6-34.2c-3.8-1.4-7.7-2.7-11.8-4zM212.5 53.4c6.1 0 11.2 5 11.2 11.1 0 6.2-5.1 11.2-11.2 11.2-6.2 0-11.2-5-11.2-11.2 0-6.1 5-11.1 11.2-11.1z\"/>","skull":"<path d=\"M139.5 38.28c-40.73.57-73.1 25.79-105.61 38.33-10.02 24.79-8.26 51.99 9.02 68.09 11.76-10.8 76.19-44.94 95.09-44.6 27 14.8 17.5 76.1 3.7 94.8-6.1 8.1-32.4 7.1-40.7-1.1 6.6-16 13.3-31.9 32.5-45.4-7.4-27-60.6 2.6-83.47 8.9l-1.4 53.1c-70.79 19.7-3.9 91.9 22.05 112.8-.99 33.2 8.19 61.7 69.32 70 66.7 28.1 115.6 71.6 189.6 80.5 50.7 1.2 59.2-18.5 52.8-55.6 11.5-20.2 19.1-41.1 16.1-63.9-10 18.7-29.5 36.5-48.2 48.5-3.4-1.1-6.7-2.4-10-3.7 9.9-17.8 18.1-36.1 18-56.6-13.6 17.5-27.8 33.7-45.3 44.8-8.2-4.1-16-8.5-23.4-13.2 14.1-13.4 19.3-30.3 25.4-46.7-14 12.4-33.4 19.7-54 25.8-4.6-4-9.2-8.2-13.7-12.6l13.1-31.1-24 19.7c-5.8-6.4-11.5-13.3-17.1-20.6l9.5-25.3-18.2 13.7c-10-17.3-24.4-30-29.2-34.1 3.6-21.7 33.5-46.6 33.5-46.6 16.8-3.3 28.4 2.8 42.2 7.8l-4.6 23.2 22.8-16.4c2.9 1 5.9 2.1 8.9 3.3l-5.4 27.5 24.9-20.3c9.2 3.4 18.5 6.7 27.7 9.8-4.6 13.9-14.2 26.7-23 39.6 18.6-8.8 38.5-16.2 51.2-31 9.1 2.5 18.2 4.7 27.2 6.4-3.8 17.8-11 34.5-20.8 50.4 23-12.8 41.2-27.5 48.4-46.6 6.4.5 12.7.7 18.9.6 3.3 21-1 42-7 63 19.6-20.5 40-40.8 43.8-67.6 3.4-.8 6.8-1.7 10.2-2.9 2.3-23.3-.6-20.9 14.6-36 .8-41.2-30.6-68.6-78-89.2l-125.3-28.2c-18-17.67-29.4-38.97-84.4-47.33-20.2-13.45-46.1-24.31-67.7-23.99zm73.1 64.12c9.5 22.5-10.4 71-11.5 72.3-21.2-3.2-3-58.3-19.8-72.3 5.5-13.83 28.4-9.68 31.3 0zm31.6 14.2c41.9 7.9 77.7 32.5 81.4 52.4 2.2 11.6 1.5 20.8-6.3 25.8-3.7-8-10.7-11.9-22.3-10.3-6.7-23.4-46.5-7.6-60.6-3.6-4.1-26.5 1-39 7.8-64.3zM361 161.2c6.5-.3 12.3 2.9 13.6 10.3.8 24.9-33.1 32.6-31.9 6.3 1.1-10.3 10.2-16.3 18.3-16.6zm53.2 1.2s38 5.8 51.1 18.3c8.4 7.9 13.4 31.9 13.4 31.9-2.9-10.7-60.1-48.9-64.5-50.2zm-283.7 52.5c18.9-.2 37.6.9 54.2 3.2L154 248.8c-26.9-2.1-60.19-18.4-79.63-30 17.91-2.5 37.23-3.8 56.13-3.9zm-36.28 43.9c8.28-.3 17.08 18.3 8.18 24.3-6.14 3.4-16.46-6.3-16.46-13.3 1.96-7.9 5.11-10.9 8.28-11z\"/>","egg":"<path d=\"M304.813 31c-2.68 0-5.374.062-8.063.188-12.293.574-24.667 2.45-36.97 5.75-49.2 13.2-116.718 54.886-166.967 106.406-50.25 51.52-82.375 112.03-68.97 162.125 13.725 51.285 64.74 99.784 125.563 131.217 60.823 31.434 130.982 45.438 179.094 32.532 48.112-12.908 96.36-58.455 128.156-114.595 31.795-56.14 46.91-122.3 33.03-174.156C465.62 90.534 387.885 30.977 304.815 31zm-13.875 32.156c23.905.353 42.986 8.247 51.593 23.563 17.217 30.63-14.003 79.414-69.75 108.968-55.745 29.553-114.908 28.66-132.124-1.97-17.215-30.63 14.035-79.415 69.78-108.968 27.875-14.777 56.596-21.947 80.5-21.594zm175.968 122.656c25.964 97.013-56.265 238.79-147.094 263.157-55.228 14.817-136.132-7.745-196.906-49.5 136.662 62.11 320.135 11.945 344-213.658zM96.75 205.75c20.858 0 37.75 16.89 37.75 37.75s-16.89 37.78-37.75 37.78-37.78-16.92-37.78-37.78 16.922-37.75 37.78-37.75z\"/>","nest":"<path d=\"M191.75 36c-.61 0-1.205.03-1.813.063-19.428 1.067-38.773 19.964-52.562 50-6.317 13.76-11.322 29.556-14.72 46.156 17.484 7.632 32.42 23.69 44.314 43.624.655-1.813 1.332-3.606 2.03-5.375 13.44-34.055 35.15-61.243 65.094-64.532 1.87-.206 3.745-.3 5.594-.313 7.764-.057 15.32 1.54 22.593 4.5-4.258-10.827-9.193-21.016-14.655-30.125-16.466-27.458-36.948-43.967-55.875-44zm134.406 8.53c-1.23-.007-2.447.06-3.656.19-18.168 1.93-35.45 19.565-47.625 47.124 5 10.974 9.278 22.676 12.75 34.75 8.72 7.852 16.788 17.48 24.03 28.187 10.013 14.803 18.648 31.955 25.376 50.25 2.528-4.694 5.17-9.243 7.94-13.593 16.88-26.52 38.59-47.037 63.186-51.718-6.524-19.918-15.44-38.63-25.78-54.032-17.27-25.726-37.78-41.04-56.22-41.157zm-86.344 79.814c-1.23-.004-2.447.054-3.656.187-19.34 2.126-37.618 22.04-49.75 52.782-3.89 9.86-7.104 20.677-9.53 32.032 29.68.523 53.856 24.966 70.75 57 4.535 8.602 8.58 17.865 12.093 27.562 3.923-7.238 8.14-14.132 12.624-20.562 14.788-21.204 32.794-38.133 52.625-44.938-6.728-23.306-16.828-45.436-28.814-63.156-17.36-25.664-37.906-40.857-56.344-40.906zm-139.78 21.75c-13.674 0-27.782 8.808-40.313 24.187l25.655 14.845 5.72 3.28-1.19 6.47-4.155 22.875 11.094 10.594-12.875 13.53-14.782-14.06-3.626-3.5.907-4.94L70.343 198 49.03 185.687c-1.436 2.404-2.854 4.883-4.218 7.47-15.416 29.233-25.218 68.456-25.218 105.155 0 36.32 23.966 65.417 57.312 74.72 1.153-37.705 11.2-76.254 27.25-106.688 13.374-25.36 31.34-45.97 52.97-53.72.685-3.718 1.438-7.396 2.28-11.03-1.338-2.893-2.717-5.71-4.156-8.438-15.416-29.233-35.76-47.062-55.22-47.062zm318 11.344c-19.202.582-40.093 16.975-57.313 44.03-4.662 7.324-9.003 15.338-12.94 23.845.935.067 1.88.165 2.814.28 29.895 3.718 51.205 31.196 64.156 65.438 11.4 30.14 16.72 66.696 14.47 102.064 33.922-8.08 60.06-36.513 62.936-71.72 3.093-37.845-3.716-79.103-17.156-110.562-13.44-31.458-32.94-51.63-53.156-53.28-1.264-.104-2.533-.133-3.813-.095zM175.905 228.03c-19.458 0-39.802 17.8-55.22 47.032-15.415 29.234-25.217 68.49-25.217 105.188 0 44.28 35.612 77.875 80.436 77.875 24.69 0 46.663-10.8 61.375-27.656-5.878-14.5-8.246-30.682-6.155-47.5 2.715-21.84 8.586-43.758 16.813-64.064-4.268-15.86-9.988-30.842-16.844-43.844-15.417-29.233-35.73-47.03-55.188-47.03zm168.72 15.876c-1.23-.015-2.47.038-3.72.156-17.48 1.666-36.676 16.25-53.22 39.97-18.904 27.107-33.47 64.832-37.998 101.25-5.464 43.944 25.704 81.687 70.187 87.218 44.293 5.508 84.182-25.098 89.438-67.375 4.527-36.418-.34-76.556-12.032-107.47-.635-1.682-1.294-3.317-1.967-4.936l-30.094 24.342 7.092 7.594-13.656 12.75L344.72 322.5l-6.845-7.344 7.813-6.312 41.093-33.28c-10.798-18.223-24.287-29.64-38.5-31.408-1.206-.15-2.425-.234-3.655-.25z\"/>","tracks":"<path d=\"M82.651 20.988c10.808 16.773 23.587 31.3 41.244 45.234-10.27-2.274-33.336 2.031-43.177 15.039-2.1-20.28-4.55-40.888 1.933-60.273zm36.295 66.462c5.02.13 10.25 1.489 15.344 4.463 5.787 4 17.457 72.552 34.66 103.002 5.98-7.097 8.85-12.717 11.108-19.562 4.16-12.609 41.558-.75 38 11.594-13.773 47.772-10.911 71.476-7.4 99.714 1.062 8.552-20.608 22.253-42.143 20.043C121.3 268.906 51.98 189.15 53.415 181.91c2.844-14.343 28.053-25.924 39.717-11.164 8.72 11.034 19.825 25.756 31.803 32.237-12.897-31.854-38.887-89.693-34.584-98.92 4.314-9.253 15.768-16.944 28.595-16.612zm-97.74 26.9c15.159 12.472 33.13 20.169 46.809 27.768-15.075.5-24.481 8.642-30.895 18.983-7.286-7.79-15.178-28.902-15.914-46.75zm408.143 90.708c6.482 19.385 4.03 39.992 1.931 60.273-9.841-13.008-32.906-17.315-43.177-15.04 17.657-13.934 30.438-28.46 41.246-45.233zm-36.295 66.463c12.827-.333 24.28 7.359 28.595 16.611 4.303 9.227-21.69 67.064-34.586 98.918 11.978-6.48 23.086-21.203 31.805-32.236 11.664-14.76 36.871-3.18 39.715 11.164 1.435 7.239-67.886 86.999-115.1 124.797-21.535 2.21-43.203-11.494-42.14-20.045 3.51-28.238 6.37-51.94-7.403-99.713-3.558-12.344 33.842-24.205 38.002-11.596 2.259 6.845 5.126 12.467 11.106 19.565 17.203-30.45 28.875-99.003 34.662-103.002 5.095-2.975 10.324-4.333 15.344-4.463zm97.74 26.9c-.736 17.848-8.628 38.958-15.914 46.748-6.414-10.341-15.822-18.48-30.897-18.98 13.679-7.6 31.652-15.297 46.81-27.768z\"/>","stomp":"<path d=\"M387.297 18.652l-251.774.01c-.124 4.428-.422 14.18-.964 27.867C186.5 63.434 254.807 68.975 325.61 57.42c-72.027 25.076-141.894 26.496-191.73 5.232-3.015 67.725-10.782 196.98-29.12 305.727-.845 5.013-.154 8.124 3.345 12.6 1.728 2.207 4.318 4.64 7.842 7.22 2.784-24.286 8.503-43.332 16.29-57.122 4.497-7.96 9.708-14.24 15.908-18.517 4.65-3.207 10.037-5.195 15.52-5.478.456-.024.913-.035 1.37-.035 1.373 0 2.75.11 4.117.338 14.596 2.42 25.21 15.674 32.246 35.447 1.457 4.093 2.768 8.543 3.936 13.318 1.066-2.498 2.183-4.9 3.36-7.175 10.353-20.002 25.817-32.162 42.874-32.06 17.057.1 32.38 12.45 42.485 32.606 1.367 2.728 2.647 5.625 3.85 8.664 1.473-5.234 3.12-10.09 4.937-14.534 7.856-19.22 18.968-32.173 33.603-34.853 1.83-.335 3.68-.473 5.53-.424 5.545.146 11.057 1.963 15.83 5.113 1.25.826 2.456 1.737 3.625 2.723 2.545-8.37 6.03-15.033 10.61-20.147 4.988-5.568 11.92-8.603 18.855-8.932 4.16-.197 8.32.58 12.062 2.368 1.94.927 3.79 2.04 5.563 3.32-9.595-74.893-15.03-149.15-18-201.953-29.56 29.647-80.008 45.813-149.938 35.742 54.903-7.37 107.707-19.57 149.264-48.252-1.593-30.37-2.32-52.028-2.547-59.703zm-18.065 183.176c-42.22 57.425-116.806 84.51-209.462 3.883 71.528 41.004 143.948 53.202 209.462-3.882zm124.516 72.084l-66.42 19.035c1.79 13.926 3.725 27.8 5.81 41.49 2.51 9.12 4.24 19.328 4.958 30.504l.117 1.855-13.156 38.652-36.295 3.375-30.272 28.746-53.576-1.207-57.62 19.806-46.325-16.922h-57.687l-23.595-26.97c-11.65-6.07-20.408-12.245-26.303-19.782-6.198-7.924-8.643-17.8-7.055-27.22 2.77-16.42 5.286-33.446 7.596-50.73l-75.13-19.827v25.568L54.073 345.8c-4.9 6.93-7.85 14.124-9.344 21.612l-25.935 2.73v26.655l31.777 3.318c7.79 14.5 21.55 27.854 41.467 39.13l-66.208 53.85h40.592l85.767-29.906c22.747 6.086 48.21 10.74 75.34 12.85l6.224 17.054h69.885l6.82-18.81c7.366-.82 14.45-1.83 21.61-2.917l33.184 21.727h61.523l-22.873-39.832c6.556-2.5 12.808-4.76 18.69-7.592l71.154 10.244V426.19l-26.77-11.473c3.918-4.274 8.504-8.28 11.098-12.85l15.672-1.693v-33.358l-11.586-1.162c-3.538-15.35-13.428-28.966-30.367-41.466l41.953-30.186v-20.09zM390.8 305.11c-.16.01-.32.03-.478.064-1.27.263-2.504 1.284-4.36 3.357-3.58 3.997-7.863 13.738-9.858 29.59l15.343 51.685 19.82-1.844 8-23.5c-1.232-16.29-4.848-29.898-9.507-39.815-4.825-10.27-10.87-16.376-14.865-18.286-1.748-.836-2.966-1.32-4.094-1.25zm-226.327 20.595c-1.647.05-3.416.65-5.717 2.238-3.07 2.117-6.76 6.154-10.246 12.325-6.856 12.138-12.796 32.282-14.893 59.545l18.147 20.744h40.95c.402-31.988-3.358-55.824-8.923-71.46-5.886-16.54-13.403-22.563-17.696-23.275-.537-.09-1.073-.134-1.62-.117zm177.16 1.3c-.6 0-1.203.06-1.822.175-4.952.907-13.107 7.48-19.67 23.54-5.994 14.664-10.455 36.365-11.263 64.706.035.768.057 1.555.086 2.332l42.246.953 19.948-18.942c-.425-6.905-1.095-13.32-1.96-19.245l-11.75-39.578c-3.366-6.05-6.944-9.883-9.94-11.86-2.27-1.5-4.07-2.075-5.875-2.08zm-90.176 8.597c-8.047-.048-17.797 5.8-26.164 21.964-7.426 14.347-13.012 36.283-13.88 65.598l36.07 13.176 42.593-14.64c.02-1.963.04-3.923.088-5.84-1.248-25.464-6.24-44.84-12.818-57.964-8.17-16.294-17.842-22.247-25.89-22.294z\"/>","claw":"<path d=\"M134.3 25c-3.4 4.84-16.5 23.75-33.3 50.76-19.11 30.74-40.34 68.54-48.59 94.44-5.1 16-8.12 43.7-9.54 66.8-.16 2.5-.26 4.7-.38 7 3.37-1.1 6.84-1.6 10.37-1.7 6.1-.2 12.37.8 18.5 2.4 12.25 3.2 24.54 9.1 35.74 15.5 2.3 1.3 4.5 2.6 6.7 3.9 1.1-1.2 2.3-2.3 3.5-3.6 17.3-17.8 36.7-40.5 44.6-56.3h.1c7.8-15.7 25-52.2 39.2-90.1 12.5-33.31 22.1-68.58 22.3-89.1h-89.2zm154.2 0c.2 20.52 9.8 55.79 22.3 89.1 14.2 37.9 31.4 74.4 39.2 90.1h.1c7.9 15.8 27.3 38.5 44.6 56.3 1.2 1.3 2.4 2.4 3.5 3.6 2.2-1.3 4.4-2.6 6.7-3.9 11.2-6.4 23.5-12.3 35.7-15.5 6.1-1.6 12.4-2.6 18.5-2.4 3.5.1 7.1.7 10.5 1.7-.2-2.3-.3-4.5-.4-7-1.5-23.1-4.5-50.8-9.6-66.8-8.3-25.9-29.5-63.7-48.6-94.44-16.8-27.01-29.9-45.92-33.3-50.76h-89.2zM53.66 260.4c-3.79.1-6.97.8-9.4 2.2-5.7 3.3-10.44 10.8-13.52 21.7-3.07 10.9-4.36 24.6-4.53 37.8-.09 6.3.04 12 .28 17.2 32.82-26.6 60.25-44.6 85.41-55-4.1-2.7-8.6-5.6-13.74-8.5-10.34-5.9-21.56-11.1-31.38-13.7-4.3-1.1-8.21-1.7-11.67-1.7h-1.45zm403.14 0c-3.4 0-7.3.6-11.6 1.7-9.8 2.6-21 7.8-31.4 13.7-5.1 2.9-9.7 5.8-13.8 8.4 25.2 10.5 52.7 28.5 85.5 55.2.3-5.3.4-11 .3-17.3-.2-13.2-1.4-26.9-4.5-37.8-3.1-10.9-7.9-18.4-13.6-21.7-2.4-1.4-5.6-2.1-9.4-2.2h-1.5zm-303.4 31c-35.5 4.3-75.8 27.2-136.11 79.2 1.3 11.5 8.39 22.3 16.35 34.3 38.19-37.8 99.06-75.4 156.06-91.6-10.9-10.9-21.3-19.7-36.3-21.9zm205.2 0c-15 2.2-25.4 11-36.3 21.9 57 16.2 117.9 53.8 156 91.6 8-12 15.1-22.8 16.4-34.3-60.3-52-100.6-74.9-136.1-79.2zm-164.3 39.3c-22.7 6.6-46.7 17.1-69.4 29.8 28.6 12.4 52.3 34.6 69.3 59.2 16.3 23.4 27.3 48.8 30.6 71.6 10.8-25.1 15.2-59 9.6-90.2-4-22.3-12.8-43-26.3-58.1-4.1-4.6-8.7-8.7-13.8-12.3zm123.4 0c-5.1 3.6-9.7 7.7-13.8 12.3-13.5 15.1-22.3 35.8-26.3 58.1-5.6 31.2-1.2 65.1 9.6 90.2 3.3-22.8 14.3-48.2 30.6-71.6 17-24.6 40.7-46.8 69.4-59.2-22.8-12.7-46.8-23.2-69.5-29.8zm-212.8 41.6c-19.8 12.5-37.97 26.2-52.75 39.9 9.16 18.9 29.92 42 57.25 58.6 28.1 17 62 27.5 95.6 23.8-25.6-13.6-47.8-33.8-65.2-56.4-16.1-20.8-28-43.7-34.9-65.9zm302.2 0c-6.9 22.2-18.8 45.1-34.9 65.9-17.4 22.6-39.6 42.8-65.2 56.4 33.6 3.7 67.5-6.8 95.6-23.8 27.3-16.6 48.1-39.6 57.3-58.6-14.8-13.6-33-27.4-52.8-39.9z\"/>","tooth":"<path d=\"M246.752 23.084c-11.678-.205-23.032 4.26-30.952 15.185-29.264 40.35-39.476 78.655-44.385 111.545-4.514 30.235-13.507 59.72-30.952 87.02-31.793 49.747-65.857 124.744-73.587 167.612-5.864 32.387 17.908 42.053 32.705 7.008 20.245-47.94 65.492-125.768 122.06-103.955 51.25 19.76 8.924 122.165-22.193 152.43-25.11 24.424-7.202 51.466 23.944 22.192 33.048-31.062 78.602-92.256 94.612-147.172 6.233-21.378 15.79-43.776 34.458-54.315 39.813-22.477 81.826-58.99 98.115-133.156 10.9-49.632-50.517-70.425-85.266-37.378-5.303-50.398-46.487-62.34-76.51-35.624 10.073-27.63-16.357-50.942-42.048-51.394z\"/>","jaws":"<path d=\"M145.53 23.844L21.47 42.937v391.47l81.155-21.157 15.25 34.844L193.75 418l20.375 40.75 67.03-29.47 19.064 37.345 73.81-29 28.626 45.438 78.28-78.563-34.592.813-7.28.156-1.94-7.033L425.5 356.22l-.813.467-.406-1.062-52.717 40.25-11.844 9.03-2.97-14.592-8.78-43.188-46.5 36.5-11.47 9-3.406-14.188-11.25-47.406-52.53 25.69-10.283 5-2.874-11.033-9.28-35.468-34.876 17.124-9.22 4.562-3.624-9.625-49.78-131.436 17.468-6.625 10.53 27.81 43.626-21.436 54.28-31.28 5.407-3.126 4.938 3.812 33.344 25.656 35.25-31.687 6.25-5.626 6.28 5.625 29.97 27.06 25.124-24.28 6.28-6.094 6.5 5.875 30.938 28.032 28.157-32.312 5.717-6.53 6.938 5.186 32.97 24.625 5.936-35.5-51.655-69.75-17.625 28.314-42-53.563-28.375 45.845-125.72-16.406 30.75 28.374-12.655 13.75-105.97-97.75zm-.28 37.656l.344.438.094-.094 52.78 59.812-14 12.375-37.343-42.343-46.25 29.97-53.75-32.126L145.25 61.5zm310.375 114.563l-26.53 30.406 35.842 49.25 23.313-55.282-32.625-24.375zM313.97 178.5l-32.314 29.063 21.47 27.5 34.187-35.5-23.344-21.063zm68.092 2.75l-25.125 24.313-1.03 1 25.624 41.593 27.75-42.22-27.217-24.686zm-149.343 2.375l-26 15 20.81 37.5 32.44-31.53-27.25-20.97zm-45.282 65.188l-32.72 31.156L166.5 311.06l34.063-16.78-13.125-45.47zM259 264.342l-44.03 32.813.593 2.25 9.28 35.5 47.845-23.375L259 264.345zm74.094 12.282l-42.97 35.78.688 2.97 10.594 44.53 42.813-33.624-11.126-49.655zm66.562 14l-36.5 37.563.094.375 8.844 43.375 45.28-34.532-17.718-46.78zm86.406 29.47l-43.937 26.186 11.063 40.158 32.312-.75.563-65.594z\"/>","tail":"<path d=\"M88.22 18c0 34.61 17.48 55.27 37.38 77.31-18.7 11.29-39.56 9.09-58.95 9.79 20.62 18.5 51.75 25 73.95 16.9l29.7 50.7c10.6 2.6 21.6 3 32.4 2 4.2-19.5 9.5-39.1 15.9-58.1-12.4 7.8-19.9 15.7-29.1 26.1l-31.3-33.3c20.2-16.83 27.9-47.97 18.1-70.8-6.4 20.81-17.6 34.78-31.8 44.7-10.9-30.08-36.1-51.44-56.28-65.3zm204.28 0c-14.9 15.8-28.5 37.19-40 61.86-18.9 40.54-32.3 89.44-38.6 134.44v.1c-3.4 24.6 8.4 55.2 17.8 85.7 4.8 15.2 8.9 30.5 9.3 45.6.5 15.1-3 30.4-13.4 43.4-15.7 19.7-41.7 31.6-68.5 35.4-26.9 3.9-55.1-.2-74.89-16.3-28.04-22.9-41.38-52.1-42.48-87.1-.73-23.1 3.5-48.8 11.26-78-16.22 26.3-27.61 55.5-32.16 84.3-6.97 44.1 1.58 86.6 31.21 117.8 23.53 24.8 62.86 39 104.76 41.5 41.9 2.6 86-6.5 118-25.9 52.4-32.6 59.3-64.9 56.8-99.3-2.6-34.4-17.9-70.4-9.3-104.9 10.5-42.2 57.8-91.1 105.8-140.3 23-23.61 46.3-47.2 65.9-68.67V18zm186.9 160.3c-26.3 8.1-44.6 37.2-44.5 57.9l-45.6-4.1 1.9-9.8c2.4-12.7 1.7-25.8-.6-39.2-15.9 18.3-29.5 35.8-38.8 51.2 6.5 11.9 15.1 22.9 25.8 31.4l58.3-7.9c8.3 26 37.2 43 58.1 47.6v-.9c-12.8-18.6-24.7-30.4-27.9-51.4 9.3-.3 16.9 2.9 27.9-1.3v-27.3c-11.3.4-19.4 3.1-30.1 6.3-3.1-19.7 6.6-38.3 15.5-52.5z\"/>","volcano":"<path d=\"M22.617 18C18.6 55.817 39.13 114.441 82.812 150.084c20.272 13.078 45.532 20.176 90.76 10.582-28.04 20.036-55.985 22.522-81.12 13.705-1.643 40.508 11.725 74.172 44.724 92.262l6.955 1.222c21.812 3.834 40.577 6.554 57.064 8.432 43.104-1.027 100.974-15.253 107.075-46.26 5.206 17.254-9.413 35.895-30.461 49.03 26.736-1.788 45.89-6.535 70.962-9.475 22.66-4.201 45.749-6.556 58.325-33.943-23.624-1.572-66.964-39.445-58.032-67.244 10.233 24.752 34.786 46.375 67.489 50.714 32.703 4.34 61.938 2.762 74.445-21.978-36.742-7.347-83.678-30.66-83.576-58.164 16.688 23.709 57.832 37.588 86.578 41.625v-80.367c-17.403-2.517-37.61-11.616-61.531-29.284-28.723 10.61-70.17 1.176-89.559-29.08 14.67 9.377 77.616 31.436 119.41-5.072-2.133 13.262-9.706 23.112-20.197 29.512C457.929 79.04 478.128 83.145 494 83.523V18H88.773c22.714 38.433 60.376 43.69 115.748 20.205-24.984 30.51-67.748 36.77-92.095 26.365C90.848 55.35 76.912 36.484 68.246 18H22.617zm226.037 67.768c-5.42 16.917-20.469 33.547-37.633 42.332 24.37 28.568 86.318 17.27 125.743-10.262-5.5 12.47-35.01 35.827-65.514 39.754-26.159 3.367-55.237-2.426-74.432-24.31-25.83 5.454-53.32-9.415-63.224-37.438 13.345 8.887 35.848 29.588 62.52 21.334 15.613-5.072 39.086-16.757 52.54-31.41zm-100.34 201.021C121.427 356.821 61.605 426.55 13.25 494H494v-24.408c-18.259-18.204-37.237-36.465-55.416-54.854-40.17-40.634-76.623-81.875-91.643-126.703-7.676.987-15.006 2.15-22.4 3.317 10.79 34.39 34.149 70.833 49.826 97.377l-15.5 9.154c-15.667-26.527-40.826-64.792-52.338-103.836-6.255.86-12.756 1.639-19.756 2.242 1.656 18.171 7.979 36.85 17.04 55.934l-16.262 7.718c-9.69-20.41-16.917-41.23-18.754-62.57-9.018.304-18.917.282-29.969-.178-3.288 26.44-10.26 52.782-20.441 79.002l-16.78-6.513c9.565-24.633 16.081-49.149 19.223-73.569-8.416-.65-17.48-1.547-27.248-2.717-9.62 41.042-41.908 95.648-64.287 118.19l-12.774-12.682c17.29-17.414 49.743-72.746 59.051-107.87a1030.786 1030.786 0 0 1-27.258-4.245z\"/>","meteor":"<path d=\"M107.5 18c40.728 58.21-63.708 25.914-88.03 2.47 1.058 40.082 100.03 99.633 147.374 72.124C195.904 75.71 136.984 22.936 107.5 18zm97.75 57.28l.875 1.47c120.364 99-4.023 175.247-64.97 48.78 15.823 82.506-78.425 44.2-89.655-30.655C-13.17 230.463 172.715 231.293 178.438 324c3.23 52.3-77.82 19.908-113.875-48.844C308.49 797.09 814.024 262.64 205.25 75.28zm134.97 136.376c44.577 0 85.52 18.708 109.56 52.5 43.656 75.614-63.777 27.4-70.717-8.844-21.45 58.675 101.883 114.72 16 170.375 25.962-34.188 2.345-113.552-87.875-109.125 116.512 72.473 42.326 206.9-19.688 93.157 1.306 35.083 11.99 54.83 27.156 64.436-60.89-11.955-107.03-65.528-107.03-129.906 0-39.06 16.94-74.22 43.874-98.5 1.674 61.897 83.61 37.656 115.97 62.344-11.544-60.34-56.022-59.933-82.72-84.28 16.883-7.803 35.67-12.158 55.47-12.158zM234.72 309c-1.386.015-2.724.112-4.064.25 26.032 6.737 74.684 83.827 33.875 61.75 3.41 14.6 43.038 41.75 57.5 21.156 18.816-26.79-44.374-83.634-87.31-83.156z\"/>","jungle":"<path d=\"M149.2 18c9.9 3.02 19.6 7.05 29.3 11.88 1.6-3.95 3.3-7.92 5.1-11.88zm77 0c10.4 14.85 23.5 29.07 40.9 31.59 20.6 2.97 39.8-11.67 55.4-25.02 2.6-2.21 5-4.4 7.3-6.57h-28.1c-12.1 8.7-25 14.78-32 13.78-5.3-.77-12.6-6.2-19.8-13.78zm147.9 0c2.6 4.63 5.6 9.68 8.9 14.84 11.4 17.59 26 37.44 47 40.45 20.6 2.98 39.8-11.67 55.3-25.02 3.1-2.63 6-5.28 8.7-7.84V18h-3c-4.4 4.68-10.5 10.7-17.4 16.61-14.3 12.24-32.3 22.13-41.1 20.87-9.1-1.32-23.9-16.28-34.4-32.44-1.1-1.69-2.1-3.37-3.2-5.04zM109.5 29.79c-28.56.22-57.93 12.8-91.5 46.32v86.59c14.71 37.1 45.74 64.6 67.85 81.1 4.72-23.7 10.23-62.7-14.87-97.7l-11.26-15.7 19.26 1.5c48.02 3.6 75.42 13.9 111.92 39.6-4.7-14.2-10.9-27.7-21-38.8-16-17.6-41.8-30.9-89.72-33.23l-13.64-.65 5.98-12.28c6.71-13.76 23.04-22.34 47.58-27.52 17.4-3.66 39.6-5.25 66.4-4.24-25.8-14.98-50.1-24.43-73.9-24.97h-3.1zm53.6 42.7c-11.5.3-21.7 1.2-30.6 2.57-1.1 4.65-2.1 9.3-3.2 13.94 9.9 2.81 18.6 6.32 26.3 10.41 2.2-8.95 4.7-17.92 7.5-26.92zm126.7 1.58c-2 0-4.1.14-6.1.32-21.3 1.96-43.7 13.33-70.8 29.01 26.2.5 45.7 3.2 60.3 7.1 20.3 5.4 31.9 13.6 39.4 20.1l16.9 14.7-22.4 1.1c-23.9 1.1-40.4 5.4-51.5 11.2-11.2 5.8-17.3 12.9-21.3 21.6-4.9 10.6-6 24.3-6.4 38.9 11.5-14 22.1-22.8 34.5-27.6 18.2-7.1 37.6-4.8 65.7-1.5l13.8 1.6-7.1 11.9c-18.5 31.1-17 60.7-13 81.7 28.4-16 70.7-33.6 75.8-74.7l1.6-13 11.5 6.1c24.2 13 53.3 22.2 83.3 26.7v-44.1c-11.5-12.4-24.6-21.2-46-25.4l-15.8-3.1 10.9-11.8c14.9-16.2 27.9-23.5 44.3-25.8 2.1-.3 4.3-.5 6.6-.7v-15.7c-5.5-1-11.1-1.8-16.8-2.1-31.8-1.98-63.7 6.9-78.9 27.9l-6.4 8.8-7.4-7.9c-37.6-39.52-64.7-54-90-55.25-.9 0-1.8-.1-2.7-.1h-2zm-173 81.23c-10.3 65.3-14.5 129.3-14.8 190.5 10 .7 19.8 2.2 29.2 4.6 4-61.6 3.9-123.5 12.3-186.4-8.5-3.7-17.1-6.5-26.7-8.7zm296.1 68.4c-1.6 5.9-3.9 11.3-6.6 16.4 52.2 80.4 67.5 166.5 67.3 253.9H494V339.7c-12-34.8-26.4-69.1-46.3-102.5-12.1-3.8-23.8-8.3-34.8-13.5zM40.15 263.8c-6.87 0-14.44.7-22.15 2v17.7c9.33-1.6 18.09-2.6 24.4-2.3 10.47.5 28.01 5.5 42.8 10.9.26-6 .56-12 .91-18.1-14.16-4.9-29.83-9.5-42.87-10.1-1.01 0-2.04-.1-3.09-.1zm192.15 7.3c-18.5 14.7-30.9 19.7-45.2 21.4-9.7 1.2-20.7.5-34.5-.5-.3 6-.5 12-.8 18 13.8 1 25.6 1.7 37.4.4 17.5-2.1 34.2-9.2 54.3-25.2zm184.8 45.6c-7.7-.1-15.5.3-23.1 1-20.4 1.9-40.1 6.3-55.6 12.2-5.9 2.2-11 4.8-15.5 7.5 52.1 3 82.6 8 113.3 16.4l2.7.8c-3.5-12.7-7.7-25.2-12.6-37.7-3.1-.1-6.1-.2-9.2-.2zm-184.8 38.4c-19-.2-36.9 7.6-59.7 29.5l-6 5.8-6.2-5.5c-20.4-18.1-58.2-24.2-93.57-20.2-17.67 2-34.62 6.4-48.11 12.4-.25.1-.47.2-.72.3v7.2c14.54.4 26.81.7 36.57 1.6 16.8 1.6 30.15 5.6 45.93 15l18.2 10.7-20.37 5.7C56.66 429.1 31.63 457.7 30 494h4.33c14.88-8.5 27.26-17.1 40.11-24.1 17.34-9.5 36.46-15.5 61.76-11.4l6.6 1.1.8 6.7c1.3 10.2 4.8 19.4 9.7 27.7h70.3c-1.8-7.2-4.7-14.6-9.3-22.3l-8.5-14.1c22.8.1 47.1 3.2 64.7 9.4 14.3 5.1 33 13.7 57.7 25.3-2.3-16.7-7.4-30.9-18.6-42-14.5-14.5-40.7-25.3-89-27.6l-16.8-.8c16.1-24.8 37.1-31.2 60-34 15.1-1.7 34-2.3 56.4-2.2-25.6-12-47.2-22.6-65.9-27.4-7-1.8-13.7-3-20.2-3.2zm210.2 13.1l-4.6 2.3c-19.4 9.9-33 20.8-41.2 34.1-6.2 10.1-9.5 22-9.4 37 14.7-10.1 24-18.2 34.5-24 8.3-4.6 17.2-7.2 28.7-7.5-2-14.1-4.6-28.1-8-41.9z\"/>","fern":"<path d=\"M127.3 21.33c-8.7 3.74-15.7 8.57-21.9 14.01 2.5 4.7 5.1 9.41 7.7 14.15 7-9.07 12.3-19.08 14.2-28.16zM48.18 35.86c-5.47.1-11.12.85-17.01 2.59 10 10.35 26.54 17.43 42.18 19.64-2.11-6.66-4.07-13.27-5.87-19.82-6.24-1.52-12.63-2.5-19.3-2.41zm37.84 1.07C108.6 116.3 155.9 207.1 214 288.5c62.5 87.4 137.5 164 205.5 205.5h72c-164.8-99-318-289.6-405.48-457.07zm65.58.6c-13.3 5.97-23.5 14.12-32.2 23.3 3.4 5.95 6.8 11.92 10.3 17.9 10.7-12.79 19.2-27.8 21.9-41.2zm36.6 10.95c-22.2 10.69-37.1 26.96-49.9 44.61 4.1 6.72 8.2 13.41 12.5 20.21 17.8-18 33.2-43.11 37.4-64.82zM47.86 68.68c-7.31 0-14.87.83-22.77 2.76C39.3 83.57 63.75 91.51 85.6 92.93c-2.62-6.81-5.09-13.58-7.42-20.31-9.76-2.33-19.78-3.97-30.32-3.94zm174.64 9.48c-27.8 10.8-45.5 30.34-61.8 50.54 3.5 5.4 7.1 10.8 10.7 16.2 22.4-15.8 44.3-42.9 51.1-66.74zm28.1 25.94c-31.5 13.4-50.6 35-67.8 57.6 4.3 6.2 8.7 12.4 13.1 18.5 25.3-18.7 49-49.8 54.7-76.1zm-188.95 1.7c-13.6.1-27.46 2.2-41.65 7.7 20.75 13 53.96 18.8 81 16.3-3.28-7.3-6.4-14.5-9.38-21.7-9-1.3-18.07-2.2-27.25-2.3zm217.95 33.5c-32.7 13.9-52 36.7-69.7 60.2 4.3 5.8 8.7 11.6 13.1 17.3 26.1-18.4 50.7-50.5 56.6-77.5zm-185.3 3.3c-21.73.1-43.47 2.5-64.55 14.4 23.57 10.2 59.64 10.3 85.15 2.3-2.7-5.5-5.4-11.1-8-16.6-2.7-.1-5.5-.1-8.25-.1zm219.1 23.7c-35.5 15.8-57.7 40.9-77.3 67.3 6 7.7 12.2 15.4 18.5 23 27.7-23.8 52.5-59.6 58.8-90.3zm-194.5 16.2c-26.84-.1-54.08 2.3-82.42 17.9 26.28 12.8 69.92 12.3 101.12 1.6-3.7-6.5-7.2-12.9-10.7-19.4-2.7-.1-5.3-.1-8-.1zm236.3 17.3c-39.6 17.7-62.6 46.7-84 76.5 5.8 6.7 11.6 13.4 17.5 20 30.7-23.4 59.6-63 66.5-96.5zm-220.3 19.4c-26.8 0-54.11 2.3-82.43 17.9 27.65 13.4 74.43 12.3 105.73-.1-3.6-5.8-7.1-11.7-10.6-17.6-4.2-.1-8.4-.2-12.7-.2zm261.6 8.4c-43.5 19.8-68.7 52.4-92.2 85.9 6.7 7.1 13.4 14.2 20.2 21.2 33.4-26.1 64.5-69.9 72-107.1zm45.2 27.5c-49.1 23.2-75.2 59.8-100.4 96.5 6.7 6.6 13.5 13.2 20.3 19.6 37.7-27.1 73.5-76 80.1-116.1zm-270.9 1.8c-36.9 1.5-74.06 4.6-110.83 28.2 34.33 13.8 88.63 9.8 125.63-5.8-5-7.4-10-14.9-14.8-22.4zM486.3 280c-51 26.5-77.5 68.7-103.4 110.6 7.4 6.6 14.9 13.1 22.5 19.4 38.1-30.4 74.2-85 80.9-130zm-283.6 23.5c-40.4 3.3-81.2 6.4-120.44 34.1 37.84 13.2 98.04 4.6 133.74-15.9-4.5-6-8.9-12.1-13.3-18.2zM494 342.6c-32.9 25.6-48.1 51.6-68.4 83.8 8.8 6.9 17.6 13.6 26.5 20 17.5-14.4 28.2-33.1 41.9-53.3zm-257.2 5.7c-42.1 9.6-84.4 19.9-121 54.6 41.5 7.9 101.6-8.3 138.2-33.7-5.8-6.8-11.6-13.8-17.2-20.9zm35.5 41.9c-41.7 14.1-83.6 29.4-118.8 69.8 42.1 4.8 101.9-18.4 138-49.1-6.5-6.7-12.9-13.7-19.2-20.7zm45.4 46.9c-43.1 10.9-86.1 23.1-123.5 56.9h70.6c28.5-7.5 56.2-20 76.9-35-8-7-16-14.3-24-21.9zm46.4 40.4c-15.6 4.9-31.3 10-46.6 16.5h68.8c-7.4-5.2-14.8-10.7-22.2-16.5z\"/>","cave":"<path d=\"M195.344 71.438c-3.83.12-7.66 1.205-10.938 3.062-9.987 5.66-16.774 16.198-25.062 31.72-8.288 15.52-17.55 36.4-29.03 63.218C107.35 223.07 75.606 300.42 26.843 403.875a9.5 9.5 0 1 0 17.187 8.094c48.966-103.882 80.897-181.682 103.75-235.064 11.428-26.69 20.6-47.274 28.314-61.72 7.713-14.443 14.5-22.366 17.656-24.155 1.578-.893 1.773-.822 2.78-.56 1.01.26 3.136 1.348 6 4.155 5.732 5.614 13.667 17.43 23.314 34.438 19.077 33.636 45.742 87.6 87.28 159.03-4.364 10.616-9.077 21.89-14.25 33.876a9.5 9.5 0 1 0 17.438 7.53c20.076-46.524 33.676-83.107 44.188-106.47 5.256-11.68 9.878-20.06 13.22-24.093 1.445-1.745 2.452-2.466 2.874-2.718.654.36 4.928 3.886 9.937 12.468 5.162 8.84 11.398 22.197 18.845 40 14.893 35.605 34.786 89.108 63.313 162.656a9.503 9.503 0 1 0 17.718-6.875c-28.48-73.43-48.32-126.835-63.5-163.126-7.59-18.146-13.993-31.983-19.97-42.22-5.974-10.235-11.09-17.537-19.78-20.843-2.172-.825-4.596-1.186-7-1.124-2.403.062-4.778.553-6.875 1.47-4.192 1.83-7.355 4.77-10.186 8.186-5.664 6.836-10.42 16.147-15.938 28.407-6.044 13.432-12.834 30.485-20.97 50.624-37.043-64.58-61.375-113.65-79.81-146.156-9.925-17.5-17.96-30.198-26.564-38.626-4.3-4.213-8.923-7.548-14.53-9-1.403-.362-2.857-.563-4.313-.624-.547-.024-1.08-.018-1.626 0zm5.03 258.78c-39.944 0-72.31 39.03-72.31 87.188h144.624c0-48.16-32.368-87.187-72.313-87.187z\"/>"};
+const ICON_COLORS=["#57C24E","#FF9A4D","#2BC4B0","#A66CF5","#F26D6D","#3BA9F5"];
+function pic(word,size="1.15em"){
+  if(word.icon && ICONS[word.icon]){
+    const col=ICON_COLORS[[...word.w].reduce((a,c)=>a+c.charCodeAt(0),0)%ICON_COLORS.length];
+    return `<svg viewBox="0 0 512 512" style="width:${size};height:${size};vertical-align:middle;color:${col}"><g fill="currentColor">${ICONS[word.icon]}</g></svg>`;
+  }
+  return word.e||"⭐";
+}
+const CATEGORIES=[
+  {name:"Animals", emoji:"🦁", words:[
+    {w:"cat",e:"🐱"},{w:"dog",e:"🐶"},{w:"pig",e:"🐷"},{w:"bee",e:"🐝"},
+    {w:"cow",e:"🐮"},{w:"frog",e:"🐸"},{w:"duck",e:"🦆"},{w:"fish",e:"🐟"},
+    {w:"lion",e:"🦁"},{w:"monkey",e:"🐵"},{w:"ant",e:"🐜"},{w:"bear",e:"🐻"},
+    {w:"crab",e:"🦀"},{w:"fox",e:"🦊"},{w:"goat",e:"🐐"},{w:"hen",e:"🐔"},
+    {w:"owl",e:"🦉"},{w:"snake",e:"🐍"},{w:"whale",e:"🐳"},{w:"zebra",e:"🦓"},
+    {w:"wolf",e:"🐺"},{w:"sheep",e:"🐑"},{w:"horse",e:"🐴"},{w:"mouse",e:"🐭"},
+    {w:"tiger",e:"🐯"},
+  ]},
+  {name:"Things that go", emoji:"🚂", words:[
+    {w:"bus",e:"🚌"},{w:"car",e:"🚗"},{w:"boat",e:"⛵"},{w:"jet",e:"✈️"},
+    {w:"train",e:"🚂"},{w:"truck",e:"🚚"},{w:"bike",e:"🚲"},{w:"ship",e:"🚢"},
+    {w:"taxi",e:"🚕"},{w:"tractor",e:"🚜"},{w:"rocket",e:"🚀"},{w:"plane",e:"🛩️"},
+    {w:"van",e:"🚐"},{w:"sled",e:"🛷"},{w:"canoe",e:"🛶"},{w:"scooter",e:"🛴"},
+    {w:"helicopter",e:"🚁"},{w:"ferry",e:"⛴️"},{w:"ambulance",e:"🚑"},{w:"crane",e:"🏗️"},
+    {w:"wheel",e:"🛞"},{w:"road",e:"🛣️"},{w:"balloon",e:"🎈"},{w:"tram",e:"🚋"},
+    {w:"jeep",e:"🚙"},
+  ]},
+  {name:"At home", emoji:"🏠", words:[
+    {w:"hat",e:"🎩"},{w:"egg",e:"🥚"},{w:"ball",e:"⚽"},{w:"cake",e:"🎂"},
+    {w:"bed",e:"🛏️"},{w:"book",e:"📖"},{w:"cup",e:"☕"},{w:"door",e:"🚪"},
+    {w:"drum",e:"🥁"},{w:"kite",e:"🪁"},{w:"map",e:"🗺️"},{w:"milk",e:"🥛"},
+    {w:"net",e:"🥅"},{w:"ring",e:"💍"},{w:"sock",e:"🧦"},{w:"house",e:"🏠"},
+    {w:"key",e:"🔑"},{w:"fork",e:"🍴"},{w:"spoon",e:"🥄"},{w:"chair",e:"🪑"},
+    {w:"clock",e:"🕐"},{w:"lamp",e:"💡"},{w:"soap",e:"🧼"},{w:"broom",e:"🧹"},
+    {w:"bath",e:"🛁"},
+  ]},
+  {name:"Outside", emoji:"🌞", words:[
+    {w:"sun",e:"☀️"},{w:"star",e:"⭐"},{w:"moon",e:"🌙"},{w:"tree",e:"🌳"},
+    {w:"apple",e:"🍎"},{w:"rain",e:"🌧️"},{w:"cloud",e:"☁️"},{w:"flower",e:"🌼"},
+    {w:"leaf",e:"🍃"},{w:"snow",e:"❄️"},{w:"wind",e:"💨"},{w:"rock",e:"🪨"},
+    {w:"hill",e:"⛰️"},{w:"beach",e:"🏖️"},{w:"sea",e:"🌊"},{w:"rainbow",e:"🌈"},
+    {w:"grass",e:"🌱"},{w:"mushroom",e:"🍄"},{w:"worm",e:"🪱"},{w:"snail",e:"🐌"},
+    {w:"spider",e:"🕷️"},{w:"bug",e:"🐞"},{w:"lake",e:"🏞️"},{w:"volcano",e:"🌋"},
+    {w:"island",e:"🏝️"},
+  ]},
+  {name:"Sports", emoji:"🏆", words:[
+    {w:"run",e:"🏃"},{w:"swim",e:"🏊"},{w:"jump",e:"🤸"},{w:"kick",e:"🦵"},
+    {w:"throw",e:"🥎"},{w:"catch",e:"🧤"},{w:"goal",e:"🥅"},{w:"race",e:"🏁"},
+    {w:"team",e:"👥"},{w:"win",e:"🏆"},{w:"medal",e:"🥇"},{w:"golf",e:"⛳"},
+    {w:"tennis",e:"🎾"},{w:"rugby",e:"🏉"},{w:"cricket",e:"🏏"},{w:"hockey",e:"🏑"},
+    {w:"skate",e:"⛸️"},{w:"ski",e:"⛷️"},{w:"surf",e:"🏄"},{w:"bowling",e:"🎳"},
+    {w:"darts",e:"🎯"},{w:"boxing",e:"🥊"},{w:"judo",e:"🥋"},{w:"rowing",e:"🚣"},
+    {w:"climb",e:"🧗"},
+  ]},
+  {name:"Emotions", emoji:"😊", words:[
+    {w:"happy",e:"😊"},{w:"sad",e:"😢"},{w:"angry",e:"😠"},{w:"scared",e:"😨"},
+    {w:"silly",e:"🤪"},{w:"shy",e:"😳"},{w:"tired",e:"🥱"},{w:"calm",e:"😌"},
+    {w:"surprised",e:"😲"},{w:"brave",e:"💪"},{w:"worried",e:"😟"},{w:"excited",e:"🤩"},
+    {w:"grumpy",e:"😤"},{w:"cry",e:"😭"},{w:"love",e:"❤️"},{w:"kind",e:"💝"},
+    {w:"sleepy",e:"😴"},{w:"bored",e:"😐"},{w:"sick",e:"🤒"},{w:"hot",e:"🥵"},
+    {w:"cold",e:"🥶"},{w:"shocked",e:"🤯"},{w:"cheeky",e:"😜"},{w:"joy",e:"😁"},
+    {w:"proud",e:"🥹"},
+  ]},
+  {name:"Under the sea", emoji:"🦈", words:[
+    {w:"shark",e:"🦈"},{w:"octopus",e:"🐙"},{w:"squid",e:"🦑"},{w:"dolphin",e:"🐬"},
+    {w:"seal",e:"🦭"},{w:"shell",e:"🐚"},{w:"turtle",e:"🐢"},{w:"whale",e:"🐳"},
+    {w:"fish",e:"🐟"},{w:"crab",e:"🦀"},{w:"lobster",e:"🦞"},{w:"shrimp",e:"🦐"},
+    {w:"oyster",e:"🦪"},{w:"starfish",e:"🌟"},{w:"seaweed",e:"🌿"},{w:"anchor",e:"⚓"},
+    {w:"boat",e:"⛵"},{w:"ship",e:"🚢"},{w:"mermaid",e:"🧜"},{w:"pirate",e:"🏴‍☠️"},
+    {w:"treasure",e:"💎"},{w:"island",e:"🏝️"},{w:"wave",e:"🌊"},{w:"bubbles",e:"🫧"},
+    {w:"penguin",e:"🐧"},
+  ]},
+  {name:"Plants", emoji:"🌻", words:[
+    {w:"tree",e:"🌳"},{w:"flower",e:"🌼"},{w:"leaf",e:"🍃"},{w:"grass",e:"🌱"},
+    {w:"mushroom",e:"🍄"},{w:"rose",e:"🌹"},{w:"cactus",e:"🌵"},{w:"tulip",e:"🌷"},
+    {w:"sunflower",e:"🌻"},{w:"palm",e:"🌴"},{w:"herb",e:"🌿"},{w:"clover",e:"🍀"},
+    {w:"blossom",e:"🌸"},{w:"wheat",e:"🌾"},{w:"corn",e:"🌽"},{w:"pumpkin",e:"🎃"},
+    {w:"apple",e:"🍎"},{w:"cherry",e:"🍒"},{w:"lemon",e:"🍋"},{w:"berry",e:"🫐"},
+    {w:"nut",e:"🥜"},{w:"bean",e:"🫘"},{w:"carrot",e:"🥕"},{w:"seed",e:"🌱"},
+    {w:"petal",e:"🌸"},
+  ]},
+  {name:"Food", emoji:"🍕", words:[
+    {w:"banana",e:"🍌"},{w:"grapes",e:"🍇"},{w:"bread",e:"🍞"},{w:"cheese",e:"🧀"},
+    {w:"soup",e:"🍲"},{w:"honey",e:"🍯"},{w:"taco",e:"🌮"},{w:"pie",e:"🥧"},
+    {w:"sandwich",e:"🥪"},{w:"rice",e:"🍚"},{w:"pasta",e:"🍝"},{w:"chips",e:"🍟"},
+    {w:"burger",e:"🍔"},{w:"salad",e:"🥗"},{w:"melon",e:"🍉"},{w:"peach",e:"🍑"},
+    {w:"pear",e:"🍐"},{w:"orange",e:"🍊"},{w:"mango",e:"🥭"},{w:"donut",e:"🍩"},
+    {w:"cookie",e:"🍪"},{w:"lolly",e:"🍭"},{w:"popcorn",e:"🍿"},{w:"pizza",e:"🍕"},
+    {w:"cake",e:"🎂"},
+  ]},
+  {name:"Actions", emoji:"🏃", words:[
+    {w:"hop",e:"🦘"},{w:"clap",e:"👏"},{w:"wave",e:"👋"},{w:"hug",e:"🤗"},
+    {w:"dance",e:"💃"},{w:"sing",e:"🎤"},{w:"read",e:"📖"},{w:"draw",e:"✏️"},
+    {w:"paint",e:"🎨"},{w:"cook",e:"🍳"},{w:"eat",e:"🍽️"},{w:"drink",e:"🥤"},
+    {w:"walk",e:"🚶"},{w:"laugh",e:"😂"},{w:"talk",e:"💬"},{w:"listen",e:"👂"},
+    {w:"look",e:"👀"},{w:"think",e:"💭"},{w:"build",e:"🧱"},{w:"dig",e:"⛏️"},
+    {w:"jump",e:"🤸"},{w:"run",e:"🏃"},{w:"swim",e:"🏊"},{w:"sleep",e:"😴"},
+    {w:"smile",e:"😁"},
+  ]},
+  {name:"Birds", emoji:"🦜", words:[
+    {w:"bird",e:"🐦"},{w:"eagle",e:"🦅"},{w:"swan",e:"🦢"},{w:"penguin",e:"🐧"},
+    {w:"parrot",e:"🦜"},{w:"flamingo",e:"🦩"},{w:"peacock",e:"🦚"},{w:"owl",e:"🦉"},
+    {w:"duck",e:"🦆"},{w:"hen",e:"🐔"},{w:"chick",e:"🐤"},{w:"rooster",e:"🐓"},
+    {w:"turkey",e:"🦃"},{w:"dove",e:"🕊️"},{w:"dodo",e:"🦤"},{w:"goose",e:"🪿"},
+    {w:"crow",e:"🐦‍⬛"},{w:"robin",e:"🐦"},{w:"feather",e:"🪶"},{w:"nest",e:"🪺"},
+    {w:"egg",e:"🥚"},{w:"wing",e:"🪽"},{w:"fly",e:"🪽"},{w:"sing",e:"🎤"},
+    {w:"seed",e:"🌾"},
+  ]},
+  {name:"Dinosaurs", emoji:"🦖", pinFirst:true, hidden:true, words:[
+    {w:"T-Rex",icon:"T-Rex"},{w:"stegosaurus",icon:"stegosaurus"},{w:"triceratops",icon:"triceratops"},
+    {w:"raptor",icon:"raptor"},{w:"diplodocus",icon:"diplodocus"},{w:"pterodactyl",icon:"pterodactyl"},
+    {w:"dimetrodon",icon:"dimetrodon"},{w:"plesiosaur",icon:"plesiosaur"},{w:"mammoth",icon:"mammoth"},
+    {w:"trilobite",icon:"trilobite"},{w:"fossil",icon:"fossil"},{w:"bones",icon:"bones"},
+    {w:"skeleton",icon:"skeleton"},{w:"skull",icon:"skull"},{w:"egg",icon:"egg"},{w:"nest",icon:"nest"},
+    {w:"tracks",icon:"tracks"},{w:"stomp",icon:"stomp"},{w:"claw",icon:"claw"},{w:"tooth",icon:"tooth"},
+    {w:"jaws",icon:"jaws"},{w:"tail",icon:"tail"},{w:"volcano",icon:"volcano"},{w:"meteor",icon:"meteor"},
+    {w:"jungle",icon:"jungle"},{w:"fern",icon:"fern"},{w:"cave",icon:"cave"},
+  ]},
+];
+/* words can live in several categories, but Random plays each word once */
+const ALL_WORDS=[...new Map(CATEGORIES.filter(c=>!c.hidden).flatMap(c=>c.words).map(x=>[x.w,x])).values()];
+const LETTER_COLORS=["#F26D6D","#3BA9F5","#A66CF5","#F58BD0","#FFC53D","#57C24E","#FF9A4D","#2BC4B0"];
+
+let sp={order:[], idx:0, word:null, need:0};
+
+function buildCatGrid(){
+  const g=$("catGrid"); g.innerHTML="";
+  const mine=myLoad().filter(l=>l.words.length);
+  mine.forEach(l=>{
+    const b=document.createElement("button");
+    b.className="catCard mine";
+    b.innerHTML=`<div class="ce">${l.emoji}</div><div class="cn">${esc(l.name)}</div><div class="cc">${l.words.length} word${l.words.length===1?"":"s"}</div><div class="mineTag">Made by you</div>`;
+    b.onclick=()=>{ show("spell"); startSpellSession(l.words); };
+    g.appendChild(b);
+  });
+  CATEGORIES.filter(c=>!c.hidden).forEach(c=>{
+    const b=document.createElement("button");
+    b.className="catCard";
+    b.innerHTML=`<div class="ce">${c.emoji}</div><div class="cn">${c.name}</div><div class="cc">${c.words.length} words</div>`;
+    b.onclick=()=>{ show("spell"); startSpellSession(c.words, c.pinFirst); };
+    g.appendChild(b);
+  });
+  const all=document.createElement("button");
+  all.className="catCard all";
+  const pool=[...new Map([...ALL_WORDS, ...mine.flatMap(l=>l.words)].map(x=>[x.w.toLowerCase(),x])).values()];
+  all.innerHTML=`<div class="ce">🎲</div><div class="cn">Random!</div><div class="cc">All ${pool.length} words from every category, shuffled</div>`;
+  all.onclick=()=>{ show("spell"); startSpellSession(pool); };
+  g.appendChild(all);
+}
+
+function startSpellSession(words, pinFirst){
+  sp.pool=words; sp.pinFirst=!!pinFirst;
+  if(pinFirst){
+    // hack: keep the headline word first, shuffle everything after it
+    sp.order=[words[0], ...words.slice(1).sort(()=>Math.random()-.5)];
+  }else{
+    sp.order=[...words].sort(()=>Math.random()-.5);
+  }
+  sp.idx=0;
+  loadWord();
+}
+/* spaces and hyphens ("T-Rex") are shown in the ghost word but are never tiles */
+const isGap=c=>c===" "||c==="-";
+function skipSpaces(){ while(sp.need<sp.word.w.length && isGap(sp.word.w[sp.need])) sp.need++; }
+function loadWord(){
+  sp.word=sp.order[sp.idx];
+  sp.need=0;
+  $("spellBar").style.width=(100*sp.idx/sp.order.length)+"%";
+  $("wordEmoji").innerHTML=pic(sp.word);
+  $("spellCaption").textContent="Drag the letters into the word";
+
+  // ghost slots — shrink the type for long words so they fit the board
+  const slots=$("slots"); slots.innerHTML="";
+  const board=$("spellBoard");
+  const fit=Math.min(80, Math.max(30, (board.clientWidth-40)/sp.word.w.length/0.62));
+  [...sp.word.w].forEach(ch=>{
+    const d=document.createElement("span");
+    d.className="slot"; d.style.fontSize=fit+"px";
+    if(ch===" "){ d.textContent="\u00A0"; d.style.width=(fit*0.35)+"px"; d.style.display="inline-block"; }
+    else d.textContent=ch; // hyphens stay visible in the ghost word
+    slots.appendChild(d);
+  });
+  skipSpaces();
+
+  requestAnimationFrame(()=>scatterLetters());
+}
+
+/* how much space a letter needs — keeps every tile fully on the board */
+function tileFont(board){
+  const len = sp.word ? sp.word.w.length : 5;
+  const base = Math.min(76, Math.max(50, board.clientWidth*0.14));
+  return Math.max(40, base*Math.min(1, 6.5/len)); // smaller tiles for long words
+}
+function letterMargin(board){
+  return tileFont(board)*0.65+14; // half a tile plus padding, with room for the tilt
+}
+const clamp=(v,lo,hi)=>Math.max(lo,Math.min(hi,v));
+
+/* scatter colored letters around the board, avoiding the emoji + word zone and each other */
+function scatterLetters(){
+  const board=$("spellBoard");
+  board.querySelectorAll(".floater").forEach(f=>f.remove());
+  const W=board.clientWidth, H=board.clientHeight;
+  const m=letterMargin(board);
+  const chars=[...sp.word.w].filter(c=>!isGap(c));
+  const colors=[...LETTER_COLORS].sort(()=>Math.random()-.5);
+  const placed=[];
+  const keepOut=[ // rough rectangles to stay clear of (emoji, word)
+    {x:W*0.26,y:H*0.06,w:W*0.48,h:H*0.32},
+    {x:W*0.06,y:H*0.38,w:W*0.88,h:H*0.24},
+  ];
+  const gap=Math.max(m*1.6, (W*0.20)*Math.min(1, 6/chars.length));
+  const hits=(x,y)=>keepOut.some(r=>x>r.x-m&&x<r.x+r.w+m&&y>r.y-m&&y<r.y+r.h+m)
+    || placed.some(p=>Math.hypot(p.x-x,p.y-y)<gap);
+
+  const fs=tileFont(board);
+  chars.forEach((ch,i)=>{
+    let x,y,tries=0, g=gap;
+    do{
+      x=clamp(m+Math.random()*(W-2*m), m, W-m);
+      y=clamp(m+Math.random()*(H-2*m), m, H-m);
+      tries++;
+      if(tries%80===0) g*=0.85; // relax spacing if the board is crowded (long words)
+    }while((keepOut.some(r=>x>r.x-m&&x<r.x+r.w+m&&y>r.y-m&&y<r.y+r.h+m)
+            || placed.some(p=>Math.hypot(p.x-x,p.y-y)<g)) && tries<400);
+    x=clamp(x,m,W-m); y=clamp(y,m,H-m);
+    placed.push({x,y});
+    const b=document.createElement("button");
+    b.className="floater";
+    b.textContent=ch;
+    b.dataset.ch=ch;
+    b.style.color=colors[i%colors.length];
+    b.style.fontSize=fs+"px";
+    b.style.left=x+"px"; b.style.top=y+"px";
+    const rot=(Math.random()*30-15).toFixed(1);
+    b.style.transform=`translate(-50%,-50%) rotate(${rot}deg)`;
+    b._home={x,y,rot};
+    attachDrag(b);
+    board.appendChild(b);
+  });
+}
+
+/* ---------- drag & drop ---------- */
+function nextSlot(){ return $("slots").children[sp.need] || null; }
+
+function attachDrag(btn){
+  let dragging=false;
+  btn.addEventListener("pointerdown",e=>{
+    ac();
+    if(btn.classList.contains("snap")) return;
+    dragging=true;
+    btn.setPointerCapture(e.pointerId);
+    btn.classList.remove("home","no");
+    btn.classList.add("drag");
+    btn.style.transform="translate(-50%,-50%) rotate(0deg) scale(1.12)";
+    moveTo(e);
+    const s=nextSlot(); if(s) s.classList.add("hot"); // light up the slot we're aiming for
+    e.preventDefault();
+  });
+  btn.addEventListener("pointermove",e=>{ if(dragging) moveTo(e); });
+  const drop=e=>{
+    if(!dragging) return;
+    dragging=false;
+    btn.classList.remove("drag");
+    const s=nextSlot(); if(s) s.classList.remove("hot");
+    tryDrop(btn);
+  };
+  btn.addEventListener("pointerup",drop);
+  btn.addEventListener("pointercancel",drop);
+
+  function moveTo(e){
+    const board=$("spellBoard"), r=board.getBoundingClientRect();
+    const m=letterMargin(board)*0.5;
+    btn.style.left=clamp(e.clientX-r.left, m, r.width-m)+"px";
+    btn.style.top =clamp(e.clientY-r.top,  m, r.height-m)+"px";
+  }
+}
+
+function tryDrop(btn){
+  const slot=nextSlot();
+  const board=$("spellBoard"), r=board.getBoundingClientRect();
+  let onTarget=false;
+  if(slot){
+    const sr=slot.getBoundingClientRect(), br=btn.getBoundingClientRect();
+    const d=Math.hypot((sr.left+sr.width/2)-(br.left+br.width/2),
+                       (sr.top+sr.height/2)-(br.top+br.height/2));
+    onTarget = d < Math.max(70, sr.width*1.1);
+  }
+  const correct = slot && btn.dataset.ch===sp.word.w[sp.need];
+
+  if(onTarget && correct){
+    popSound();
+    const sr=slot.getBoundingClientRect();
+    btn.classList.add("snap");
+    btn.style.left=(sr.left+sr.width/2-r.left)+"px";
+    btn.style.top =(sr.top+sr.height/2-r.top)+"px";
+    btn.style.transform="translate(-50%,-50%) rotate(0deg) scale(.92)";
+    const color=btn.style.color;
+    sp.need++; skipSpaces();
+    const finished = sp.need>=sp.word.w.length;
+    setTimeout(()=>{
+      btn.remove();
+      slot.style.color=color;
+      slot.classList.add("filled");
+      if(finished) wordComplete();
+    }, 240);
+  }else{
+    // stay wherever it was dropped — just settle back to its playful tilt
+    if(onTarget && !correct){
+      dud();
+      btn.classList.remove("no"); void btn.offsetWidth; btn.classList.add("no");
+    }
+    btn.classList.add("home"); // reuse the soft transition for the settle
+    btn.style.transform=`translate(-50%,-50%) rotate(${btn._home.rot}deg)`;
+  }
+}
+
+function wordComplete(){
+  fanfare();
+  $("spellCaption").innerHTML="You spelled "+sp.word.w+"! "+pic(sp.word,"1.4em");
+  $("spellBar").style.width=(100*(sp.idx+1)/sp.order.length)+"%";
+  const last = sp.idx>=sp.order.length-1;
+  setTimeout(()=>{
+    openCheer({
+      emoji:pic(sp.word),
+      title:sp.word.w+"!",
+      sub:"You put every letter in its place",
+      nextLabel: last ? "Play again" : "Next word",
+      showNext:true,
+      again:()=>loadWord(),
+      next:()=>{ if(last){ startSpellSession(sp.pool, sp.pinFirst); } else { sp.idx++; loadWord(); } },
+    });
+  }, 650);
+}
+
+/* on resize, pull any stray letters back inside the board */
+addEventListener("resize",()=>{
+  if(!$("spell").classList.contains("on") || !sp.word) return;
+  const board=$("spellBoard"), m=letterMargin(board);
+  board.querySelectorAll(".floater").forEach(f=>{
+    const x=clamp(parseFloat(f.style.left), m, board.clientWidth-m);
+    const y=clamp(parseFloat(f.style.top),  m, board.clientHeight-m);
+    f.style.left=x+"px"; f.style.top=y+"px";
+    f._home={...f._home, x, y};
+  });
+});
+
+/* =========================================================
+   shared celebration card
+   ========================================================= */
+let cheerCbs={again:null,next:null};
+function openCheer(o){
+  $("cheerEmoji").innerHTML=o.emoji;
+  $("cheerTitle").textContent=o.title;
+  $("cheerSub").textContent=o.sub;
+  $("nextBtn").textContent=o.nextLabel||"Next";
+  $("nextBtn").style.display=o.showNext?"":"none";
+  $("againBtn").textContent=o.againLabel||"Again";
+  $("againBtn").style.display=o.showAgain===false?"none":"";
+  cheerCbs={again:o.again,next:o.next};
+  $("cheer").style.display="flex";
+}
+$("againBtn").onclick=()=>{ $("cheer").style.display="none"; cheerCbs.again&&cheerCbs.again(); };
+$("nextBtn").onclick=()=>{ $("cheer").style.display="none"; cheerCbs.next&&cheerCbs.next(); };
+
+/* =========================================================
+   GAME 3 — TRACE WORDS
+   Lowercase is ball-and-stick print: start at the top, curves go
+   anticlockwise, humps (h m n r b p) go "down, back up and over".
+   Units: top line 0, mid (x-height) 50, baseline 100, descender ~145.
+   Capitals reuse the alphabet game's formations, scaled to fit.
+   ========================================================= */
+const dot=(x,y)=>({dot:true,p:{x,y}});
+const LOWER={
+  a:{w:52,s:[join(arc(25,75,22,25,-30,-360),line([47,75],[47,50],[47,100]))]},
+  b:{w:52,s:[join(line([5,0],[5,100],[5,75]),arc(27,75,22,25,180,530))]},
+  c:{w:48,s:[arc(25,75,22,25,-40,-320)]},
+  d:{w:52,s:[join(arc(25,75,22,25,-30,-360),line([47,75],[47,0],[47,100]))]},
+  e:{w:50,s:[join(line([3,75],[47,75]),arc(25,75,22,25,0,-315))]},
+  f:{w:44,s:[join(arc(30,18,14,14,-20,-180),line([16,18],[16,100])),line([4,50],[32,50])]},
+  g:{w:52,s:[join(arc(25,75,22,25,-30,-360),line([47,75],[47,50],[47,125]),arc(29,125,18,18,0,160))]},
+  h:{w:52,s:[join(line([5,0],[5,100],[5,68]),arc(26,68,21,18,180,360),line([47,68],[47,100]))]},
+  i:{w:16,s:[line([8,50],[8,100]),dot(8,30)]},
+  j:{w:32,s:[join(line([26,50],[26,125]),arc(13,125,13,16,0,170)),dot(26,30)]},
+  k:{w:46,s:[line([5,0],[5,100]),line([40,50],[7,78],[42,100])]},
+  l:{w:16,s:[line([8,0],[8,100])]},
+  m:{w:58,s:[join(line([5,50],[5,100],[5,66]),arc(17,66,12,16,180,360),line([29,66],[29,100],[29,66]),arc(41,66,12,16,180,360),line([53,66],[53,100]))]},
+  n:{w:52,s:[join(line([5,50],[5,100],[5,68]),arc(26,68,21,18,180,360),line([47,68],[47,100]))]},
+  o:{w:50,s:[arc(25,75,22,25,-45,-405)]},
+  p:{w:52,s:[join(line([5,50],[5,145],[5,75]),arc(27,75,22,25,180,530))]},
+  q:{w:52,s:[join(arc(25,75,22,25,-30,-360),line([47,75],[47,50],[47,145]))]},
+  r:{w:42,s:[join(line([5,50],[5,100],[5,70]),arc(24,70,19,20,180,315))]},
+  s:{w:48,s:[join(arc(24,62,16,12,-20,-270),arc(24,87,17,13,-90,160))]},
+  t:{w:34,s:[line([16,15],[16,100]),line([4,50],[30,50])]},
+  u:{w:52,s:[join(line([5,50],[5,78]),arc(26,78,21,22,180,0),line([47,78],[47,50],[47,100]))]},
+  v:{w:48,s:[line([4,50],[24,100],[44,50])]},
+  w:{w:58,s:[line([3,50],[16,100],[29,60],[42,100],[55,50])]},
+  x:{w:48,s:[line([5,50],[43,100]),line([43,50],[5,100])]},
+  y:{w:50,s:[line([5,50],[27,98]),line([45,50],[10,145])]},
+  z:{w:48,s:[line([5,50],[43,50],[5,100],[43,100])]},
+};
+/* punctuation for sentences: tight ones sit closer to the letter before */
+LOWER["."]={w:12,tight:1,s:[dot(6,97)]};
+LOWER[","]={w:12,tight:1,s:[line([7,94],[3,114])]};
+LOWER["!"]={w:14,tight:1,s:[line([7,0],[7,72]),dot(7,97)]};
+LOWER["?"]={w:42,s:[join(arc(21,24,17,19,195,450),line([21,43],[21,70])),dot(21,97)]};
+LOWER["'"]={w:12,tight:1,s:[line([6,0],[6,22])]};
+/* capitals: reuse the alphabet game's strokes (cap height 230 → 100 units) */
+function upperGlyph(L){
+  const src=LETTERS[L]; if(!src) return null;
+  let lo=Infinity,hi=-Infinity;
+  src.forEach(s=>s.forEach(p=>{lo=Math.min(lo,p.x);hi=Math.max(hi,p.x);}));
+  const k=100/230;
+  return {w:(hi-lo)*k+8, s:src.map(s=>s.map(p=>({x:(p.x-lo)*k+4, y:(p.y-90)*k})))};
+}
+function resample(pts,sp){
+  const out=[pts[0]];
+  for(let i=1;i<pts.length;i++){
+    const a=pts[i-1],b=pts[i],d=Math.hypot(b.x-a.x,b.y-a.y);
+    if(d<1e-6) continue;
+    const n=Math.max(1,Math.round(d/sp));
+    for(let k=1;k<=n;k++) out.push({x:a.x+(b.x-a.x)*k/n,y:a.y+(b.y-a.y)*k/n});
+  }
+  return out;
+}
+function wLayout(text){
+  const GAP=16, SPACE=34, PAD=16, MINW=220;
+  let x=PAD; const strokes=[];
+  for(const ch of text){
+    if(ch===" "){ x+=SPACE; continue; }
+    const g=LOWER[ch]||upperGlyph(ch); if(!g) continue;
+    if(g.tight) x-=10;
+    for(const st of g.s){
+      if(st.dot) strokes.push({dot:true,pts:[{x:st.p.x+x,y:st.p.y}]});
+      else strokes.push({dot:false,pts:resample(st.map(p=>({x:p.x+x,y:p.y})),2.5)});
+    }
+    x+=g.w+GAP;
+  }
+  let width=x-GAP+PAD;
+  if(width<MINW){ const sh=(MINW-width)/2; strokes.forEach(s=>s.pts.forEach(p=>p.x+=sh)); width=MINW; }
+  return {strokes,width};
+}
+
+/* ---------- trace-words engine ---------- */
+const wsvg=$("wstage");
+let wt={text:"",strokes:[],width:220,phase:0,si:0,pi:0,tracing:false,miss:0,found:null};
+const wG={};
+const W_ROUNDS=3; // 0 wand → 1 dots → 2 on your own
+
+function say(t,queue){
+  try{
+    if(!("speechSynthesis" in window)||!t) return;
+    if(!queue) speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(t);
+    u.rate=.85; u.pitch=1.1;
+    const v=speechSynthesis.getVoices().find(v=>/^en[-_](NZ|AU|GB)/i.test(v.lang));
+    if(v) u.voice=v;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+const wPath=(s,upto)=> s.dot ? `M ${s.pts[0].x} ${s.pts[0].y} l 0 0.01`
+  : toPath(upto==null ? s.pts : s.pts.slice(0,upto+1));
+function wPPU(){ const m=wsvg.getScreenCTM(); return m&&m.a ? m.a : 1; }
+/* input mode: once a pen (Apple Pencil) touches the board, fingers are ignored (palm rejection) */
+const wIn={pen:false, id:null, hover:false};
+const wScale=()=>Math.max(wIn.pen?0.7:1, (wIn.pen?11:16)/(9.5*wPPU()));  // finger-sized, or pen-sized
+/* how far off the path a finger may wander, in letter units: about 22–28px on screen,
+   but capped so it can never swallow a whole small letter (an "a" is ~44 units wide) */
+const wTol=()=>{
+  let px = wt.phase===0 ? 22 : 28;
+  if(wIn.pen) px*=0.8;                           // a pen tip is precise: a little tighter
+  return Math.min(wt.phase===0 ? 16 : 19, Math.max(8, px/wPPU()));
+};
+const W_STEP=2.5;      // spacing between path points (see resample)
+const W_AHEAD=14;      // how far along the path the wand may move in one step, in units
+
+function wBuild(){
+  wsvg.innerHTML="";
+  wsvg.setAttribute("viewBox",`0 -24 ${wt.width} 186`);
+  [[0,""],[50," mid"],[100,""]].forEach(([y,c])=>
+    wsvg.appendChild(el("line",{x1:4,y1:y,x2:wt.width-4,y2:y,class:"wline"+c})));
+  const ghost=el("g",{});
+  wt.strokes.forEach(s=>ghost.appendChild(el("path",{class:"wghost",d:wPath(s)})));
+  wsvg.appendChild(ghost);
+  wG.hint=el("path",{class:"whint",d:""}); wsvg.appendChild(wG.hint);
+  wG.drawn=el("g",{}); wsvg.appendChild(wG.drawn);
+  wG.pulse=el("g",{}); wG.pulse.appendChild(el("circle",{class:"wpulse",cx:0,cy:0,r:6}));
+  wsvg.appendChild(wG.pulse);
+  wG.wand=el("g",{}); wG.wandIn=el("g",{}); wG.wand.appendChild(wG.wandIn);
+  wG.wandIn.appendChild(el("circle",{class:"whalo",r:15,cx:0,cy:0}));
+  wG.wandIn.appendChild(el("circle",{class:"wbody",r:9.5,cx:0,cy:0}));
+  wG.arrow=el("polygon",{class:"warrow",points:"-2.3,-3.6 4.6,0 -2.3,3.6"});
+  wG.wandIn.appendChild(wG.arrow);
+  wsvg.appendChild(wG.wand);
+  wG.spark=el("g",{}); wsvg.appendChild(wG.spark);
+}
+
+function wPaint(){
+  if(!wG.drawn) return;
+  wG.drawn.innerHTML="";
+  const done=Math.min(wt.si, wt.strokes.length);
+  for(let i=0;i<done;i++) wG.drawn.appendChild(el("path",{class:"wdrawn",d:wPath(wt.strokes[i])}));
+  const s=wt.strokes[wt.si];
+  if(s && !s.dot && wt.pi>0) wG.drawn.appendChild(el("path",{class:"wdrawn",d:wPath(s,wt.pi)}));
+  if(!s){ wG.hint.setAttribute("d",""); wG.wand.style.display="none"; wG.pulse.style.display="none"; return; }
+  const k=wScale(), here=s.pts[wt.pi];
+  if(wt.phase===0){
+    if(wt.holdWand){ wG.hint.setAttribute("d",""); wG.pulse.style.display="none"; return; }
+    wG.hint.setAttribute("d", s.dot ? "" : toPath(s.pts.slice(wt.pi)));
+    wG.wand.style.display="";
+    wG.wand.setAttribute("transform",`translate(${here.x},${here.y}) scale(${k})`);
+    if(s.dot || wt.tracing) wG.arrow.style.display="none";   // arrow only before you start
+    else{
+      wG.arrow.style.display="";
+      const ah=s.pts[Math.min(wt.pi+5, s.pts.length-1)];
+      wG.arrow.setAttribute("transform",`rotate(${Math.atan2(ah.y-here.y,ah.x-here.x)*180/Math.PI})`);
+    }
+    wG.pulse.style.display="none";
+  }else{
+    wG.hint.setAttribute("d",""); wG.wand.style.display="none";
+    // round 2: dot shows where to start; round 3: only after 2 misses
+    const showDot = !wt.tracing && (wt.phase===1 || wt.miss>=2 || wIn.hover);
+    wG.pulse.classList.toggle("hot", wIn.hover);
+    wG.pulse.style.display = showDot ? "" : "none";
+    if(showDot) wG.pulse.setAttribute("transform",`translate(${here.x},${here.y}) scale(${k})`);
+  }
+}
+
+function wChip(){
+  const c=$("wPhaseChip");
+  c.className = ["","dots","solo"][wt.phase];
+  c.textContent = ["🪄 Follow the wand","✨ Follow the dots","✏️ On your own!"][wt.phase];
+}
+function wBar(){
+  const n=wt.strokes.length||1;
+  $("wBar").style.width = (100*(wt.step*n + Math.min(wt.si,n))/(wt.plan.length*n))+"%";
+}
+function wSpark(x,y){
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches || !wG.spark) return;
+  const k=wScale(), g=el("g",{class:"sparkle"});
+  const jx=x+(Math.random()*12-6)*k, jy=y+(Math.random()*12-6)*k, r=(0.8+Math.random()*1.4)*k;
+  g.appendChild(el("path",{
+    d:`M ${jx} ${jy-r*2} L ${jx+r*.6} ${jy-r*.6} L ${jx+r*2} ${jy} L ${jx+r*.6} ${jy+r*.6} L ${jx} ${jy+r*2} L ${jx-r*.6} ${jy+r*.6} L ${jx-r*2} ${jy} L ${jx-r*.6} ${jy-r*.6} Z`,
+    fill: Math.random()<.5 ? "var(--spark)" : "var(--wand)"}));
+  wG.spark.appendChild(g); setTimeout(()=>g.remove(),650);
+}
+
+function wPoint(e){
+  const pt=wsvg.createSVGPoint(); pt.x=e.clientX; pt.y=e.clientY;
+  return pt.matrixTransform(wsvg.getScreenCTM().inverse());
+}
+/* Should this pointer be listened to? A pen always is. Once a pen has been used,
+   finger touches are treated as a resting palm and ignored. */
+function wAccept(e){
+  if(e.pointerType==="pen"){ if(!wIn.pen){ wIn.pen=true; wPaint(); } return true; }
+  return !wIn.pen || e.pointerType==="mouse";
+}
+wsvg.addEventListener("pointerdown",e=>{
+  if(!wAccept(e)) return;
+  ac();
+  if(wt.moving) return;
+  if(wt.tracing) return;                        // a second touch mid-stroke is a palm
+  const s=wt.strokes[wt.si]; if(!s) return;
+  const p=wPoint(e);
+  if(dist(p, s.pts[wt.pi]) <= wTol()+3){
+    if(s.dot){ wFinish(); return; }           // dots are a tap
+    wt.tracing=true; wt.sparkAt=wt.pi; wIn.id=e.pointerId;
+    try{ wsvg.setPointerCapture(e.pointerId); }catch(err){}
+    if(wt.phase===0) wsvg.classList.add("wgrab");   // the wand becomes the cursor
+    wPaint();
+  }else if(wt.phase===2){
+    wt.miss++; wPaint();                       // after 2 misses the start dot appears
+  }
+});
+
+/* Move the wand to the point on the path NEAREST the finger, looking only a short
+   distance ahead. It never moves backwards and can't be thrown past the finger.
+   If the finger is further along than that short window, step forward again. */
+function wAdvance(s,p){
+  const tol=wTol(), last=s.pts.length-1, span=Math.round(W_AHEAD/W_STEP);
+  let moved=false;
+  for(let guard=0; guard<12; guard++){
+    const end=Math.min(wt.pi+span, last);
+    let best=-1, bestD=Infinity;
+    for(let i=wt.pi+1;i<=end;i++){
+      const d=dist(p,s.pts[i]);
+      if(d<bestD){ bestD=d; best=i; }          // strict < : ties go to the earlier point
+    }
+    if(best<0 || bestD>tol) break;            // off the path: wand waits for the finger
+    // only move forward if the finger is actually nearer to the new point
+    if(dist(p,s.pts[wt.pi]) <= bestD) break;
+    wt.pi=best; moved=true;
+    if(best<end || end===last) break;         // finger is inside the window: done
+  }
+  return moved;
+}
+wsvg.addEventListener("pointermove",e=>{
+  if(!wt.tracing){
+    // pen hovering above the screen: light up the start dot as the tip gets close
+    if(e.pointerType==="pen" && wt.phase>0 && !wt.moving){
+      const s=wt.strokes[wt.si]; if(!s) return;
+      const near = dist(wPoint(e), s.pts[wt.pi]) <= wTol()*2.5;
+      if(near!==wIn.hover){ wIn.hover=near; wPaint(); }
+    }
+    return;
+  }
+  if(e.pointerId!==wIn.id) return;              // ignore the palm, follow the pen
+  const s=wt.strokes[wt.si]; if(!s) return;
+  // trackpads and fast fingers deliver several positions per frame: use them all
+  const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [];
+  let moved=false;
+  for(const ev of (evs.length?evs:[e])) moved = wAdvance(s, wPoint(ev)) || moved;
+  if(!moved) return;
+  if((wt.pi-wt.sparkAt)*W_STEP >= 7){ wt.sparkAt=wt.pi; wSpark(s.pts[wt.pi].x, s.pts[wt.pi].y); }
+  if(wt.pi>=s.pts.length-1) wFinish(); else wPaint();
+});
+const wEnd=e=>{
+  if(e && e.pointerId!==wIn.id && e.type!=="pointercancel") return;   // palm lifting off
+  wsvg.classList.remove("wgrab");
+  if(!wt.tracing) return;
+  wt.tracing=false; wIn.id=null; wIn.hover=false;
+  const s=wt.strokes[wt.si];
+  // lifting off right at the very end still counts
+  if(s && !s.dot && (s.pts.length-1-wt.pi)*W_STEP <= 4){ wFinish(); return; }
+  wPaint();
+};
+wsvg.addEventListener("pointerup",wEnd);
+wsvg.addEventListener("pointercancel",wEnd);
+wsvg.addEventListener("pointerleave",e=>{ if(e.pointerType==="pen" && wIn.hover){ wIn.hover=false; wPaint(); } });
+
+function wFinish(){
+  const s=wt.strokes[wt.si], end=s.pts[s.pts.length-1];
+  for(let i=0;i<6;i++) wSpark(end.x,end.y);
+  popSound();
+  wt.tracing=false; wt.si++; wt.pi=0; wt.miss=0;
+  wBar();
+  if(wt.si<wt.strokes.length){
+    if(wt.phase===0) wFadePop(); else wPaint();
+    return;
+  }
+  wPaint();                                    // show the finished word for a moment
+  if(wt.step<wt.plan.length-1){
+    setTimeout(()=>{
+      wt.step++; wt.phase=wt.plan[wt.step]; wt.si=0; wt.pi=0; wt.miss=0;
+      wChip(); wBar(); wPaint();
+      // in sentences, only prompt on the very first word: the chip says it after that
+      if(!wl.meta || wl.idx===0) say(wt.phase===1 ? "Now follow the dots." : "Now you try, all by yourself.");
+    },800);
+  }else wDone();
+}
+/* ---------- fade-and-pop: wand fades out, then pops in at the next start ---------- */
+const wReduced=()=>matchMedia("(prefers-reduced-motion: reduce)").matches;
+function wTween(ms,step,done){
+  const t0=performance.now();
+  (function f(now){
+    const t=Math.min(1,(now-t0)/ms); step(t);
+    if(t<1) requestAnimationFrame(f); else if(done) done();
+  })(t0);
+}
+function wPopIn(done){
+  const inner=wG.wandIn, hint=wG.hint;
+  if(wReduced()){ inner.style.opacity=1; inner.removeAttribute("transform"); hint.style.opacity=1; if(done) done(); return; }
+  const here=wt.strokes[wt.si] && wt.strokes[wt.si].pts[wt.pi];
+  if(here) for(let i=0;i<4;i++) wSpark(here.x,here.y);
+  wTween(300,t=>{
+    // overshoot then settle: 0.3 → 1.15 → 1
+    const sc = t<.65 ? .3+(1.15-.3)*(t/.65) : 1.15-(.15)*((t-.65)/.35);
+    inner.setAttribute("transform",`scale(${sc})`);
+    inner.style.opacity=Math.min(1,t*2.2);
+    hint.style.opacity=t;
+  },()=>{ inner.removeAttribute("transform"); inner.style.opacity=1; hint.style.opacity=1; if(done) done(); });
+}
+function wFadePop(){
+  wt.moving=true; wt.holdWand=true;
+  wPaint();                                    // ink the finished stroke, wand stays put
+  const inner=wG.wandIn;
+  const land=()=>{
+    wt.holdWand=false;
+    inner.style.opacity=0; wG.hint.style.opacity=0;
+    wPaint();                                  // move (invisibly) to the next start
+    setTimeout(()=>wPopIn(()=>{ wt.moving=false; }), 90);
+  };
+  if(wReduced()){ wt.holdWand=false; wt.moving=false; wPaint(); return; }
+  wTween(170,t=>{ inner.style.opacity=1-t; },land);
+}
+
+/* ---------- word list: the teacher types it, the game works through it ---------- */
+const wl={list:[], idx:0, timers:[], meta:null, plan:null};
+const wLater=(fn,ms)=>wl.timers.push(setTimeout(fn,ms));
+function wStop(){ wl.timers.forEach(clearTimeout); wl.timers=[]; wl.skip=null; $("cheer").style.display="none"; try{speechSynthesis.cancel();}catch(e){} }
+$("cheer").addEventListener("click",()=>{ if(wl.skip) wl.skip(); });
+
+function wDone(){
+  const meta=wMeta(), lastItem = wl.idx >= wl.list.length-1;
+  if(meta && meta.k<meta.n-1){
+    // middle of a sentence: a little chime, then straight on to the next word
+    tone(880,0,.12,"triangle",.12); tone(1175,.1,.16,"triangle",.12);
+    wLater(()=>{ wStop(); wl.idx++; wStart(wl.list[wl.idx]); },900);
+    return;
+  }
+  if(meta){
+    fanfare();
+    const sentence=wl.sentText[meta.s], ns=wl.sentences.length;
+    wLater(()=>say(sentence),450);
+    if(!lastItem){
+      wLater(()=>openCheer({ emoji:"📝", title:"You wrote a sentence!", sub:sentence, showNext:false, showAgain:false }),900);
+      const goNext=()=>{ wStop(); wl.idx++; wStart(wl.list[wl.idx]); };
+      wl.skip=goNext; wLater(goNext,4500);
+    }else{
+      wLater(()=>openCheer({
+        emoji:"🏆", title: ns>1 ? "All done!" : "You wrote a sentence!",
+        sub: ns>1 ? `You wrote all ${ns} sentences` : sentence,
+        againLabel: ns>1 ? "Do them again" : "Again", showAgain:true,
+        nextLabel:"New sentences", showNext:true,
+        again:()=>{ wl.idx=0; wStart(wl.list[0]); },
+        next:()=>{ wStop(); show("spick"); },
+      }),1000);
+      if(ns>1) wLater(()=>say("All done! Great writing.",true),1200);
+    }
+    return;
+  }
+  fanfare();
+  const last = lastItem;
+  wLater(()=>say(wt.text),450);
+  if(!last){
+    // short card, then straight on to the next word: no button to press
+    const next=wl.list[wl.idx+1];
+    wLater(()=>openCheer({
+      emoji: wt.found ? pic(wt.found) : "⭐",
+      title: "You wrote "+wt.text+"!",
+      sub: "Next word: "+next,
+      showNext:false, showAgain:false,
+    }),900);
+    const goNext=()=>{ wStop(); wl.skip=null; wl.idx++; wStart(wl.list[wl.idx]); };
+    wl.skip=goNext;                       // tapping the card skips the wait
+    wLater(goNext,3000);
+  }else{
+    const n=wl.list.length;
+    wLater(()=>openCheer({
+      emoji: "🏆",
+      title: n>1 ? "All done!" : "You wrote "+wt.text+"!",
+      sub: n>1 ? "You traced all "+n+" words" : "Wand, dots, then all by yourself",
+      againLabel: n>1 ? "Do them again" : "Again", showAgain:true,
+      nextLabel: "New words", showNext:true,
+      again: ()=>{ wl.idx=0; wStart(wl.list[0]); },
+      next: ()=>{ wStop(); show("wpick"); },
+    }),1000);
+    if(n>1) wLater(()=>say("All done! Great writing."),1900);
+  }
+}
+
+/* split on commas or new lines, tidy each word, keep the teacher's order */
+function wParse(text){
+  return (text||"").split(/[,\n;]+/).map(wClean).filter(Boolean).slice(0,20);
+}
+function wRefreshCount(){
+  const words=wParse($("wList").value), n=words.length;
+  $("wCount").textContent = n===0 ? "No words yet" : n===1 ? "1 word" : n+" words";
+  try{ localStorage.setItem("wandWordList",$("wList").value); }catch(e){}
+  const inList=new Set(words.map(w=>w.toLowerCase()));
+  document.querySelectorAll("#wChips .wchip[data-w]").forEach(b=>b.classList.toggle("added",inList.has(b.dataset.w.toLowerCase())));
+}
+function wAddWord(w){
+  const box=$("wList"), cur=box.value.trim().replace(/[,;\s]+$/,"");
+  if(wParse(cur).map(x=>x.toLowerCase()).includes(w.toLowerCase())) return;
+  box.value = cur ? cur+", "+w : w;
+  wRefreshCount();
+}
+function wBeginList(){
+  const list=wParse($("wList").value);
+  if(!list.length){
+    const box=$("wList"); box.classList.remove("shake"); void box.offsetWidth; box.classList.add("shake");
+    box.focus(); return;
+  }
+  $("wList").blur();
+  wStop();
+  wl.list=list; wl.idx=0; wl.meta=null; wl.sentences=null;
+  wl.plan=segPlan("wRounds","all");
+  wStart(list[0]);
+}
+
+
+function wClean(t){ return (t||"").replace(/[^A-Za-z ]/g,"").replace(/\s+/g," ").trim().slice(0,14); }
+function wStart(raw){
+  const text=wCleanAny(raw); if(!text) return;
+  const L=wLayout(text), plan=wl.plan||PLANS.all;
+  const bare=text.replace(/[^A-Za-z]/g,"").toLowerCase();
+  wt={text, strokes:L.strokes, width:L.width, plan, step:0, phase:plan[0], si:0, pi:0, tracing:false, miss:0, moving:false, holdWand:false,
+      found: ALL_WORDS.find(x=>x.w.toLowerCase()===bare) || myWord(bare) || null};
+  $("wCaption").innerHTML = wt.found ? pic(wt.found,"1em") : "";
+  if(!wl.list.length){ wl.list=[text]; wl.idx=0; wl.meta=null; }
+  const meta=wMeta();
+  $("wCounter").textContent = meta ? `📝 ${meta.s+1} of ${wl.sentences.length}`
+                            : wl.list.length>1 ? `${wl.idx+1} of ${wl.list.length}` : "";
+  document.querySelector("#wtrace .closeBtn").dataset.back = meta ? "spick" : "wpick";
+  wStrip();
+  show("wtrace");
+  requestAnimationFrame(()=>{
+    wBuild(); wChip(); wBar();
+    wG.wandIn.style.opacity=0; wG.hint.style.opacity=0; wPaint();
+    wt.moving=true; setTimeout(()=>wPopIn(()=>{ wt.moving=false; }),150);
+  });
+  const spoken=text.replace(/[.,!?]/g,"");
+  if(meta && meta.k===0){ say(wl.sentText[meta.s]); say(spoken,true); }   // hear the sentence, then the first word
+  else say(spoken);
+}
+
+const W_PRESETS=["mat","sat","map","tap","pin","sit","man","cat","dog","sun","pig","hat",
+                 "bed","fish","ship","frog","jump"];
+function buildChips(){
+  const c=$("wChips"); if(c.childElementCount) return;
+  W_PRESETS.forEach(w=>{
+    const b=document.createElement("button");
+    b.className="wchip"; b.textContent=w; b.dataset.w=w; b.onclick=()=>wAddWord(w);
+    c.appendChild(b);
+  });
+  const s=document.createElement("button");
+  s.className="wchip sur"; s.textContent="🎲 5 surprise words";
+  s.onclick=()=>{
+    const pool=ALL_WORDS.filter(x=>/^[a-z]{3,5}$/.test(x.w)).map(x=>x.w).sort(()=>Math.random()-.5);
+    $("wList").value=pool.slice(0,5).join(", "); wRefreshCount();
+  };
+  c.appendChild(s);
+}
+$("goWords").onclick=()=>{
+  buildChips();
+  try{ const saved=localStorage.getItem("wandWordList"); if(saved && !$("wList").value) $("wList").value=saved; }catch(e){}
+  wRefreshCount(); show("wpick");
+};
+$("wGo").onclick=wBeginList;
+$("wList").addEventListener("input",wRefreshCount);
+$("wList").addEventListener("animationend",e=>e.target.classList.remove("shake"));
+$("wList").addEventListener("keydown",e=>{
+  // Enter starts the list; Shift+Enter still makes a new line
+  if(e.key==="Enter" && !e.shiftKey){ e.preventDefault(); wBeginList(); }
+});
+$("wClear").onclick=()=>{ $("wList").value=""; wRefreshCount(); $("wList").focus(); };
+// leaving the game cancels any "next word" countdown
+document.querySelector('.closeBtn[data-back="wpick"]').addEventListener("click",wStop);
+$("wSay").onclick=()=>say(wt.text);
+addEventListener("resize",()=>{ if($("wtrace").classList.contains("on")) wPaint(); });
+
+
+/* =========================================================
+   shared helpers: help levels, escaping, your own word lists
+   ========================================================= */
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const noAscii=s=>String(s||"").replace(/[\x00-\x7F‘’“”]/g,"").trim().slice(0,8);  // emoji only
+
+/* how much help each word gets: which rounds it goes through */
+const PLANS={all:[0,1,2], wand:[0,2], dots:[1,2], own:[2]};
+const PLAN_LABELS=[["all","🪄 ✨ ✏️ All three"],["wand","🪄 ✏️ Wand, then own"],["dots","✨ ✏️ Dots, then own"],["own","✏️ On their own"]];
+function segBuild(id,key,def){
+  const box=$(id); let cur=def;
+  try{ cur=localStorage.getItem("edi.help."+key)||def; }catch(e){}
+  if(!PLANS[cur]) cur=def;
+  box.innerHTML="";
+  PLAN_LABELS.forEach(([k,l])=>{
+    const b=document.createElement("button");
+    b.textContent=l; b.dataset.k=k; if(k===cur) b.className="on";
+    b.onclick=()=>{
+      box.querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));
+      try{ localStorage.setItem("edi.help."+key,k); }catch(e){}
+    };
+    box.appendChild(b);
+  });
+}
+const segPlan=(id,def)=>{ const b=$(id).querySelector("button.on"); return PLANS[b?b.dataset.k:def]; };
+
+/* ---------- your own word lists (saved on this device) ---------- */
+const MY_KEY="edi.myLists";
+function myClean(l){
+  if(!l || typeof l!=="object") return null;
+  const name=String(l.name||"").replace(/\s+/g," ").trim().slice(0,24); if(!name) return null;
+  const seen=new Set(), words=[];
+  for(const x of (Array.isArray(l.words)?l.words:[])){
+    const w=String(x&&x.w||"").replace(/[‘’]/g,"'").replace(/[^A-Za-z \-']/g,"").replace(/\s+/g," ").trim().slice(0,14);
+    if(!/[A-Za-z]/.test(w) || seen.has(w.toLowerCase())) continue;
+    seen.add(w.toLowerCase());
+    const e=noAscii(x&&x.e);
+    words.push(e?{w,e}:{w});
+    if(words.length>=60) break;
+  }
+  return {id:String(l.id||"").replace(/[^a-z0-9]/gi,"").slice(0,20) || (Date.now().toString(36)+Math.random().toString(36).slice(2,6)),
+          name, emoji:noAscii(l.emoji)||"⭐", words};
+}
+function myLoad(){
+  try{ const a=JSON.parse(localStorage.getItem(MY_KEY)||"[]"); return Array.isArray(a)?a.map(myClean).filter(Boolean):[]; }
+  catch(e){ return []; }
+}
+function mySave(a){ try{ localStorage.setItem(MY_KEY,JSON.stringify(a)); return true; }catch(e){ return false; } }
+/* "dog 🐶, cat 🐱, ship" → [{w:"dog",e:"🐶"},{w:"cat",e:"🐱"},{w:"ship"}] */
+function myParseWords(text){
+  return (text||"").split(/[,\n;]+/).map(item=>({w:item, e:noAscii(item)}))
+    .map(x=>({w:x.w.replace(/[‘’]/g,"'").replace(/[^A-Za-z \-']/g,"").replace(/\s+/g," ").trim(), e:x.e}))
+    .filter(x=>/[A-Za-z]/.test(x.w));
+}
+const myWord=bare=>{ const b=bare.toLowerCase(); for(const l of myLoad()) for(const x of l.words) if(x.e && x.w.toLowerCase()===b) return x; return null; };
+
+/* =========================================================
+   GAME 4 — TRACE SENTENCES (reuses the word tracer, one word at a time)
+   ========================================================= */
+const wMeta=()=> wl.meta ? wl.meta[wl.idx] : null;
+function wCleanAny(t){ return (t||"").replace(/[‘’]/g,"'").replace(/[^A-Za-z .,!?']/g,"").replace(/\s+/g," ").trim().slice(0,16); }
+function wStrip(){
+  const meta=wMeta(), box=$("wSentence");
+  if(!meta){ box.style.display="none"; box.innerHTML=""; return; }
+  box.style.display="";
+  box.innerHTML=wl.sentences[meta.s].map((w,i)=>`<span class="${i<meta.k?"done":i===meta.k?"now":""}">${esc(w)}</span>`).join(" ");
+}
+$("wSentence").addEventListener("click",()=>{ const m=wMeta(); if(m) say(wl.sentText[m.s]); });
+
+/* one sentence per line (several on a line are split at . ! ?), up to 8 sentences of 10 words */
+function sParse(text){
+  const out=[];
+  const lines=(text||"").replace(/[‘’]/g,"'").replace(/[“”"]/g,"").replace(/([.!?])\s+/g,"$1\n").split(/\n+/);
+  for(const line of lines){
+    const words=[];
+    for(let t of line.trim().split(/\s+/)){
+      t=t.replace(/[^A-Za-z.,!?']/g,""); if(!t) continue;
+      if(!/[A-Za-z]/.test(t)){ if(words.length) words[words.length-1]=(words[words.length-1]+t).slice(0,16); continue; }
+      words.push(t.slice(0,16));
+    }
+    if(words.length) out.push(words.slice(0,10));
+    if(out.length>=8) break;
+  }
+  return out;
+}
+function sRefresh(){
+  const ss=sParse($("sList").value), n=ss.length, nw=ss.reduce((a,s)=>a+s.length,0);
+  $("sCount").textContent = n===0 ? "No sentences yet" : `${n} sentence${n>1?"s":""} · ${nw} words`;
+  try{ localStorage.setItem("wandSentList",$("sList").value); }catch(e){}
+  const have=new Set(ss.map(s=>s.join(" ").toLowerCase()));
+  document.querySelectorAll("#sChips .wchip").forEach(b=>b.classList.toggle("added",have.has(b.dataset.s.toLowerCase())));
+}
+function sBegin(){
+  const ss=sParse($("sList").value);
+  if(!ss.length){
+    const box=$("sList"); box.classList.remove("shake"); void box.offsetWidth; box.classList.add("shake");
+    box.focus(); return;
+  }
+  $("sList").blur();
+  wStop();
+  wl.sentences=ss; wl.sentText=ss.map(w=>w.join(" "));
+  wl.list=ss.flat();
+  wl.meta=ss.flatMap((ws,s)=>ws.map((_,k)=>({s,k,n:ws.length})));
+  wl.plan=segPlan("sRounds","wand"); wl.idx=0;
+  wStart(wl.list[0]);
+}
+const S_PRESETS=["I can see a cat.","The dog is big.","Sam sat on a mat.","Is it hot?","A fish can swim.",
+                 "Pat the pig.","I like to jump!","The sun is up.","Can you hop?"];
+function sBuildChips(){
+  const c=$("sChips"); if(c.childElementCount) return;
+  S_PRESETS.forEach(t=>{
+    const b=document.createElement("button");
+    b.className="wchip"; b.textContent=t; b.dataset.s=t;
+    b.onclick=()=>{
+      const box=$("sList"), cur=box.value.replace(/\s+$/,"");
+      if(sParse(cur).some(s=>s.join(" ").toLowerCase()===t.toLowerCase())) return;
+      box.value = cur ? cur+"\n"+t : t; sRefresh();
+    };
+    c.appendChild(b);
+  });
+}
+$("goSent").onclick=()=>{
+  sBuildChips(); segBuild("sRounds","sent","wand");
+  try{ const saved=localStorage.getItem("wandSentList"); if(saved && !$("sList").value) $("sList").value=saved; }catch(e){}
+  sRefresh(); show("spick");
+};
+$("sGo").onclick=sBegin;
+$("sList").addEventListener("input",sRefresh);
+$("sList").addEventListener("animationend",e=>e.target.classList.remove("shake"));
+$("sClear").onclick=()=>{ $("sList").value=""; sRefresh(); $("sList").focus(); };
+
+/* Trace words: help level + your own lists as one-tap chips */
+function wMineBuild(){
+  const box=$("wMine"), ls=myLoad().filter(l=>l.words.length);
+  box.innerHTML = ls.length ? '<div class="chipHead mine">Your lists</div><div class="mineChips" style="display:flex;flex-wrap:wrap;gap:8px"></div>' : "";
+  ls.forEach(l=>{
+    const b=document.createElement("button");
+    b.className="wchip list"; b.textContent=`${l.emoji} ${l.name}`;
+    b.onclick=()=>{ $("wList").value=l.words.map(x=>x.w).join(", "); wRefreshCount(); };
+    box.querySelector(".mineChips").appendChild(b);
+  });
+}
+$("goWords").addEventListener("click",()=>{ segBuild("wRounds","words","all"); wMineBuild(); });
+
+/* =========================================================
+   GROWN-UPS: gate + your word lists
+   ========================================================= */
+const NUMW=["zero","one","two","three","four","five","six","seven","eight","nine"];
+const gate={code:[],pos:0};
+function gateNew(){
+  gate.code=[0,1,2].map(()=>1+Math.floor(Math.random()*9)); gate.pos=0;
+  $("gateCode").textContent=gate.code.map(d=>NUMW[d]).join(" · ");
+  gateDots();
+}
+function gateDots(){ [...$("gateDots").children].forEach((d,i)=>d.classList.toggle("on",i<gate.pos)); }
+(function(){
+  const pad=$("gatePad");
+  [1,2,3,4,5,6,7,8,9,0].forEach(d=>{
+    const b=document.createElement("button"); b.textContent=d; if(d===0) b.className="zero";
+    b.onclick=()=>{
+      if(d===gate.code[gate.pos]){
+        gate.pos++; gateDots();
+        if(gate.pos>=gate.code.length) setTimeout(()=>{ gRender(); show("grown"); },150);
+      }else{
+        pad.classList.remove("shake"); void pad.offsetWidth; pad.classList.add("shake"); gateNew();
+      }
+    };
+    pad.appendChild(b);
+  });
+  pad.addEventListener("animationend",()=>pad.classList.remove("shake"));
+})();
+$("goGrown").onclick=()=>{ gateNew(); show("gate"); };
+
+function gMsg(t,err){ const m=$("gMsg"); m.textContent=t||""; m.classList.toggle("err",!!err); }
+function gRender(){
+  const box=$("gList"), ls=myLoad();
+  box.innerHTML = ls.length ? "" : '<div class="gEmpty">No lists yet. Make one for this week\'s words, a topic, or family names.</div>';
+  ls.forEach(l=>{
+    const row=document.createElement("div"); row.className="gItem";
+    row.innerHTML=`<span class="ge">${l.emoji}</span><span class="gn"><b>${esc(l.name)}</b><span>${l.words.length} word${l.words.length===1?"":"s"} · ${esc(l.words.map(x=>x.w).join(", "))}</span></span>`;
+    const ed=document.createElement("button"); ed.className="btn quiet"; ed.textContent="Edit"; ed.style.padding="10px 14px";
+    ed.onclick=()=>leOpen(l.id);
+    row.appendChild(ed); box.appendChild(row);
+  });
+}
+let leId=null;
+function leOpen(id){
+  const l=id ? myLoad().find(x=>x.id===id) : null;
+  leId=l ? l.id : null;
+  $("leTitle").textContent = l ? "Edit list" : "New list";
+  $("leName").value = l ? l.name : "";
+  $("leEmoji").value = l ? l.emoji : "";
+  $("leWords").value = l ? l.words.map(x=>x.e ? `${x.w} ${x.e}` : x.w).join(", ") : "";
+  $("leDelete").style.display = l ? "" : "none";
+  $("leDelete").textContent="Delete list"; $("leDelete").dataset.armed="";
+  $("leMsg").textContent=""; leCount(); show("listEdit");
+}
+function leCount(){
+  const l=myClean({name:"x",words:myParseWords($("leWords").value)}), n=l?l.words.length:0;
+  $("leCount").textContent = n===0 ? "No words yet" : n===1 ? "1 word" : `${n} words`;
+}
+$("leWords").addEventListener("input",leCount);
+$("gNew").onclick=()=>leOpen(null);
+$("leSave").onclick=()=>{
+  const raw={id:leId, name:$("leName").value, emoji:$("leEmoji").value, words:myParseWords($("leWords").value)};
+  if(!raw.name.trim()){ $("leMsg").textContent="Give the list a name."; $("leName").focus(); return; }
+  const l=myClean(raw);
+  if(!l.words.length){ $("leMsg").textContent="Add at least one word (letters only)."; $("leWords").focus(); return; }
+  const ls=myLoad(), i=ls.findIndex(x=>x.id===l.id);
+  if(i>=0) ls[i]=l; else ls.push(l);
+  if(!mySave(ls)){ $("leMsg").textContent="Couldn't save on this device (private browsing?)."; return; }
+  gRender(); gMsg(`Saved "${l.name}".`); show("grown");
+};
+$("leDelete").onclick=()=>{
+  const b=$("leDelete");
+  if(!b.dataset.armed){ b.dataset.armed="1"; b.textContent="Tap again to delete"; return; }
+  mySave(myLoad().filter(x=>x.id!==leId));
+  gRender(); gMsg("List deleted."); show("grown");
+};
+$("gExport").onclick=()=>{
+  const ls=myLoad();
+  if(!ls.length){ gMsg("There are no lists to save yet.",true); return; }
+  const blob=new Blob([JSON.stringify({app:"Letter Wand",version:1,lists:ls},null,2)],{type:"application/json"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="word-lists.json";
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+  gMsg(`Backup of ${ls.length} list${ls.length>1?"s":""} saved.`);
+};
+$("gImportBtn").onclick=()=>$("gImport").click();
+$("gImport").onchange=e=>{
+  const f=e.target.files&&e.target.files[0]; e.target.value=""; if(!f) return;
+  if(f.size>500000){ gMsg("That file is too big to be a word-list backup.",true); return; }
+  const r=new FileReader();
+  r.onload=()=>{
+    let data; try{ data=JSON.parse(r.result); }catch(err){ gMsg("That file isn't a word-list backup.",true); return; }
+    const incoming=(Array.isArray(data)?data:(data&&data.lists)||[]).map(myClean).filter(l=>l&&l.words.length).slice(0,50);
+    if(!incoming.length){ gMsg("No word lists found in that file.",true); return; }
+    const ls=myLoad(); let replaced=0;
+    incoming.forEach(l=>{
+      const i=ls.findIndex(x=>x.name.toLowerCase()===l.name.toLowerCase());
+      if(i>=0){ ls[i]={...l,id:ls[i].id}; replaced++; } else ls.push(l);
+    });
+    mySave(ls); gRender();
+    gMsg(`Loaded ${incoming.length} list${incoming.length>1?"s":""}`+(replaced?` (${replaced} with the same name replaced)`:"")+".");
+  };
+  r.readAsText(f);
+};
+
+</script>
+</body>
+</html>

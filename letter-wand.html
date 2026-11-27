@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="terminal">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Letter Wand</title>
+<meta name="description" content="A phonics app for young learners. Trace letters with a magic wand, drag letters to spell words, and trace whole words and sentences, with support that fades as children get more confident.">
+<link rel="canonical" href="https://danmilward.nz/letter-wand.html">
+<link rel="icon" href="dan.jpg">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<link rel="stylesheet" href="site.css">
+<style>
+  h1{ font-size:2rem; margin:0 0 8px; }
+  .objective.top{ margin:0 0 20px; background:var(--card); font-size:.95rem; }
+  /* these apps are built for an iPad held upright, so the frame is portrait */
+  .frame{
+    display:block; width:100%; max-width:560px; height:min(860px, 88vh); margin:0 auto;
+    border:var(--bw) solid var(--line); border-radius:var(--radius); background:#FFF9EF; overflow:hidden;
+  }
+  .frame iframe{ display:block; width:100%; height:100%; border:0; }
+  .tools{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin:14px 0 28px; }
+  .howto{ background:var(--card); border:var(--bw) solid var(--line); border-radius:var(--radius); padding:20px 24px; margin-bottom:20px; }
+  .howto h2{ margin:0 0 12px; font-size:1.25rem; }
+  .howto ul{ margin:0; padding-left:20px; }
+  .howto li{ margin:0 0 6px; }
+  .howto p{ margin:0 0 8px; }
+  @media print{ .topbar, .tools{ display:none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <a class="back" href="index.html">&larr; Back to Design for Learning</a>
+    <nav class="menu" aria-label="Site menu"></nav>
+  </div>
+  <h1>Letter Wand</h1>
+  <p class="lead" style="margin-bottom:16px">A phonics app I first made to help my son learn his letters and spelling. Trace letters with a magic wand, drag letters to spell picture words, then trace whole words and sentences. The help fades as children get more confident: follow the wand, then the dots, then on their own.</p>
+  <p class="objective top"><strong>Objective:</strong> Forming letters correctly, recognising the letters in a word and putting them in order, and writing whole words and sentences</p>
+
+  <div class="frame">
+    <iframe src="letter-wand/app.html" title="Letter Wand, a phonics and handwriting app" allow="autoplay"></iframe>
+  </div>
+  <div class="tools">
+    <a class="btn" href="letter-wand/app.html" target="_blank" rel="noopener">Open full screen</a>
+  </div>
+  <div class="howto">
+    <h2>How to use it</h2>
+    <ul>
+      <li><strong>Practise the alphabet:</strong> pick a letter, follow the wand to trace it, then trace it again with no help.</li>
+      <li><strong>Spell words:</strong> choose a category (animals, food, emotions, sport and more), then drag the letters into the word in order.</li>
+      <li><strong>Trace words:</strong> type a list of words separated by commas and press Go. Each word is traced in up to three rounds: with the wand, with just the starting dots, then on your own.</li>
+      <li><strong>Trace sentences:</strong> type one sentence per line. Each word is traced on its own, with the whole sentence shown above. Capital letters and punctuation are traced too.</li>
+      <li><strong>For grown-ups:</strong> make your own word lists for this week's words or a topic. They're saved on that device only.</li>
+      <li>Works best on an iPad, with an Apple Pencil if you have one. Use <strong>Open full screen</strong> for the best fit.</li>
+    </ul>
+  </div>
+  <div class="howto">
+    <h2>Privacy</h2>
+    <p>No student data leaves the device. There are no accounts, no ads and no tracking.</p>
+  </div>
+</div>
+<script src="site.js"></script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="terminal">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edi: writing practice for learners who need extra support</title>
+<meta name="description" content="Writing practice for structured literacy. Teachers type sentences or word chains; learners build each word from sound tiles (letters, digraphs and trigraphs) and then trace it. Made for Tier 2 and Tier 3 learners.">
+<link rel="canonical" href="https://danmilward.nz/edi.html">
+<link rel="icon" href="dan.jpg">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<link rel="stylesheet" href="site.css">
+<style>
+  h1{ font-size:2rem; margin:0 0 8px; }
+  .objective.top{ margin:0 0 20px; background:var(--card); font-size:.95rem; }
+  /* these apps are built for an iPad held upright, so the frame is portrait */
+  .frame{
+    display:block; width:100%; max-width:560px; height:min(860px, 88vh); margin:0 auto;
+    border:var(--bw) solid var(--line); border-radius:var(--radius); background:#FFF9EF; overflow:hidden;
+  }
+  .frame iframe{ display:block; width:100%; height:100%; border:0; }
+  .tools{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin:14px 0 28px; }
+  .howto{ background:var(--card); border:var(--bw) solid var(--line); border-radius:var(--radius); padding:20px 24px; margin-bottom:20px; }
+  .howto h2{ margin:0 0 12px; font-size:1.25rem; }
+  .howto ul{ margin:0; padding-left:20px; }
+  .howto li{ margin:0 0 6px; }
+  .howto p{ margin:0 0 8px; }
+  @media print{ .topbar, .tools{ display:none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <a class="back" href="index.html">&larr; Back to Design for Learning</a>
+    <nav class="menu" aria-label="Site menu"></nav>
+  </div>
+  <h1>Edi</h1>
+  <p class="lead" style="margin-bottom:16px">Writing practice I built during my teaching practicum for learners who need some extra scaffolding. The teacher types sentences or word chains, and the learner builds each word from sound tiles, then traces it. It's designed so a child can work on their own while the teacher is with the rest of the class.</p>
+  <p class="objective top"><strong>Objective:</strong> Spelling words by their sounds (letters, digraphs and trigraphs), forming letters correctly, and writing whole sentences with capital letters and punctuation</p>
+
+  <div class="frame">
+    <iframe src="edi/app.html" title="Edi, writing practice with sound tiles and tracing" allow="autoplay"></iframe>
+  </div>
+  <div class="tools">
+    <a class="btn" href="edi/app.html" target="_blank" rel="noopener">Open full screen</a>
+  </div>
+  <div class="howto">
+    <h2>How to use it</h2>
+    <ul>
+      <li>Tap <strong>Writing Practice</strong> and type one sentence or word chain per line, or tap one of the <strong>Writing Starters</strong> (sentences, and word chains such as ow, oo, aw, -ing and -ed).</li>
+      <li>Choose <strong>Build</strong> (drag sound tiles into the boxes), <strong>Write</strong> (trace each word), or <strong>Build + write</strong> (build the word, then trace it), and press Go.</li>
+      <li>Words are split into sounds automatically, so "night" becomes n · igh · t. To split a word your own way, put dots between the sounds, like <strong>h.o.t.h.ou.se</strong>. Learners don't see the dots.</li>
+      <li>The ☰ menu sets how much help each word gets when tracing, whether the word is shown while building, whether extra look-alike tiles appear, and turns the voice on or off.</li>
+      <li>There's no failing and no timer. Wrong tiles just wiggle and stay where they were dropped.</li>
+      <li>Works best on an iPad, with an Apple Pencil if you have one. Use <strong>Open full screen</strong> for the best fit.</li>
+    </ul>
+  </div>
+  <div class="howto">
+    <h2>Privacy</h2>
+    <p>No student data leaves the device. There are no accounts, no ads and no tracking.</p>
+  </div>
+</div>
+<script src="site.js"></script>
+</body>
+</html>
