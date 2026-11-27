@@ -302,7 +302,7 @@
   .hmBtn{border:none; background:#fff; border-radius:12px; width:44px; height:44px; font-size:22px; color:var(--ink);
     box-shadow:0 3px 0 #E8E1D3; cursor:pointer;}
   .hmBtn[aria-expanded="true"]{background:#F1EAFF; color:var(--wand-deep);}
-  .hmMenu{position:absolute; right:0; top:52px; z-index:30; width:250px; background:#fff; border-radius:18px;
+  .hmMenu{position:absolute; right:0; top:52px; z-index:30; width:290px; max-width:calc(100vw - 32px); background:#fff; border-radius:18px;
     padding:14px; box-shadow:0 10px 30px rgba(59,51,80,.18), 0 3px 0 #E8E1D3;}
   .hmHead{font-weight:800; font-size:14px; color:var(--soft); margin:0 0 10px 2px;}
   .hmSeg{flex-direction:column; margin:0;}
@@ -370,6 +370,18 @@
     transition:opacity .4s, transform .4s cubic-bezier(.2,1.4,.4,1); pointer-events:none;}
   #bWord.show{opacity:1; transform:none;}
   #bHint{text-align:center; color:var(--soft); font-weight:800; font-size:14px; margin-top:12px;}
+  .hmItem{display:flex; align-items:center; gap:8px; width:100%; border:none; background:none; padding:6px 2px;
+    cursor:pointer; font-family:'Nunito',sans-serif; font-weight:800; font-size:15px; color:var(--ink); text-align:left;}
+  .hmItem .ht{flex:none; white-space:nowrap;}
+  .hmItem .hv{flex:1; min-width:0; text-align:right; color:var(--soft); font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .hmItem .chevR{width:8px; height:8px; border-right:2.5px solid var(--soft); border-top:2.5px solid var(--soft); transform:rotate(45deg); margin:0 4px 0 2px;}
+  .modal{position:fixed; inset:0; z-index:40; background:rgba(59,51,80,.45); display:flex; align-items:center; justify-content:center; padding:20px;}
+  .modal[hidden]{display:none;}
+  .modalCard{background:var(--card); border-radius:24px; padding:22px 20px 18px; width:100%; max-width:360px;
+    box-shadow:0 12px 40px rgba(59,51,80,.25); animation:popIn .25s cubic-bezier(.2,1.4,.4,1);}
+  .modalCard h2{font-family:'Fredoka',sans-serif; font-size:24px; font-weight:700; margin:0 0 4px;}
+  .modalSub{color:var(--soft); font-weight:700; font-size:14px; margin:0 0 14px;}
+  .modalDone{width:100%; margin-top:14px;}
 </style>
 </head>
 <body>
@@ -521,8 +533,9 @@
     <div class="hmWrap">
       <button class="hmBtn" id="sMenuBtn" aria-label="Options" aria-expanded="false" aria-controls="sMenu">☰</button>
       <div class="hmMenu" id="sMenu" hidden>
-        <div class="hmHead">Help for each word</div>
-        <div class="seg hmSeg" id="sRounds"></div>
+        <button class="hmItem" id="helperBtn" aria-haspopup="dialog">
+          <span class="ht">🪄 Helper settings</span><span class="hv" id="helperCur"></span><span class="chevR" aria-hidden="true"></span>
+        </button>
         <hr class="hmLine">
         <div class="hmHead">Building words</div>
         <button class="hmToggle" id="showWordToggle" role="switch" aria-checked="true">
@@ -551,6 +564,16 @@
     <div class="foldHead">Word chains</div>
     <div id="sChains"></div>
   </details>
+</div>
+
+<!-- ============ HELPER SETTINGS WINDOW ============ -->
+<div class="modal" id="helperModal" hidden>
+  <div class="modalCard" role="dialog" aria-modal="true" aria-labelledby="helperTitle">
+    <h2 id="helperTitle">Helper settings</h2>
+    <p class="modalSub">How much help each word gets when it's traced.</p>
+    <div class="seg hmSeg" id="sRounds"></div>
+    <button class="btn primary modalDone" id="helperDone">Done</button>
+  </div>
 </div>
 
 <!-- ============ GROWN-UPS: GATE ============ -->
@@ -2035,7 +2058,18 @@ $("goAbout").onclick=()=>show("about");
   const btn=$("sMenuBtn"), m=$("sMenu");
   const set=open=>{ m.hidden=!open; btn.setAttribute("aria-expanded",open); };
   btn.onclick=e=>{ e.stopPropagation(); set(m.hidden); };
-  m.addEventListener("click",e=>{ e.stopPropagation(); if(e.target.closest("#sRounds button")) setTimeout(()=>set(false),180); });
+  m.addEventListener("click",e=>e.stopPropagation());
+  // Helper settings: a window with the help levels
+  const modal=$("helperModal");
+  const showCur=()=>{ const b=$("sRounds").querySelector("button.on"); $("helperCur").textContent=b?b.textContent.replace(/^[^A-Za-z]+/,""):""; };
+  const openModal=()=>{ set(false); if(!$("sRounds").childElementCount) segBuild("sRounds","edison.help","dotsOnly"); modal.hidden=false; const on=$("sRounds").querySelector("button.on"); (on||$("helperDone")).focus(); };
+  const closeModal=()=>{ modal.hidden=true; showCur(); btn.focus(); };
+  $("helperBtn").onclick=e=>{ e.stopPropagation(); openModal(); };
+  $("helperDone").onclick=closeModal;
+  modal.addEventListener("click",e=>{ e.stopPropagation(); if(e.target===modal) closeModal(); });
+  $("sRounds").addEventListener("click",()=>setTimeout(showCur,0));
+  document.addEventListener("keydown",e=>{ if(e.key==="Escape" && !modal.hidden) closeModal(); });
+  $("goSent").addEventListener("click",()=>setTimeout(showCur,0));
   document.addEventListener("click",()=>set(false));
   document.querySelectorAll(".closeBtn").forEach(b=>b.addEventListener("click",()=>set(false)));
 })();
