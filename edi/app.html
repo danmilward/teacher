@@ -336,6 +336,7 @@
   /* ---------- build words ---------- */
   .actSeg{margin:6px 0 12px;}
   .actSeg{flex-wrap:nowrap;}
+  .actSeg[hidden]{display:none;}
   .actSeg button{flex:1 1 auto; text-align:center; padding:10px 6px; white-space:nowrap; font-size:13.5px;}
   .sentStrip{text-align:center; font-family:'Fredoka',sans-serif; font-size:clamp(20px,5vw,28px); font-weight:600;
     color:#CFC7B8; margin:12px 4px 0; line-height:1.5; cursor:pointer;}
@@ -402,7 +403,7 @@
     <h3>How to use it</h3>
     <ol>
       <li>Tap <b>Writing Practice</b> and type one sentence on each line, or tap a sentence starter.</li>
-      <li>Choose <b>🧩 Build</b> (drag sound tiles to spell each word), <b>✏️ Write</b> (trace each word), or <b>Build + write</b> (build the word, then trace it).</li>
+      <li>Each word is built first, by dragging sound tiles into the boxes, then traced.</li>
       <li>Press <b>Go</b>. When tracing, each word gets the starting dots as help; to change that, tap <b>☰</b> at the top right.</li>
       <li>The sentence is read aloud. Each word is traced on its own, with the whole sentence shown above so it's clear where you are.</li>
       <li>When a sentence is finished it's read aloud again, and the next one starts by itself.</li>
@@ -537,11 +538,11 @@
       </div>
     </div>
   </div>
-  <h1 class="pickTitle">Create writing experience</h1>
-  <p class="pickSub">Create writing opportunities for your writers. Enter sentences, word chains, or whatever you're learning, one per line, then press Go.</p>
+  <h1 class="pickTitle">Writing Practice</h1>
+  <p class="pickSub">Create opportunities for your writers to practice writing sentences or word chains.</p>
   <textarea id="sList" rows="4" aria-label="Sentences, one per line" placeholder="Write a word chain or sentence for your learners to practice..." autocomplete="off" autocapitalize="sentences" autocorrect="off" spellcheck="false"></textarea>
   <div class="listMeta"><span id="sCount" hidden></span><button class="linkBtn" id="sClear" style="margin-left:auto">Clear</button></div>
-  <div class="seg actSeg" id="sAct"></div>
+  <div class="seg actSeg" id="sAct" hidden></div>
   <button class="btn primary goBtn" id="sGo">Go ✨</button>
   <details class="fold" id="sStarters" open>
     <summary><span>Writing Starters</span><span class="chev" aria-hidden="true"></span></summary>
@@ -2134,7 +2135,7 @@ function actBuild(){
     box.appendChild(b);
   });
 }
-const actGet=()=>{ const b=$("sAct").querySelector("button.on"); return b?b.dataset.k:"both"; };
+const actGet=()=>$("sAct").hidden ? "both" : (($("sAct").querySelector("button.on")||{}).dataset||{}).k || "both";
 
 /* every word in a list starts here, so the activity decides build or write */
 function itemStart(){
